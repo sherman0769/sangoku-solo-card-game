@@ -71,7 +71,15 @@ function getLogMarker(entry: string) {
     return "🛡";
   }
 
+  if (entry.includes("固守")) {
+    return "🛡";
+  }
+
   if (entry.includes("酒") || entry.includes("恢復") || entry.includes("回復")) {
+    return "🍶";
+  }
+
+  if (entry.includes("激勵")) {
     return "🍶";
   }
 

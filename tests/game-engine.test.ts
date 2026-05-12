@@ -42,19 +42,26 @@ describe("game engine", () => {
       "兵書",
       "破甲",
     ]);
-    expect(state.deck).toHaveLength(18);
+    expect(state.deck).toHaveLength(26);
     expect(state.log[0]).toBe("第一關｜黃巾兵登場：基礎敵人，行動單純，適合熱身。");
   });
 
-  it("includes three equipment cards in the starter deck", () => {
+  it("includes three equipment cards and eight tactical cards in the starter deck", () => {
     const equipmentCards = starterDeck.filter((card) => card.kind === "equipment");
+    const tacticalCards = starterDeck.filter((card) =>
+      ["combo", "guard", "rally", "fire"].includes(card.kind),
+    );
 
-    expect(starterDeck).toHaveLength(23);
+    expect(starterDeck).toHaveLength(31);
     expect(equipmentCards.map((card) => card.name)).toEqual([
       "青龍偃月刀",
       "的盧馬",
       "太平要術",
     ]);
+    expect(countCards(tacticalCards, "連斬")).toBe(2);
+    expect(countCards(tacticalCards, "固守")).toBe(2);
+    expect(countCards(tacticalCards, "激勵")).toBe(2);
+    expect(countCards(tacticalCards, "火攻")).toBe(2);
   });
 
   it("includes the first event set", () => {
@@ -574,6 +581,200 @@ describe("game engine", () => {
     expect(next.log[1]).toBe("太平要術發動，兵書額外抽 1 張。");
   });
 
+  it("uses combo slash for one damage without triggering Wusheng", () => {
+    const comboSlash = getCard("連斬");
+    const state = {
+      ...createGame(),
+      hand: [comboSlash],
+      enemyHealth: createGame().enemy.maxHealth,
+      discard: [],
+    };
+    const next = playCard(state, comboSlash.id);
+
+    expect(next.enemyHealth).toBe(state.enemyHealth - 1);
+    expect(next.log[0]).toBe("你使用連斬，造成 1 點傷害。");
+    expect(next.log.some((entry) => entry.includes("武聖"))).toBe(false);
+  });
+
+  it("draws one card with combo slash when the enemy is already wounded", () => {
+    const comboSlash = getCard("連斬");
+    const drawCard = getCard("斬");
+    const state = {
+      ...createGame(),
+      hand: [comboSlash],
+      deck: [drawCard],
+      discard: [],
+      enemyHealth: createGame().enemy.maxHealth - 1,
+    };
+    const next = playCard(state, comboSlash.id);
+
+    expect(next.enemyHealth).toBe(state.enemyHealth - 1);
+    expect(next.hand).toEqual([drawCard]);
+    expect(next.log).toContain("連斬追擊成功，抽 1 張牌。");
+  });
+
+  it("does not trigger Green Dragon Crescent Blade with combo slash", () => {
+    const equipment = getCard("青龍偃月刀");
+    const comboSlash = getCard("連斬");
+    const equipped = playCard(
+      {
+        ...createGame("zhao-yun"),
+        hand: [equipment],
+        discard: [],
+      },
+      equipment.id,
+    );
+    const next = playCard(
+      {
+        ...equipped,
+        hand: [comboSlash],
+        player: { ...equipped.player, morale: equipped.player.maxMorale },
+      },
+      comboSlash.id,
+    );
+
+    expect(next.enemyHealth).toBe(equipped.enemyHealth - 1);
+    expect(next.log.some((entry) => entry.includes("青龍偃月刀發動"))).toBe(false);
+  });
+
+  it("sets guardActive after using guard", () => {
+    const guard = getCard("固守");
+    const next = playCard(
+      {
+        ...createGame(),
+        hand: [guard],
+        discard: [],
+      },
+      guard.id,
+    );
+
+    expect(next.player.guardActive).toBe(true);
+    expect(next.log[0]).toBe("你使用固守，下一次受到傷害 -1。");
+  });
+
+  it("reduces the next incoming damage by one with guard and then clears it", () => {
+    const guarded = {
+      ...createGame(),
+      hand: [],
+      player: { ...createGame().player, guardActive: true },
+    };
+    const next = endTurn(guarded);
+
+    expect(next.player.health).toBe(4);
+    expect(next.player.guardActive).toBe(false);
+    expect(next.log).toContain("固守發動，傷害 -1。");
+  });
+
+  it("only consumes guard once against a fierce attack", () => {
+    const guarded = {
+      ...createGame(),
+      hand: [],
+      enemy: {
+        ...createGame().enemy,
+        actions: [{ kind: "fierce" as const, label: "猛攻", text: "造成較高傷害。" }],
+      },
+      player: { ...createGame().player, guardActive: true },
+    };
+    const next = endTurn(guarded);
+
+    expect(next.player.health).toBe(3);
+    expect(next.player.guardActive).toBe(false);
+    expect(next.log.filter((entry) => entry === "固守發動，傷害 -1。")).toHaveLength(1);
+  });
+
+  it("uses rally to draw one card and heal one health without exceeding max health", () => {
+    const rally = getCard("激勵");
+    const drawCard = getCard("斬");
+    const wounded = {
+      ...createGame(),
+      hand: [rally],
+      deck: [drawCard],
+      discard: [],
+      player: { ...createGame().player, health: 4 },
+    };
+    const next = playCard(wounded, rally.id);
+
+    expect(next.player.health).toBe(5);
+    expect(next.hand).toEqual([drawCard]);
+    expect(next.log[0]).toBe("你使用激勵，抽 1 張牌並回復 1 點體力。");
+
+    const fullHealth = playCard(
+      {
+        ...createGame(),
+        hand: [rally],
+        deck: [drawCard],
+        discard: [],
+      },
+      rally.id,
+    );
+    expect(fullHealth.player.health).toBe(fullHealth.player.maxHealth);
+  });
+
+  it("uses fire attack for one damage against a normal enemy", () => {
+    const fireAttack = getCard("火攻");
+    const state = {
+      ...createGame(),
+      hand: [fireAttack],
+      enemyCharged: false,
+      discard: [],
+    };
+    const next = playCard(state, fireAttack.id);
+
+    expect(next.enemyHealth).toBe(state.enemyHealth - 1);
+    expect(next.log[0]).toBe("你使用火攻，造成 1 點傷害。");
+    expect(next.log.some((entry) => entry.includes("武聖"))).toBe(false);
+  });
+
+  it("uses fire attack to deal two damage and clear enemy charge", () => {
+    const fireAttack = getCard("火攻");
+    const state = {
+      ...createGame(),
+      hand: [fireAttack],
+      enemyCharged: true,
+      discard: [],
+    };
+    const next = playCard(state, fireAttack.id);
+
+    expect(next.enemyHealth).toBe(state.enemyHealth - 2);
+    expect(next.enemyCharged).toBe(false);
+    expect(next.log[0]).toBe("火攻破勢，對蓄力中的敵人造成 2 點傷害，並打斷蓄力。");
+  });
+
+  it("does not trigger Wusheng or Green Dragon Crescent Blade with fire attack", () => {
+    const equipment = getCard("青龍偃月刀");
+    const fireAttack = getCard("火攻");
+    const equipped = playCard({ ...createGame(), hand: [equipment], discard: [] }, equipment.id);
+    const next = playCard(
+      {
+        ...equipped,
+        hand: [fireAttack],
+        player: { ...equipped.player, morale: equipped.player.maxMorale },
+      },
+      fireAttack.id,
+    );
+
+    expect(next.enemyHealth).toBe(equipped.enemyHealth - 1);
+    expect(next.log.some((entry) => entry.includes("武聖"))).toBe(false);
+    expect(next.log.some((entry) => entry.includes("青龍偃月刀發動"))).toBe(false);
+  });
+
+  it("clears guardActive after entering the next stage", () => {
+    const routeState = selectReward(
+      forceReward(
+        {
+          ...defeatFirstEnemy(),
+          player: { ...defeatFirstEnemy().player, guardActive: true },
+        },
+        "max-health",
+      ),
+      "max-health",
+    );
+    const next = selectRoute(routeState, "official-road");
+
+    expect(next.player.guardActive).toBe(false);
+    expect(next.phase).toBe("player");
+  });
+
   it("lets Zhuge Liang choose one observed card and bottom the rest", () => {
     const state = createGame("zhuge-liang");
     const observedCards = state.pendingObservation!.cards;
@@ -838,4 +1039,8 @@ function getCard(cardName: string) {
   }
 
   return card;
+}
+
+function countCards(cards: typeof starterDeck, cardName: string) {
+  return cards.filter((card) => card.name === cardName).length;
 }

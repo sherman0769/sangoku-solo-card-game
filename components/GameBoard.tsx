@@ -61,6 +61,7 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
   const playerStatuses = getPlayerStatuses({
     heroId: state.player.heroId,
     slashUsedThisTurn: state.player.slashUsedThisTurn,
+    guardActive: state.player.guardActive,
     wineBonus: state.player.wineBonus,
     enemyArmorBroken: state.enemyArmorBroken,
     phase: state.phase,
@@ -529,7 +530,7 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
           </div>
         </section>
         <footer className="mt-8 pb-2 text-center text-xs font-bold uppercase tracking-[0.18em] text-stone-500">
-          版本：v0.7.0 敵人池測試版
+          版本：v0.8.0 戰術卡測試版
         </footer>
       </div>
     </main>
@@ -729,12 +730,14 @@ function InfoPanel({ title, children }: { title: string; children: React.ReactNo
 function getPlayerStatuses({
   heroId,
   slashUsedThisTurn,
+  guardActive,
   wineBonus,
   enemyArmorBroken,
   phase,
 }: {
   heroId: string;
   slashUsedThisTurn: boolean;
+  guardActive: boolean;
   wineBonus: number;
   enemyArmorBroken: boolean;
   phase: string;
@@ -743,6 +746,7 @@ function getPlayerStatuses({
 
   return [
     skillStatus,
+    guardActive ? "固守中：下一次受到傷害 -1" : null,
     wineBonus > 0 ? `酒勢 +${wineBonus}` : null,
     enemyArmorBroken ? "破甲中" : null,
     phase === "defense" ? "等待防禦" : null,
@@ -848,6 +852,22 @@ function getCardToast(cardName: string, heroId: string): Pick<EventToast, "text"
 
   if (cardName === "破甲") {
     return { text: "破甲！", tone: "attack" };
+  }
+
+  if (cardName === "連斬") {
+    return { text: "⚔ 連斬！", tone: "attack" };
+  }
+
+  if (cardName === "固守") {
+    return { text: "固守！", tone: "guard" };
+  }
+
+  if (cardName === "激勵") {
+    return { text: "激勵！", tone: "heal" };
+  }
+
+  if (cardName === "火攻") {
+    return { text: "火攻！", tone: "attack" };
   }
 
   return { text: "🛡 閃避！", tone: "guard" };

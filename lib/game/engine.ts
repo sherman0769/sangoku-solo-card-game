@@ -43,6 +43,7 @@ function createStartingPlayer(hero: Hero) {
     health: hero.maxHp,
     morale: 3,
     maxMorale: 3,
+    guardActive: false,
     slashUsedThisTurn: false,
     wineBonus: 0,
     equippedItems: [],
@@ -66,6 +67,7 @@ const fallbackPlayer = {
   health: 5,
   morale: 3,
   maxMorale: 3,
+  guardActive: false,
   slashUsedThisTurn: false,
   wineBonus: 0,
   equippedItems: [],
@@ -280,6 +282,7 @@ export function endTurn(state: GameState): GameState {
   const baseDamage = action.kind === "fierce" ? next.enemy.attack + 1 : next.enemy.attack;
   const chargedBonus = next.enemyCharged ? 1 : 0;
   const damage = baseDamage + chargedBonus;
+  const damageSegments = action.kind === "fierce" ? [1, Math.max(0, damage - 1)] : [damage];
   next.enemyCharged = false;
 
   const attackMessage =
@@ -310,14 +313,14 @@ export function endTurn(state: GameState): GameState {
         enemyName: next.enemy.name,
         actionLabel: action.label,
         damage,
+        damageSegments,
       },
     }, `${attackMessage} ${defenseHint}`);
   }
 
-  return finishEnemyDamage(
-    appendLog(next, `${attackMessage} 你沒有可抵消的牌，受到 ${damage} 點傷害。`),
-    damage,
-  );
+  return finishEnemyDamage(next, damageSegments, (finalDamage) => (
+    `${attackMessage} 你沒有可抵消的牌，受到 ${finalDamage} 點傷害。`
+  ));
 }
 
 export function resolveDefense(state: GameState, useDodge: boolean): GameState {
@@ -328,6 +331,7 @@ export function resolveDefense(state: GameState, useDodge: boolean): GameState {
   const pendingDefense = state.pendingDefense;
   const next = cloneState(state);
   const damage = pendingDefense.damage;
+  const damageSegments = pendingDefense.damageSegments ?? [damage];
 
   if (useDodge) {
     const dodgeIndex = next.hand.findIndex((card) => card.kind === "dodge");
@@ -338,10 +342,9 @@ export function resolveDefense(state: GameState, useDodge: boolean): GameState {
     const defenseCardIndex = dodgeIndex === -1 ? slashAsDodgeIndex : dodgeIndex;
 
     if (defenseCardIndex === -1) {
-      return finishEnemyDamage(
-        appendLog(next, `你沒有可抵消的牌，受到 ${damage} 點傷害。`),
-        damage,
-      );
+      return finishEnemyDamage(next, damageSegments, (finalDamage) => (
+        `你沒有可抵消的牌，受到 ${finalDamage} 點傷害。`
+      ));
     }
 
     const [defenseCard] = next.hand.splice(defenseCardIndex, 1);
@@ -360,10 +363,9 @@ export function resolveDefense(state: GameState, useDodge: boolean): GameState {
     );
   }
 
-  return finishEnemyDamage(
-    appendLog(next, `你選擇承受攻擊，受到 ${damage} 點傷害。`),
-    damage,
-  );
+  return finishEnemyDamage(next, damageSegments, (finalDamage) => (
+    `你選擇承受攻擊，受到 ${finalDamage} 點傷害。`
+  ));
 }
 
 export function getCurrentEnemyAction(state: GameState): EnemyAction {
@@ -595,6 +597,65 @@ function applyCardEffect(state: GameState, card: Card) {
     return;
   }
 
+  if (card.kind === "combo") {
+    const wasEnemyWounded = state.enemyHealth < state.enemy.maxHealth;
+    const damage = card.value;
+    const notes: string[] = [];
+    state.enemyHealth = Math.max(0, state.enemyHealth - damage);
+
+    if (wasEnemyWounded) {
+      const drawn = drawCards(state, 1);
+      state.deck = drawn.deck;
+      state.hand = drawn.hand;
+      state.discard = drawn.discard;
+      notes.push("連斬追擊成功，抽 1 張牌。");
+    }
+
+    state.log = [`你使用連斬，造成 ${damage} 點傷害。`, ...notes, ...state.log].slice(
+      0,
+      logLimit,
+    );
+    return;
+  }
+
+  if (card.kind === "guard") {
+    state.player.guardActive = true;
+    state.log = ["你使用固守，下一次受到傷害 -1。", ...state.log].slice(0, logLimit);
+    return;
+  }
+
+  if (card.kind === "rally") {
+    const drawn = drawCards(state, 1);
+    state.deck = drawn.deck;
+    state.hand = drawn.hand;
+    state.discard = drawn.discard;
+    state.player.health = Math.min(state.player.maxHealth, state.player.health + 1);
+    state.log = ["你使用激勵，抽 1 張牌並回復 1 點體力。", ...state.log].slice(
+      0,
+      logLimit,
+    );
+    return;
+  }
+
+  if (card.kind === "fire") {
+    if (state.enemyCharged) {
+      state.enemyCharged = false;
+      state.enemyHealth = Math.max(0, state.enemyHealth - 2);
+      state.log = [
+        "火攻破勢，對蓄力中的敵人造成 2 點傷害，並打斷蓄力。",
+        ...state.log,
+      ].slice(0, logLimit);
+      return;
+    }
+
+    state.enemyHealth = Math.max(0, state.enemyHealth - card.value);
+    state.log = [`你使用火攻，造成 ${card.value} 點傷害。`, ...state.log].slice(
+      0,
+      logLimit,
+    );
+    return;
+  }
+
   if (card.kind === "pierce") {
     state.enemyGuarding = false;
     state.enemyArmorBroken = true;
@@ -639,6 +700,7 @@ function advanceEnemy(state: GameState, eventOptions?: EventRollOptions): GameSt
         player: {
           ...state.player,
           morale: state.player.maxMorale,
+          guardActive: false,
           slashUsedThisTurn: false,
           wineBonus: 0,
           equipmentUsageThisTurn: createTurnEquipmentUsage(),
@@ -661,6 +723,7 @@ function advanceEnemy(state: GameState, eventOptions?: EventRollOptions): GameSt
     player: {
       ...state.player,
       morale: state.player.maxMorale,
+      guardActive: false,
       slashUsedThisTurn: false,
       wineBonus: 0,
       equipmentUsageThisTurn: createTurnEquipmentUsage(),
@@ -672,11 +735,36 @@ function advanceEnemy(state: GameState, eventOptions?: EventRollOptions): GameSt
   };
 }
 
-function finishEnemyDamage(state: GameState, damage: number): GameState {
+function finishEnemyDamage(
+  state: GameState,
+  damage: number | number[],
+  message: string | ((finalDamage: number) => string),
+): GameState {
   const next = cloneState(state);
-  next.player.health = Math.max(0, next.player.health - damage);
+  const damageSegments = Array.isArray(damage) ? damage : [damage];
+  let finalDamage = 0;
+  const notes: string[] = [];
+
+  damageSegments.forEach((segmentDamage) => {
+    let nextSegmentDamage = segmentDamage;
+
+    if (next.player.guardActive) {
+      nextSegmentDamage = Math.max(0, nextSegmentDamage - 1);
+      next.player.guardActive = false;
+      notes.push("固守發動，傷害 -1。");
+    }
+
+    finalDamage += nextSegmentDamage;
+  });
+
+  next.player.health = Math.max(0, next.player.health - finalDamage);
   next.phase = "player";
   next.pendingDefense = undefined;
+  next.log = [
+    typeof message === "function" ? message(finalDamage) : message,
+    ...notes,
+    ...next.log,
+  ].slice(0, logLimit);
 
   if (next.player.health <= 0) {
     return appendLog({ ...next, status: "lost" }, `${next.player.name}體力歸零，戰敗。`);
@@ -693,6 +781,7 @@ function startNextTurn(state: GameState): GameState {
   next.phase = "player";
   next.pendingDefense = undefined;
   next.player.morale = next.player.maxMorale;
+  next.player.guardActive = false;
   next.player.slashUsedThisTurn = false;
   next.player.wineBonus = 0;
   next.player.equipmentUsageThisTurn = createTurnEquipmentUsage();
@@ -730,6 +819,7 @@ function startNextStage(
   next.turn += 1;
   next.phase = "player";
   next.player.morale = next.player.maxMorale;
+  next.player.guardActive = false;
   next.player.slashUsedThisTurn = false;
   next.player.wineBonus = 0;
   next.player.equipmentUsageThisTurn = createTurnEquipmentUsage();

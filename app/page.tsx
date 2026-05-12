@@ -22,7 +22,7 @@ export default function Home() {
             一將入亂世，闖關定天下
           </p>
           <p className="mt-6 max-w-2xl text-base leading-8 text-stone-300 sm:text-lg">
-            選擇關羽、趙雲或諸葛亮，以斬、閃、酒、兵書與破甲迎戰三路敵人。看穿敵人的攻勢，
+            選擇關羽、趙雲或諸葛亮，以斬、閃、酒、兵書、破甲與戰術卡迎戰三路敵人。看穿敵人的攻勢，
             在隨機敵人池、事件、路線選擇與戰後三選一強化中養成流派，最後挑戰 Boss 呂布。
           </p>
           <section className="mt-8 rounded-xl border border-amber-700/40 bg-black/30 p-5 shadow-[0_18px_45px_rgba(0,0,0,0.28)]">
@@ -95,6 +95,7 @@ export default function Home() {
             ["單人卡牌闖關", "每回合管理士氣與手牌，在攻防之間找出突破口。"],
             ["三選一戰後強化", "擊敗敵人後選擇強化，讓武將逐步形成戰鬥風格。"],
             ["隨機敵人池", "每局遭遇不同挑戰，前兩關不再固定敵人。"],
+            ["戰術卡牌", "連斬、固守、激勵、火攻，讓每回合選擇更豐富。"],
             ["隨機事件考驗", "戰鬥之後可能遇到補給、策略或危險事件。"],
             ["路線選擇", "風險越高，報酬越好，下一關也會更凶險。"],
             ["挑戰最終 Boss 呂布", "前兩關累積優勢，第三關迎戰真正的亂世猛將。"],
@@ -113,11 +114,12 @@ export default function Home() {
           <h2 className="text-lg font-black text-red-100">玩法簡述</h2>
           <p className="mt-3 max-w-4xl text-sm leading-7 text-stone-300">
             使用「斬」造成傷害，「閃」在敵人攻擊時抵消傷害，「酒」強化下一次斬，
-            「兵書」補充手牌，「破甲」打開敵人防守。擊敗三關即可通關。
+            「兵書」補充手牌，「破甲」打開敵人防守；連斬、固守、激勵、火攻提供額外戰術選擇。
+            擊敗三關即可通關。
           </p>
         </section>
         <p className="mt-8 text-xs font-bold uppercase tracking-[0.18em] text-stone-500">
-          版本：v0.7.0 敵人池測試版
+          版本：v0.8.0 戰術卡測試版
         </p>
       </section>
     </main>

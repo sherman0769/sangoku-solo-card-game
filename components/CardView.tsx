@@ -90,6 +90,46 @@ function getCardStyle(card: Card) {
     };
   }
 
+  if (card.name === "連斬") {
+    return {
+      label: "攻擊",
+      card: "border-rose-500/70 bg-rose-950/90 hover:border-rose-300",
+      bar: "bg-rose-300",
+      badge: "border-rose-300/50 bg-rose-500/15 text-rose-100",
+      cost: "border-rose-200/70 bg-rose-600 text-white",
+    };
+  }
+
+  if (card.name === "固守") {
+    return {
+      label: "防禦",
+      card: "border-cyan-500/70 bg-cyan-950/90 hover:border-cyan-300",
+      bar: "bg-cyan-300",
+      badge: "border-cyan-300/50 bg-cyan-500/15 text-cyan-100",
+      cost: "border-cyan-200/70 bg-cyan-600 text-white",
+    };
+  }
+
+  if (card.name === "激勵") {
+    return {
+      label: "策略",
+      card: "border-lime-500/70 bg-emerald-950/90 hover:border-lime-300",
+      bar: "bg-lime-300",
+      badge: "border-lime-300/50 bg-lime-500/15 text-lime-100",
+      cost: "border-lime-200/70 bg-lime-600 text-white",
+    };
+  }
+
+  if (card.name === "火攻") {
+    return {
+      label: "策略 / 攻擊",
+      card: "border-orange-500/80 bg-red-950/90 hover:border-orange-300",
+      bar: "bg-orange-300",
+      badge: "border-orange-300/50 bg-orange-500/15 text-orange-100",
+      cost: "border-orange-200/70 bg-orange-600 text-white",
+    };
+  }
+
   return {
     label: "破防",
     card: "border-orange-500/70 bg-orange-950/90 hover:border-orange-300",

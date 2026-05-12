@@ -1,4 +1,14 @@
-export type CardKind = "attack" | "dodge" | "wine" | "draw" | "pierce" | "equipment";
+export type CardKind =
+  | "attack"
+  | "dodge"
+  | "wine"
+  | "draw"
+  | "pierce"
+  | "equipment"
+  | "combo"
+  | "guard"
+  | "rally"
+  | "fire";
 
 export type EnemyActionKind = "attack" | "fierce" | "guard" | "charge";
 
@@ -74,6 +84,7 @@ export interface PendingDefense {
   enemyName: string;
   actionLabel: string;
   damage: number;
+  damageSegments?: number[];
 }
 
 export interface PendingObservation {
@@ -116,6 +127,7 @@ export interface PlayerState {
   health: number;
   morale: number;
   maxMorale: number;
+  guardActive: boolean;
   slashUsedThisTurn: boolean;
   wineBonus: number;
   equippedItems: Card[];
