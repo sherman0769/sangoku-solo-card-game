@@ -10,10 +10,13 @@ import {
   resolveDefense,
   selectObservation,
   selectReward,
+  selectRoute,
 } from "@/lib/game/engine";
+import { enemies } from "@/lib/game/enemies";
 import { gameEvents } from "@/lib/game/events";
 import { heroes } from "@/lib/game/heroes";
-import type { GameState, RewardId } from "@/lib/game/types";
+import { stageRoutes } from "@/lib/game/routes";
+import type { GameState, RewardId, StageRouteId } from "@/lib/game/types";
 
 describe("game engine", () => {
   it("creates a Guan Yu game with the required starter hand", () => {
@@ -54,6 +57,10 @@ describe("game engine", () => {
       "軍師獻策",
       "伏兵突襲",
     ]);
+  });
+
+  it("includes the first route set", () => {
+    expect(stageRoutes.map((route) => route.name)).toEqual(["山道", "官道", "險道"]);
   });
 
   it("creates a Zhao Yun game when selected", () => {
@@ -323,15 +330,14 @@ describe("game engine", () => {
 
     const next = selectReward(wounded, "max-health");
 
-    expect(next.phase).toBe("player");
-    expect(next.enemy.name).toBe("山賊頭目");
+    expect(next.phase).toBe("route");
     expect(next.player.maxHealth).toBe(6);
     expect(next.player.health).toBe(4);
     expect(next.playerUpgrades.maxHpBonus).toBe(1);
   });
 
   it("increases slash damage after choosing slash reward", () => {
-    const rewarded = selectReward(forceReward(defeatFirstEnemy(), "slash-damage"), "slash-damage");
+    const rewarded = chooseRewardAndRoute(defeatFirstEnemy(), "slash-damage", "official-road");
     const slash = createGame().hand.find((card) => card.name === "斬")!;
     const ready = {
       ...rewarded,
@@ -348,7 +354,7 @@ describe("game engine", () => {
   });
 
   it("draws three cards with manual after choosing strategy mastery", () => {
-    const rewarded = selectReward(forceReward(defeatFirstEnemy(), "strategy-draw"), "strategy-draw");
+    const rewarded = chooseRewardAndRoute(defeatFirstEnemy(), "strategy-draw", "official-road");
     const manual = createGame().hand.find((card) => card.name === "兵書")!;
     const ready = {
       ...rewarded,
@@ -500,7 +506,7 @@ describe("game engine", () => {
       slash.id,
       { eventRoll: () => 1 },
     );
-    const nextStage = selectReward(forceReward(defeated, "max-health"), "max-health");
+    const nextStage = chooseRewardAndRoute(defeated, "max-health", "official-road");
     const dodged = endTurn({ ...nextStage, hand: [] });
 
     expect(nextStage.player.equipmentUsageThisBattle.diluDodged).toBe(false);
@@ -578,16 +584,122 @@ describe("game engine", () => {
     expect(next.log[0]).toBe("諸葛亮觀星時牌堆無牌，改為正常抽牌。");
   });
 
-  it("moves to the next stage after choosing a reward", () => {
+  it("enters route selection after choosing a reward", () => {
     const rewarded = selectReward(forceReward(defeatFirstEnemy(), "starting-draw"), "starting-draw");
 
-    expect(rewarded.phase).toBe("player");
-    expect(rewarded.enemyIndex).toBe(1);
-    expect(rewarded.enemy.name).toBe("山賊頭目");
-    expect(rewarded.enemyHealth).toBe(rewarded.enemy.maxHealth);
+    expect(rewarded.phase).toBe("route");
+    expect(rewarded.availableRoutes.map((route) => route.name)).toEqual([
+      "山道",
+      "官道",
+      "險道",
+    ]);
     expect(rewarded.playerUpgrades.startingDrawBonus).toBe(1);
-    expect(rewarded.hand).toHaveLength(6);
-    expect(rewarded.log[0]).toBe("第二關｜山賊頭目攔路，敵人開始懂得防守與蓄力。");
+    expect(rewarded.log[0]).toBe("進入路線選擇，決定下一場戰鬥的風險與報酬。");
+  });
+
+  it("moves to the next stage after choosing a route", () => {
+    const routeState = selectReward(forceReward(defeatFirstEnemy(), "starting-draw"), "starting-draw");
+    const next = selectRoute(routeState, "official-road");
+
+    expect(next.phase).toBe("player");
+    expect(next.enemyIndex).toBe(1);
+    expect(next.enemy.name).toBe("山賊頭目");
+    expect(next.enemyHealth).toBe(enemies[1].maxHealth);
+    expect(next.playerUpgrades.startingDrawBonus).toBe(1);
+    expect(next.hand).toHaveLength(6);
+    expect(next.log[0]).toBe("第二關｜山賊頭目攔路，敵人開始懂得防守與蓄力。");
+  });
+
+  it("enters route selection after defeating the second enemy and choosing reward", () => {
+    const secondStage = chooseRewardAndRoute(defeatFirstEnemy(), "max-health", "official-road");
+    const defeated = defeatCurrentEnemy(secondStage);
+    const rewarded = selectReward(forceReward(defeated, "slash-damage"), "slash-damage");
+
+    expect(defeated.phase).toBe("reward");
+    expect(rewarded.phase).toBe("route");
+    expect(rewarded.enemyIndex).toBe(1);
+    expect(rewarded.availableRoutes).toHaveLength(3);
+  });
+
+  it("applies mountain path enemy health reduction to the next stage", () => {
+    const routeState = selectReward(forceReward(defeatFirstEnemy(), "max-health"), "max-health");
+    const next = selectRoute(routeState, "mountain-path");
+
+    expect(next.enemy.name).toBe("山賊頭目");
+    expect(next.enemy.maxHealth).toBe(enemies[1].maxHealth - 1);
+    expect(next.enemyHealth).toBe(enemies[1].maxHealth - 1);
+    expect(next.log).toContain("你選擇山道，下一關敵人體力 -1。");
+  });
+
+  it("keeps official road enemy health unchanged", () => {
+    const routeState = selectReward(forceReward(defeatFirstEnemy(), "max-health"), "max-health");
+    const next = selectRoute(routeState, "official-road");
+
+    expect(next.enemy.maxHealth).toBe(enemies[1].maxHealth);
+    expect(next.enemyHealth).toBe(enemies[1].maxHealth);
+    expect(next.log).toContain("你選擇官道，下一關維持正常難度。");
+  });
+
+  it("applies dangerous pass enemy health increase to the next stage", () => {
+    const routeState = selectReward(forceReward(defeatFirstEnemy(), "max-health"), "max-health");
+    const next = selectRoute(routeState, "dangerous-pass");
+
+    expect(next.enemy.maxHealth).toBe(enemies[1].maxHealth + 2);
+    expect(next.enemyHealth).toBe(enemies[1].maxHealth + 2);
+    expect(next.rewardOptionBonus).toBe(1);
+    expect(next.log).toContain("你選擇險道，下一關敵人體力 +2，但戰後獎勵多 1 個選項。");
+  });
+
+  it("adds one reward option after clearing dangerous pass", () => {
+    const dangerousStage = chooseRewardAndRoute(defeatFirstEnemy(), "max-health", "dangerous-pass");
+    const next = defeatCurrentEnemy(dangerousStage);
+
+    expect(next.phase).toBe("reward");
+    expect(next.rewardOptions).toHaveLength(4);
+    expect(next.rewardOptionBonus).toBe(0);
+    expect(next.log).toContain("險道報酬觸發，本次戰後獎勵增加 1 個選項。");
+  });
+
+  it("caps reward options at the available reward count", () => {
+    const state = {
+      ...createGame(),
+      rewardOptionBonus: 99,
+      enemyHealth: 3,
+    };
+    const slash = state.hand.find((card) => card.name === "斬")!;
+    const next = playCard(state, slash.id, { eventRoll: () => 1 });
+
+    expect(next.rewardOptions).toHaveLength(rewardCatalog.length);
+  });
+
+  it("runs event to reward to route to next stage flow", () => {
+    const state = createGame();
+    const slash = state.hand.find((card) => card.name === "斬")!;
+    const eventState = playCard(
+      { ...state, enemyHealth: 3 },
+      slash.id,
+      { eventRoll: () => 0, eventId: "strategist-advice" },
+    );
+    const rewardState = resolveEventOption(eventState, "listen");
+    const routeState = selectReward(forceReward(rewardState, "max-health"), "max-health");
+    const next = selectRoute(routeState, "mountain-path");
+
+    expect(eventState.phase).toBe("event");
+    expect(rewardState.phase).toBe("reward");
+    expect(routeState.phase).toBe("route");
+    expect(next.phase).toBe("player");
+    expect(next.enemy.name).toBe("山賊頭目");
+  });
+
+  it("runs reward to route to next stage flow when no event triggers", () => {
+    const rewardState = defeatFirstEnemy();
+    const routeState = selectReward(forceReward(rewardState, "max-health"), "max-health");
+    const next = selectRoute(routeState, "official-road");
+
+    expect(rewardState.phase).toBe("reward");
+    expect(routeState.phase).toBe("route");
+    expect(next.phase).toBe("player");
+    expect(next.enemy.name).toBe("山賊頭目");
   });
 
   it("wins after the third enemy is defeated", () => {
@@ -632,6 +744,33 @@ function defeatFirstEnemy(): GameState {
   const slash = state.hand.find((card) => card.name === "斬")!;
 
   return playCard({ ...state, enemyHealth: 3 }, slash.id, { eventRoll: () => 1 });
+}
+
+function defeatCurrentEnemy(state: GameState): GameState {
+  const slash = getCard("斬");
+
+  return playCard(
+    {
+      ...state,
+      hand: [slash],
+      enemyHealth: 3,
+      player: {
+        ...state.player,
+        morale: state.player.maxMorale,
+        slashUsedThisTurn: false,
+      },
+    },
+    slash.id,
+    { eventRoll: () => 1 },
+  );
+}
+
+function chooseRewardAndRoute(
+  state: GameState,
+  rewardId: RewardId,
+  routeId: StageRouteId,
+): GameState {
+  return selectRoute(selectReward(forceReward(state, rewardId), rewardId), routeId);
 }
 
 function forceReward(state: GameState, rewardId: RewardId): GameState {

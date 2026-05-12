@@ -29,6 +29,15 @@ export default function BattleLog({ entries }: BattleLogProps) {
 
 function getLogMarker(entry: string) {
   if (
+    entry.includes("路線") ||
+    entry.includes("山道") ||
+    entry.includes("官道") ||
+    entry.includes("險道")
+  ) {
+    return entry.includes("險道") ? "☠" : "⚔";
+  }
+
+  if (
     entry.includes("事件") ||
     entry.includes("荒村補給") ||
     entry.includes("軍師獻策") ||

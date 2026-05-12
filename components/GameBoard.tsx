@@ -16,8 +16,9 @@ import {
   resolveDefense,
   selectObservation,
   selectReward,
+  selectRoute,
 } from "@/lib/game/engine";
-import type { GameEvent, PlayerUpgrades, Reward } from "@/lib/game/types";
+import type { GameEvent, PlayerUpgrades, Reward, StageRoute } from "@/lib/game/types";
 
 interface EventToast {
   id: number;
@@ -204,6 +205,16 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
       if (next.player.health > beforePlayerHealth) {
         showPanelFeedback("player", "heal", "回復體力");
       }
+    }
+
+    setState(next);
+  }
+
+  function handleSelectRoute(route: StageRoute) {
+    const next = selectRoute(state, route.id);
+
+    if (next !== state) {
+      showEventToast(`選擇路線：${route.name}`, route.id === "dangerous-pass" ? "danger" : "reward");
     }
 
     setState(next);
@@ -422,6 +433,27 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
               </section>
             ) : null}
 
+            {state.phase === "route" ? (
+              <section className="rounded-xl border border-amber-400/50 bg-stone-950/70 p-5 text-stone-50 shadow-[0_18px_45px_rgba(0,0,0,0.35)]">
+                <p className="text-xs font-bold uppercase tracking-[0.2em] text-amber-200">
+                  選擇路線
+                </p>
+                <h2 className="mt-2 text-2xl font-black">決定下一場戰鬥的風險與報酬</h2>
+                <p className="mt-2 text-sm leading-6 text-stone-300">
+                  高風險路線會讓敵人更強，但也可能帶來更好的戰後選項。
+                </p>
+                <div className="mt-5 grid gap-4 md:grid-cols-3">
+                  {state.availableRoutes.map((route) => (
+                    <RouteCard
+                      key={route.id}
+                      route={route}
+                      onChoose={() => handleSelectRoute(route)}
+                    />
+                  ))}
+                </div>
+              </section>
+            ) : null}
+
             <section className="rounded-xl border border-amber-700/40 bg-black/25 p-4 shadow-[0_18px_45px_rgba(0,0,0,0.3)]">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <h2 className="text-xl font-black text-amber-50">手牌</h2>
@@ -483,11 +515,19 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
               <p className="mt-2">
                 牌庫 {state.deck.length} 張 / 棄牌 {state.discard.length} 張
               </p>
+              {state.selectedRoute ? (
+                <p className="mt-2">目前路線：{state.selectedRoute.name}</p>
+              ) : null}
+              {state.rewardOptionBonus > 0 ? (
+                <p className="mt-2 text-amber-100">
+                  下一次戰後獎勵 +{state.rewardOptionBonus} 個選項
+                </p>
+              ) : null}
             </InfoPanel>
           </div>
         </section>
         <footer className="mt-8 pb-2 text-center text-xs font-bold uppercase tracking-[0.18em] text-stone-500">
-          版本：v0.5.0 事件系統測試版
+          版本：v0.6.0 路線選擇測試版
         </footer>
       </div>
     </main>
@@ -649,6 +689,32 @@ function EventOptionCard({
   );
 }
 
+function RouteCard({ route, onChoose }: { route: StageRoute; onChoose: () => void }) {
+  const rewardText =
+    route.rewardOptionBonus > 0
+      ? `戰後獎勵 +${route.rewardOptionBonus} 個選項`
+      : "戰後獎勵維持 3 選 1";
+
+  return (
+    <button
+      type="button"
+      onClick={onChoose}
+      className={`min-h-56 rounded-lg border p-4 text-left shadow-[0_16px_34px_rgba(0,0,0,0.34)] transition hover:-translate-y-1 ${getRouteButtonClass(route.id)}`}
+    >
+      <span className="rounded-full border border-white/25 bg-black/25 px-3 py-1 text-xs font-black text-stone-100">
+        風險：{route.riskLevel}
+      </span>
+      <span className="mt-4 block text-2xl font-black text-stone-50">{route.name}</span>
+      <span className="mt-3 block text-sm leading-6 text-stone-200">
+        敵人體力 {formatModifier(route.enemyHpModifier)}
+      </span>
+      <span className="mt-1 block text-sm leading-6 text-stone-200">{rewardText}</span>
+      <span className="mt-4 block text-sm leading-6 text-stone-300">{route.description}</span>
+      <span className="mt-3 block text-xs leading-5 text-stone-400">{route.flavorText}</span>
+    </button>
+  );
+}
+
 function InfoPanel({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="rounded-lg border border-amber-700/40 bg-stone-950/80 p-4 text-sm text-stone-200 shadow-[0_18px_45px_rgba(0,0,0,0.35)]">
@@ -706,6 +772,10 @@ function getEnemyStatuses({
 }) {
   if (phase === "reward") {
     return ["戰後整備"];
+  }
+
+  if (phase === "route") {
+    return ["等待選路"];
   }
 
   if (phase === "event") {
@@ -840,4 +910,24 @@ function getEventButtonClass(type: GameEvent["type"]) {
   }
 
   return "border-red-300/60 bg-red-950/85 hover:border-red-100 hover:bg-red-900/75";
+}
+
+function getRouteButtonClass(routeId: StageRoute["id"]) {
+  if (routeId === "mountain-path") {
+    return "border-emerald-300/50 bg-emerald-950/80 hover:border-emerald-100 hover:bg-emerald-900/70";
+  }
+
+  if (routeId === "official-road") {
+    return "border-amber-300/50 bg-amber-950/70 hover:border-amber-100 hover:bg-amber-900/60";
+  }
+
+  return "border-red-300/60 bg-red-950/85 hover:border-red-100 hover:bg-purple-950/80";
+}
+
+function formatModifier(value: number) {
+  if (value > 0) {
+    return `+${value}`;
+  }
+
+  return `${value}`;
 }

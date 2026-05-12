@@ -2,7 +2,7 @@ export type CardKind = "attack" | "dodge" | "wine" | "draw" | "pierce" | "equipm
 
 export type EnemyActionKind = "attack" | "fierce" | "guard" | "charge";
 
-export type GamePhase = "player" | "defense" | "reward" | "observe" | "event";
+export type GamePhase = "player" | "defense" | "reward" | "observe" | "event" | "route";
 
 export type GameStatus = "playing" | "won" | "lost";
 
@@ -20,6 +20,10 @@ export type GameEventId = "village-supply" | "strategist-advice" | "ambush";
 export type GameEventType = "supply" | "strategy" | "danger";
 
 export type EventEffectType = "heal" | "draw" | "ambush-upgrade";
+
+export type StageRouteId = "mountain-path" | "official-road" | "dangerous-pass";
+
+export type RouteRiskLevel = "低" | "中" | "高";
 
 export interface Hero {
   id: HeroId;
@@ -82,6 +86,16 @@ export interface GameEvent {
   options: EventOption[];
 }
 
+export interface StageRoute {
+  id: StageRouteId;
+  name: string;
+  description: string;
+  riskLevel: RouteRiskLevel;
+  enemyHpModifier: number;
+  rewardOptionBonus: number;
+  flavorText: string;
+}
+
 export interface PlayerState {
   heroId: HeroId;
   name: string;
@@ -136,6 +150,9 @@ export interface GameState {
   pendingDefense?: PendingDefense;
   pendingObservation?: PendingObservation;
   currentEvent?: GameEvent;
+  availableRoutes: StageRoute[];
+  selectedRoute?: StageRoute;
+  rewardOptionBonus: number;
   rewardOptions: Reward[];
   status: GameStatus;
   log: string[];

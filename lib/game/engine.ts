@@ -2,8 +2,10 @@ import { starterDeck } from "./cards";
 import { enemies } from "./enemies";
 import { gameEvents, resolveEvent } from "./events";
 import { resolveHero } from "./heroes";
+import { resolveStageRoute, stageRoutes } from "./routes";
 import type {
   Card,
+  Enemy,
   EnemyAction,
   GameEventId,
   GameState,
@@ -11,6 +13,8 @@ import type {
   PlayerUpgrades,
   Reward,
   RewardId,
+  StageRoute,
+  StageRouteId,
 } from "./types";
 
 const logLimit = 12;
@@ -121,6 +125,8 @@ export function createGame(heroId?: string): GameState {
     discard: [],
     turn: 1,
     phase: "player",
+    availableRoutes: [],
+    rewardOptionBonus: 0,
     rewardOptions: [],
     status: "playing",
     log: [enemies[0].intro],
@@ -177,6 +183,10 @@ export function playCard(
     return appendLog(state, "請先處理事件，再進入戰後獎勵。");
   }
 
+  if (state.phase === "route") {
+    return appendLog(state, "請先選擇下一關路線。");
+  }
+
   const next = cloneState(state);
   const cardIndex = next.hand.findIndex((card) => card.id === cardId);
   if (cardIndex === -1) {
@@ -231,6 +241,10 @@ export function endTurn(state: GameState): GameState {
 
   if (state.phase === "event") {
     return appendLog(state, "請先處理事件，再進入戰後獎勵。");
+  }
+
+  if (state.phase === "route") {
+    return appendLog(state, "請先選擇下一關路線。");
   }
 
   const next = cloneState(state);
@@ -391,19 +405,46 @@ export function selectReward(state: GameState, rewardId: RewardId): GameState {
   }
 
   const next = applyReward(cloneState(state), reward);
-  const nextEnemyIndex = next.enemyIndex + 1;
+
+  return {
+    ...next,
+    phase: "route",
+    pendingDefense: undefined,
+    currentEvent: undefined,
+    rewardOptions: [],
+    availableRoutes: stageRoutes.map((route) => ({ ...route })),
+    log: [
+      "進入路線選擇，決定下一場戰鬥的風險與報酬。",
+      `獲得獎勵：${reward.name}。${reward.text}`,
+      ...next.log,
+    ].slice(0, logLimit),
+  };
+}
+
+export function selectRoute(state: GameState, routeId: StageRouteId): GameState {
+  if (state.status !== "playing" || state.phase !== "route") {
+    return state;
+  }
+
+  const route = state.availableRoutes.find((item) => item.id === routeId) ?? resolveStageRoute(routeId);
+  const nextEnemyIndex = state.enemyIndex + 1;
+
+  if (nextEnemyIndex >= enemies.length) {
+    return appendLog(state, "已無下一關可選擇路線。");
+  }
 
   return startNextStage(
     {
-      ...next,
+      ...cloneState(state),
       enemyIndex: nextEnemyIndex,
-      enemy: enemies[nextEnemyIndex],
-      enemyHealth: enemies[nextEnemyIndex].maxHealth,
-      rewardOptions: [],
+      availableRoutes: [],
+      selectedRoute: route,
+      rewardOptionBonus: route.rewardOptionBonus,
       phase: "player",
       pendingDefense: undefined,
+      currentEvent: undefined,
     },
-    reward,
+    route,
   );
 }
 
@@ -478,15 +519,14 @@ export function resolveEventOption(state: GameState, optionId: string): GameStat
 
   return {
     ...next,
-    phase: "reward",
     currentEvent: undefined,
-    rewardOptions: pickRewardOptions(),
-    log: [
+    ...createRewardPhaseFields(next.rewardOptionBonus),
+    log: createRewardLog(next.rewardOptionBonus, [
       "事件結束，進入戰後獎勵。",
       effectMessage,
       `你選擇了「${option.label}」。`,
       ...next.log,
-    ].slice(0, logLimit),
+    ]),
   };
 }
 
@@ -558,7 +598,7 @@ function advanceEnemy(state: GameState, eventOptions?: EventRollOptions): GameSt
 
   if (nextEnemyIndex >= enemies.length) {
     return appendLog(
-      { ...state, status: "won", enemyHealth: 0, phase: "player" },
+      { ...state, status: "won", enemyHealth: 0, phase: "player", availableRoutes: [] },
       `三關敵人全數擊敗，${state.player.name}單騎突圍成功。`,
     );
   }
@@ -578,6 +618,7 @@ function advanceEnemy(state: GameState, eventOptions?: EventRollOptions): GameSt
         enemyCharged: false,
         enemyArmorBroken: false,
         pendingDefense: undefined,
+        availableRoutes: [],
         player: {
           ...state.player,
           morale: state.player.maxMorale,
@@ -590,27 +631,28 @@ function advanceEnemy(state: GameState, eventOptions?: EventRollOptions): GameSt
     );
   }
 
-  return appendLog(
-    {
-      ...state,
-      enemyActionIndex: 0,
-      enemyGuarding: false,
-      enemyCharged: false,
-      enemyArmorBroken: false,
-      phase: "reward",
-      pendingDefense: undefined,
-      rewardOptions: pickRewardOptions(),
-      currentEvent: undefined,
-      player: {
-        ...state.player,
-        morale: state.player.maxMorale,
-        slashUsedThisTurn: false,
-        wineBonus: 0,
-        equipmentUsageThisTurn: createTurnEquipmentUsage(),
-      },
+  return {
+    ...state,
+    enemyActionIndex: 0,
+    enemyGuarding: false,
+    enemyCharged: false,
+    enemyArmorBroken: false,
+    pendingDefense: undefined,
+    currentEvent: undefined,
+    availableRoutes: [],
+    ...createRewardPhaseFields(state.rewardOptionBonus),
+    player: {
+      ...state.player,
+      morale: state.player.maxMorale,
+      slashUsedThisTurn: false,
+      wineBonus: 0,
+      equipmentUsageThisTurn: createTurnEquipmentUsage(),
     },
-    `擊敗${state.enemy.name}，選擇一項通關獎勵。`,
-  );
+    log: createRewardLog(state.rewardOptionBonus, [
+      `擊敗${state.enemy.name}，選擇一項通關獎勵。`,
+      ...state.log,
+    ]),
+  };
 }
 
 function finishEnemyDamage(state: GameState, damage: number): GameState {
@@ -646,15 +688,20 @@ function startNextTurn(state: GameState): GameState {
   return drawCards(next, 5);
 }
 
-function startNextStage(state: GameState, reward: Reward): GameState {
+function startNextStage(state: GameState, route: StageRoute): GameState {
   const next = cloneState(state);
+  const baseEnemy = enemies[next.enemyIndex];
+  const nextEnemy = applyRouteToEnemy(baseEnemy, route);
   next.enemyActionIndex = 0;
   next.enemyGuarding = false;
   next.enemyCharged = false;
   next.enemyArmorBroken = false;
+  next.enemy = nextEnemy;
+  next.enemyHealth = nextEnemy.maxHealth;
   next.discard.push(...next.hand);
   next.hand = [];
   next.turn += 1;
+  next.phase = "player";
   next.player.morale = next.player.maxMorale;
   next.player.slashUsedThisTurn = false;
   next.player.wineBonus = 0;
@@ -665,7 +712,8 @@ function startNextStage(state: GameState, reward: Reward): GameState {
     ...next,
     log: [
       next.enemy.intro,
-      `獲得獎勵：${reward.name}。${reward.text}`,
+      `下一關開始：${route.flavorText}`,
+      getRouteLogMessage(route),
       ...next.log,
     ].slice(0, logLimit),
   };
@@ -707,8 +755,10 @@ function applyReward(state: GameState, reward: Reward): GameState {
   return state;
 }
 
-function pickRewardOptions(): Reward[] {
-  return [...rewardCatalog].sort(() => Math.random() - 0.5).slice(0, 3);
+function pickRewardOptions(count = 3): Reward[] {
+  return [...rewardCatalog]
+    .sort(() => Math.random() - 0.5)
+    .slice(0, Math.min(count, rewardCatalog.length));
 }
 
 function applySlashEffect(state: GameState, baseValue: number, actionText: string) {
@@ -852,6 +902,9 @@ function cloneState(state: GameState): GameState {
           options: state.currentEvent.options.map((option) => ({ ...option })),
         }
       : undefined,
+    availableRoutes: state.availableRoutes.map((route) => ({ ...route })),
+    selectedRoute: state.selectedRoute ? { ...state.selectedRoute } : undefined,
+    rewardOptionBonus: state.rewardOptionBonus ?? 0,
     rewardOptions: state.rewardOptions.map((reward) => ({ ...reward })),
     log: [...state.log],
   };
@@ -862,4 +915,41 @@ function appendLog(state: GameState, message: string): GameState {
     ...state,
     log: [message, ...state.log].slice(0, logLimit),
   };
+}
+
+function createRewardPhaseFields(rewardOptionBonus: number) {
+  return {
+    phase: "reward" as const,
+    rewardOptions: pickRewardOptions(3 + rewardOptionBonus),
+    rewardOptionBonus: 0,
+  };
+}
+
+function createRewardLog(rewardOptionBonus: number, entries: string[]) {
+  const bonusLog =
+    rewardOptionBonus > 0 ? ["險道報酬觸發，本次戰後獎勵增加 1 個選項。"] : [];
+
+  return [...entries.slice(0, 1), ...bonusLog, ...entries.slice(1)].slice(0, logLimit);
+}
+
+function applyRouteToEnemy(enemy: Enemy, route: StageRoute): Enemy {
+  const maxHealth = Math.max(1, enemy.maxHealth + route.enemyHpModifier);
+
+  return {
+    ...enemy,
+    maxHealth,
+    actions: enemy.actions.map((action) => ({ ...action })),
+  };
+}
+
+function getRouteLogMessage(route: StageRoute) {
+  if (route.id === "mountain-path") {
+    return "你選擇山道，下一關敵人體力 -1。";
+  }
+
+  if (route.id === "official-road") {
+    return "你選擇官道，下一關維持正常難度。";
+  }
+
+  return "你選擇險道，下一關敵人體力 +2，但戰後獎勵多 1 個選項。";
 }
