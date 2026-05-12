@@ -6,7 +6,58 @@ export const equipmentEffects = {
   taipingManual: "每回合第一次兵書額外抽 1 張",
 } as const;
 
-export const starterDeck: Card[] = [
+const cardVisuals: Record<string, Pick<Card, "illustration" | "visualPrompt">> = {
+  斬: {
+    illustration: "card-slash",
+    visualPrompt: "刀光破空，古代戰場攻擊卡牌插圖，紅色能量，三國卡牌風",
+  },
+  閃: {
+    illustration: "card-dodge",
+    visualPrompt: "武將側身閃避箭矢與刀光，藍色速度殘影，三國防禦卡牌插圖",
+  },
+  酒: {
+    illustration: "card-wine",
+    visualPrompt: "古代酒壺與熱烈戰意，暖色光芒恢復體力，三國卡牌插圖",
+  },
+  兵書: {
+    illustration: "card-manual",
+    visualPrompt: "竹簡兵書攤開，墨色策略紋路與燭光，三國策略卡牌插圖",
+  },
+  破甲: {
+    illustration: "card-pierce",
+    visualPrompt: "鋒刃擊碎甲片，橘色衝擊光，古代戰場破防卡牌插圖",
+  },
+  青龍偃月刀: {
+    illustration: "card-green-dragon-blade",
+    visualPrompt: "青龍偃月刀泛起青金龍影，關羽武器裝備卡，東方史詩卡牌插圖",
+  },
+  的盧馬: {
+    illustration: "card-dilu-horse",
+    visualPrompt: "白色的盧馬踏煙奔馳，戰場閃避與守護意象，三國裝備卡牌插圖",
+  },
+  太平要術: {
+    illustration: "card-taiping-manual",
+    visualPrompt: "古老道術卷軸，符籙與金色術法光芒，三國策略裝備卡牌插圖",
+  },
+  連斬: {
+    illustration: "card-combo-slash",
+    visualPrompt: "連續刀光追擊敵陣，深紅速度線與破勢感，三國攻擊卡牌插圖",
+  },
+  固守: {
+    illustration: "card-guard",
+    visualPrompt: "盾陣穩住陣腳，青藍防護光幕，古代戰場防禦卡牌插圖",
+  },
+  激勵: {
+    illustration: "card-rally",
+    visualPrompt: "戰旗高舉鼓舞士氣，綠金光芒恢復與補牌意象，三國策略卡牌插圖",
+  },
+  火攻: {
+    illustration: "card-fire-attack",
+    visualPrompt: "火焰席捲敵陣，橘紅烈焰打斷蓄力，三國火攻策略卡牌插圖",
+  },
+};
+
+const baseStarterDeck: Omit<Card, "illustration" | "visualPrompt">[] = [
   {
     id: "slash-1",
     name: "斬",
@@ -256,3 +307,8 @@ export const starterDeck: Card[] = [
     text: "趁敵蓄勢未發，以火攻破其陣腳。敵人蓄力時造成 2 點傷害並打斷蓄力，否則造成 1 點傷害。",
   },
 ];
+
+export const starterDeck: Card[] = baseStarterDeck.map((card) => ({
+  ...card,
+  ...cardVisuals[card.name],
+}));

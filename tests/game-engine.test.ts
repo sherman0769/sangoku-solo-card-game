@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { getVisualPlaceholderStyle } from "@/components/VisualPlaceholder";
 import { starterDeck } from "@/lib/game/cards";
 import {
   createGame,
@@ -132,6 +133,24 @@ describe("game engine", () => {
 
   it("includes the first route set", () => {
     expect(stageRoutes.map((route) => route.name)).toEqual(["山道", "官道", "險道"]);
+  });
+
+  it("adds visual prompts to core game data", () => {
+    expect(heroes.every((hero) => hero.visualPrompt && hero.portrait && hero.avatar)).toBe(true);
+    expect(enemyPool.every((enemy) => enemy.visualPrompt && enemy.portrait)).toBe(true);
+    expect(chapterStages.every((stage) => stage.visualPrompt && stage.backgroundImage)).toBe(true);
+    expect(gameEvents.every((event) => event.visualPrompt && event.image)).toBe(true);
+    expect(stageRoutes.every((route) => route.visualPrompt && route.image)).toBe(true);
+    expect(starterDeck.every((card) => card.visualPrompt && card.illustration)).toBe(true);
+  });
+
+  it("provides placeholder styles for visual asset types", () => {
+    expect(getVisualPlaceholderStyle("hero").label).toBe("角色立繪");
+    expect(getVisualPlaceholderStyle("enemy").label).toBe("敵人圖");
+    expect(getVisualPlaceholderStyle("stage").label).toBe("關卡背景圖");
+    expect(getVisualPlaceholderStyle("card").label).toBe("卡牌插圖");
+    expect(getVisualPlaceholderStyle("event").label).toBe("事件圖");
+    expect(getVisualPlaceholderStyle("route").label).toBe("路線圖");
   });
 
   it("creates a Zhao Yun game when selected", () => {

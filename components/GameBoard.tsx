@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import BattleLog from "@/components/BattleLog";
 import CardView from "@/components/CardView";
+import { VisualPlaceholder } from "@/components/VisualPlaceholder";
 import { equipmentEffects } from "@/lib/game/cards";
 import { getEventTypeLabel } from "@/lib/game/events";
 import {
@@ -18,6 +19,7 @@ import {
   selectReward,
   selectRoute,
 } from "@/lib/game/engine";
+import { heroes } from "@/lib/game/heroes";
 import { currentVersionLabel, getPhaseHint, quickRules } from "@/lib/game/showcase";
 import { totalStages } from "@/lib/game/stages";
 import type { GameEvent, PlayerUpgrades, Reward, StageRoute } from "@/lib/game/types";
@@ -77,6 +79,7 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
   const upgradeLabels = getUpgradeLabels(state.playerUpgrades);
   const equippedLabels = getEquippedLabels(state.player.equippedItems);
   const phaseHint = getPhaseHint(state.phase);
+  const currentHero = heroes.find((hero) => hero.id === state.player.heroId) ?? heroes[0];
 
   useEffect(() => {
     if (state.status === "won" || state.status === "lost") {
@@ -304,6 +307,26 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
           <p className="mt-2 text-sm leading-6 text-stone-100">{phaseHint}</p>
         </section>
 
+        <section className="mt-5 grid gap-4 rounded-xl border border-sky-300/30 bg-stone-950/55 p-4 shadow-[0_18px_45px_rgba(0,0,0,0.28)] lg:grid-cols-[360px_minmax(0,1fr)]">
+          <VisualPlaceholder
+            type="stage"
+            label={state.stageConfig.name}
+            prompt={state.stageConfig.visualPrompt}
+            description="關卡背景圖 placeholder"
+          />
+          <div className="self-center">
+            <p className="text-xs font-black uppercase tracking-[0.2em] text-sky-100">
+              {state.chapter.name}
+            </p>
+            <h2 className="mt-2 text-2xl font-black text-amber-50">
+              第 {state.stageConfig.stage} 關｜{state.stageConfig.name}
+            </h2>
+            <p className="mt-3 text-sm leading-6 text-stone-300">
+              {state.stageConfig.flavorText}
+            </p>
+          </div>
+        </section>
+
         <section className="mt-5 grid gap-5 lg:grid-cols-[1fr_340px]">
           <div className="space-y-5">
             <div className="grid gap-5 md:grid-cols-2">
@@ -314,6 +337,9 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
                 badge={state.player.title}
                 health={`♥ ${state.player.health} / ${state.player.maxHealth}`}
                 percent={playerPercent}
+                visualType="hero"
+                visualLabel={state.player.name}
+                visualPrompt={currentHero.visualPrompt}
                 details={[
                   `稱號：${state.player.title}`,
                   `士氣 ${state.player.morale}/${state.player.maxMorale}`,
@@ -332,6 +358,9 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
                 badge={state.enemy.id === "lu-bu" ? "Boss" : "敵將"}
                 health={`♥ ${state.enemyHealth} / ${state.enemy.maxHealth}`}
                 percent={enemyPercent}
+                visualType="enemy"
+                visualLabel={state.enemy.name}
+                visualPrompt={state.enemy.visualPrompt}
                 details={[
                   `類型：${getEnemyTypeLabel(state.enemy.type)}`,
                   `特性：${state.enemy.traits.join("、")}`,
@@ -385,6 +414,14 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
                   <span className="inline-flex w-fit rounded-full border border-amber-200/50 bg-black/25 px-3 py-1 text-xs font-black text-amber-100">
                     {getEventTypeLabel(state.currentEvent.type)}
                   </span>
+                </div>
+                <div className="mt-5">
+                  <VisualPlaceholder
+                    type="event"
+                    label={state.currentEvent.name}
+                    prompt={state.currentEvent.visualPrompt}
+                    description="事件圖 placeholder"
+                  />
                 </div>
                 <div className="mt-5 grid gap-4 md:grid-cols-2">
                   {state.currentEvent.options.map((option) => (
@@ -570,6 +607,9 @@ function CombatantPanel({
   badge,
   health,
   percent,
+  visualType,
+  visualLabel,
+  visualPrompt,
   details,
   statuses,
   feedback,
@@ -580,6 +620,9 @@ function CombatantPanel({
   badge: string;
   health: string;
   percent: number;
+  visualType: "hero" | "enemy";
+  visualLabel: string;
+  visualPrompt?: string;
   details: string[];
   statuses: string[];
   feedback?: PanelFeedback;
@@ -624,6 +667,14 @@ function CombatantPanel({
         <span className={`rounded-full border px-3 py-1 text-xs font-black ${badgeClass}`}>
           {badge}
         </span>
+      </div>
+      <div className="mt-5">
+        <VisualPlaceholder
+          type={visualType}
+          label={visualLabel}
+          prompt={visualPrompt}
+          compact
+        />
       </div>
       <div className="mt-5 flex items-center justify-between gap-4">
         <p className="text-lg font-black text-stone-50">{health}</p>
@@ -730,7 +781,13 @@ function RouteCard({ route, onChoose }: { route: StageRoute; onChoose: () => voi
       onClick={onChoose}
       className={`min-h-56 rounded-lg border p-4 text-left shadow-[0_16px_34px_rgba(0,0,0,0.34)] transition hover:-translate-y-1 ${getRouteButtonClass(route.id)}`}
     >
-      <span className="rounded-full border border-white/25 bg-black/25 px-3 py-1 text-xs font-black text-stone-100">
+      <VisualPlaceholder
+        type="route"
+        label={route.name}
+        prompt={route.visualPrompt}
+        compact
+      />
+      <span className="mt-4 inline-flex rounded-full border border-white/25 bg-black/25 px-3 py-1 text-xs font-black text-stone-100">
         風險：{route.riskLevel}
       </span>
       <span className="mt-4 block text-2xl font-black text-stone-50">{route.name}</span>

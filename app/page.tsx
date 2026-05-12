@@ -2,12 +2,14 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { VisualPlaceholder } from "@/components/VisualPlaceholder";
 import { heroes } from "@/lib/game/heroes";
 import {
   currentFeatureHighlights,
   currentVersionLabel,
   howToSteps,
 } from "@/lib/game/showcase";
+import { chapterOne } from "@/lib/game/stages";
 
 export default function Home() {
   const [selectedHeroId, setSelectedHeroId] = useState("guan-yu");
@@ -16,21 +18,34 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-[#140c09] bg-[radial-gradient(circle_at_top_left,rgba(127,29,29,0.36),transparent_35%),linear-gradient(135deg,#1b100b_0%,#2a120d_48%,#090605_100%)] px-6 py-10 text-stone-100">
       <section className="mx-auto flex min-h-[calc(100vh-5rem)] max-w-6xl flex-col justify-center">
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_420px] lg:items-center">
+          <div>
+            <p className="text-sm font-black uppercase tracking-[0.24em] text-amber-300">
+              單人卡牌闖關
+            </p>
+            <h1 className="mt-5 text-5xl font-black tracking-normal text-amber-50 sm:text-7xl">
+              《三國單騎傳》
+            </h1>
+            <p className="mt-5 text-2xl font-bold text-red-100">
+              一將入亂世，闖關定天下
+            </p>
+            <p className="mt-3 text-sm font-black tracking-[0.18em] text-amber-200">
+              {chapterOne.name}
+            </p>
+            <p className="mt-6 max-w-2xl text-base leading-8 text-stone-300 sm:text-lg">
+              選擇關羽、趙雲或諸葛亮，以斬、閃、酒、兵書、破甲與戰術卡迎戰第一章 8 關。
+              看穿敵人的攻勢，在隨機敵人池、事件、路線選擇與戰後三選一強化中養成流派，
+              最後於虎牢關前挑戰 Boss 呂布。
+            </p>
+          </div>
+          <VisualPlaceholder
+            type="stage"
+            label="首頁主視覺"
+            description="未來此處將放入 AI 生成開場主視覺"
+            prompt={chapterOne.description}
+          />
+        </div>
         <div className="max-w-3xl">
-          <p className="text-sm font-black uppercase tracking-[0.24em] text-amber-300">
-            單人卡牌闖關
-          </p>
-          <h1 className="mt-5 text-5xl font-black tracking-normal text-amber-50 sm:text-7xl">
-            《三國單騎傳》
-          </h1>
-          <p className="mt-5 text-2xl font-bold text-red-100">
-            一將入亂世，闖關定天下
-          </p>
-          <p className="mt-6 max-w-2xl text-base leading-8 text-stone-300 sm:text-lg">
-            選擇關羽、趙雲或諸葛亮，以斬、閃、酒、兵書、破甲與戰術卡迎戰第一章 8 關。
-            看穿敵人的攻勢，在隨機敵人池、事件、路線選擇與戰後三選一強化中養成流派，
-            最後於虎牢關前挑戰 Boss 呂布。
-          </p>
           <section className="mt-8 rounded-xl border border-amber-700/40 bg-black/30 p-5 shadow-[0_18px_45px_rgba(0,0,0,0.28)]">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
               <div>
@@ -60,6 +75,12 @@ export default function Home() {
                         : "border-stone-700 bg-stone-950/50 hover:border-amber-600"
                     }`}
                   >
+                    <VisualPlaceholder
+                      type="hero"
+                      label={hero.name}
+                      prompt={hero.visualPrompt}
+                      compact
+                    />
                     <span className="text-xl font-black text-stone-50">
                       {hero.name}
                     </span>
@@ -115,7 +136,7 @@ export default function Home() {
         </section>
 
         <section className="mt-10 rounded-xl border border-amber-700/40 bg-black/30 p-5 shadow-[0_18px_45px_rgba(0,0,0,0.28)]">
-          <h2 className="text-3xl font-black text-amber-50">v0.9.0 目前特色</h2>
+          <h2 className="text-3xl font-black text-amber-50">v0.10.0 目前特色</h2>
           <ul className="mt-5 grid gap-3 text-sm leading-6 text-stone-300 md:grid-cols-2">
             {currentFeatureHighlights.map((feature) => (
               <li

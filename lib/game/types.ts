@@ -49,6 +49,9 @@ export interface Hero {
   skillName: string;
   skillDescription: string;
   role: string;
+  portrait: string;
+  avatar: string;
+  visualPrompt: string;
 }
 
 export interface Card {
@@ -58,6 +61,8 @@ export interface Card {
   cost: number;
   value: number;
   text: string;
+  illustration: string;
+  visualPrompt: string;
 }
 
 export interface Enemy {
@@ -72,6 +77,8 @@ export interface Enemy {
   description: string;
   traits: string[];
   attack: number;
+  portrait: string;
+  visualPrompt: string;
   actionDeck: EnemyAction[];
   actions: EnemyAction[];
 }
@@ -88,6 +95,8 @@ export interface ChapterStageConfig {
   type: ChapterStageType;
   enemyIds: string[];
   flavorText: string;
+  backgroundImage: string;
+  visualPrompt: string;
   isFinalBoss?: boolean;
 }
 
@@ -121,6 +130,8 @@ export interface GameEvent {
   name: string;
   description: string;
   type: GameEventType;
+  image: string;
+  visualPrompt: string;
   options: EventOption[];
 }
 
@@ -132,6 +143,8 @@ export interface StageRoute {
   enemyHpModifier: number;
   rewardOptionBonus: number;
   flavorText: string;
+  image: string;
+  visualPrompt: string;
 }
 
 export interface PlayerState {

@@ -1,6 +1,6 @@
 import type { GamePhase } from "./types";
 
-export const currentVersionLabel = "v0.9.0 第一章關卡擴充版";
+export const currentVersionLabel = "v0.10.0 視覺資產系統版";
 
 export const howToSteps = [
   {
@@ -35,6 +35,7 @@ export const currentFeatureHighlights = [
   "31 張玩家牌組",
   "戰術卡：連斬、固守、激勵、火攻",
   "裝備系統：青龍偃月刀、的盧馬、太平要術",
+  "視覺資產 placeholder：角色、敵人、關卡、事件、路線與卡牌",
   "Mini-boss 張梁 / 張寶",
   "隨機事件與路線選擇",
   "第 1～7 關依關卡敵人池隨機，第 8 關挑戰呂布",

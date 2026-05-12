@@ -33,6 +33,8 @@ export const enemyPool: Enemy[] = [
     description: "基礎敵人，行動單純，適合熱身。",
     traits: ["基礎"],
     attack: 2,
+    portrait: "enemy-yellow-turban-soldier",
+    visualPrompt: "黃巾兵，頭綁黃巾，粗布甲胄與短刀，低階亂軍士兵，三國卡牌敵人立繪",
     actionDeck: [
       actionTemplates.attack2,
       actionTemplates.guard,
@@ -49,6 +51,8 @@ export const enemyPool: Enemy[] = [
     description: "體力較低，但攻擊較頻繁。",
     traits: ["攻擊頻繁"],
     attack: 2,
+    portrait: "enemy-yellow-turban-archer",
+    visualPrompt: "黃巾弓手，黃巾頭帶，彎弓搭箭，敏捷危險的遠程敵人，三國卡牌敵人立繪",
     actionDeck: [
       actionTemplates.attack2,
       actionTemplates.attack2,
@@ -65,6 +69,8 @@ export const enemyPool: Enemy[] = [
     description: "體力較高，但行動較笨重。",
     traits: ["體力較高"],
     attack: 2,
+    portrait: "enemy-yellow-turban-brute",
+    visualPrompt: "黃巾力士，高大壯漢，粗重兵器與黃巾符布，笨重壓迫的三國敵人立繪",
     actionDeck: [
       actionTemplates.attack2,
       actionTemplates.guard,
@@ -81,6 +87,8 @@ export const enemyPool: Enemy[] = [
     description: "均衡型敵人，懂得攻擊、防守與蓄力。",
     traits: ["均衡"],
     attack: 2,
+    portrait: "enemy-bandit-leader",
+    visualPrompt: "山賊頭目，皮甲披風，手持大刀，狡詐粗獷的山寨首領，三國卡牌敵人立繪",
     actionDeck: [
       actionTemplates.attack2,
       actionTemplates.guard,
@@ -97,6 +105,8 @@ export const enemyPool: Enemy[] = [
     description: "擅長防守，會拖慢戰鬥節奏。",
     traits: ["擅長防守"],
     attack: 2,
+    portrait: "enemy-black-mountain-general",
+    visualPrompt: "黑山賊將，黑旗背後，重甲與盾牌，防守沉穩的精英賊將，三國卡牌敵人立繪",
     actionDeck: [
       actionTemplates.guard,
       actionTemplates.guard,
@@ -113,6 +123,8 @@ export const enemyPool: Enemy[] = [
     description: "攻勢猛烈，容易連續造成壓力。",
     traits: ["猛攻壓制"],
     attack: 2,
+    portrait: "enemy-xiliang-cavalry",
+    visualPrompt: "西涼騎兵，鐵騎衝鋒，長槍與沙塵，猛烈壓制的三國騎兵敵人立繪",
     actionDeck: [
       actionTemplates.attack2,
       actionTemplates.fierce3,
@@ -129,6 +141,8 @@ export const enemyPool: Enemy[] = [
     description: "黃巾三公將軍之一，攻勢猛烈，擅長蓄力後爆發。",
     traits: ["黃巾將領", "蓄力爆發", "猛攻"],
     attack: 3,
+    portrait: "enemy-zhang-liang",
+    visualPrompt: "張梁，黃巾將領，戰甲與黃巾符咒，蓄力爆發的猛烈攻勢，東方史詩卡牌立繪",
     actionDeck: [
       actionTemplates.attack3,
       actionTemplates.fierce4,
@@ -145,6 +159,8 @@ export const enemyPool: Enemy[] = [
     description: "擅用妖術迷惑敵軍，防守與蓄力能力較強。",
     traits: ["黃巾將領", "妖術", "防守"],
     attack: 2,
+    portrait: "enemy-zhang-bao",
+    visualPrompt: "張寶，黃巾術士將領，符紙法杖與詭異光芒，妖術防守型敵人，三國卡牌立繪",
     actionDeck: [
       actionTemplates.guard,
       actionTemplates.charge,
@@ -161,6 +177,8 @@ export const enemyPool: Enemy[] = [
     description: "虎牢關前的最終考驗，擁有高壓攻勢與蓄力爆發。",
     traits: ["Boss", "無雙", "猛攻", "蓄力爆發"],
     attack: 3,
+    portrait: "enemy-lu-bu",
+    visualPrompt: "呂布，方天畫戟，赤兔馬，虎牢關前無雙猛將，壓倒性氣勢，東方史詩卡牌 Boss 立繪",
     actionDeck: [
       actionTemplates.attack3,
       actionTemplates.fierce4,

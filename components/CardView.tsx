@@ -1,4 +1,5 @@
 import type { Card } from "@/lib/game/types";
+import { VisualPlaceholder } from "./VisualPlaceholder";
 
 interface CardViewProps {
   card: Card;
@@ -31,8 +32,16 @@ export default function CardView({
         <p className={`mt-3 inline-flex rounded-full border px-2.5 py-1 text-xs font-bold ${style.badge}`}>
           {style.label}
         </p>
+        <div className="mt-4">
+          <VisualPlaceholder
+            type="card"
+            label={card.name}
+            prompt={card.visualPrompt}
+            compact
+          />
+        </div>
       </div>
-      <p className="mt-6 text-sm leading-6 text-stone-200">
+      <p className="mt-4 text-sm leading-6 text-stone-200">
         {card.text}
       </p>
     </button>
