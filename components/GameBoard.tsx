@@ -376,6 +376,9 @@ export default function GameBoard() {
             </InfoPanel>
           </div>
         </section>
+        <footer className="mt-8 pb-2 text-center text-xs font-bold uppercase tracking-[0.18em] text-stone-500">
+          版本：v0.1.0 MVP
+        </footer>
       </div>
     </main>
   );

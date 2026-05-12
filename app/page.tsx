@@ -57,6 +57,9 @@ export default function Home() {
             「兵書」補充手牌，「破甲」打開敵人防守。擊敗三關即可通關。
           </p>
         </section>
+        <p className="mt-8 text-xs font-bold uppercase tracking-[0.18em] text-stone-500">
+          版本：v0.1.0 MVP
+        </p>
       </section>
     </main>
   );

@@ -1,35 +1,72 @@
-# Sangoku Solo Card Game
+# 三國單騎傳
 
-A single-player Three Kingdoms inspired card battler built with Next.js, TypeScript, Tailwind CSS, and Vitest.
+《三國單騎傳》是一款單人三國卡牌闖關遊戲。玩家操控關羽，使用斬、閃、酒、兵書與破甲連闖三關，擊敗最終 Boss 呂布。
 
-## Getting Started
+線上遊玩網址：[https://sangoku-solo-card-game.vercel.app](https://sangoku-solo-card-game.vercel.app)
 
-Install dependencies:
+目前版本：`v0.1.0 MVP`
+
+## 已完成功能
+
+- 首頁、遊戲頁與勝敗結果頁
+- 三關敵人流程：黃巾兵、山賊頭目、呂布
+- 玩家手牌與士氣系統
+- 五種卡牌：斬、閃、酒、兵書、破甲
+- 敵人行動：普通攻擊、猛攻、防守、蓄力
+- 敵人攻擊時可選擇使用閃或承受傷害
+- 戰後獎勵三選一與玩家成長
+- 戰鬥紀錄、關卡提示、操作回饋與輕量動畫
+- 手機與桌機版基本響應式排版
+
+## 本地啟動
+
+安裝依賴：
 
 ```sh
 npm install
 ```
 
-Run the development server:
+啟動開發伺服器：
 
 ```sh
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+開啟 [http://localhost:3000](http://localhost:3000)。
 
-## Routes
+## 測試方式
 
-- `/` - title screen and rules summary
-- `/game` - playable solo card battle
-- `/result` - static result screen
+執行 ESLint：
 
-## Scripts
+```sh
+npm run lint
+```
 
-- `npm run dev` - start local development
-- `npm run lint` - run ESLint
-- `npm test` - run Vitest tests
+執行 Vitest：
 
-## Game Model
+```sh
+npm test
+```
 
-Each run starts with Liu Bei facing a sequence of enemy generals. Cards can attack, guard, heal, draw, or rally morale. The pure game engine in `lib/game/engine.ts` owns all rule changes so the UI stays thin.
+執行 production build：
+
+```sh
+npm run build
+```
+
+## 技術棧
+
+- Next.js App Router
+- React
+- TypeScript
+- Tailwind CSS
+- Vitest
+- Vercel
+
+## 下一步開發方向
+
+- 增加更多敵人與卡牌
+- 增加更多戰後獎勵與流派組合
+- 優化敵人意圖顯示與難度曲線
+- 加入存檔或本地最高通關紀錄
+- 增加更完整的端到端測試
