@@ -13,6 +13,17 @@ export type RewardId =
   | "strategy-draw"
   | "armor-break-damage";
 
+export type HeroId = "guan-yu" | "zhao-yun";
+
+export interface Hero {
+  id: HeroId;
+  name: string;
+  title: string;
+  maxHp: number;
+  skillName: string;
+  skillDescription: string;
+}
+
 export interface Card {
   id: string;
   name: string;
@@ -45,6 +56,7 @@ export interface PendingDefense {
 }
 
 export interface PlayerState {
+  heroId: HeroId;
   name: string;
   title: string;
   skillName: string;

@@ -1,6 +1,13 @@
+"use client";
+
 import Link from "next/link";
+import { useState } from "react";
+import { heroes } from "@/lib/game/heroes";
 
 export default function Home() {
+  const [selectedHeroId, setSelectedHeroId] = useState("guan-yu");
+  const selectedHero = heroes.find((hero) => hero.id === selectedHeroId) ?? heroes[0];
+
   return (
     <main className="min-h-screen bg-[#140c09] bg-[radial-gradient(circle_at_top_left,rgba(127,29,29,0.36),transparent_35%),linear-gradient(135deg,#1b100b_0%,#2a120d_48%,#090605_100%)] px-6 py-10 text-stone-100">
       <section className="mx-auto flex min-h-[calc(100vh-5rem)] max-w-6xl flex-col justify-center">
@@ -15,12 +22,55 @@ export default function Home() {
             一將入亂世，闖關定天下
           </p>
           <p className="mt-6 max-w-2xl text-base leading-8 text-stone-300 sm:text-lg">
-            操控關羽以斬、閃、酒、兵書與破甲迎戰三路敵人。看穿敵人的攻勢，
+            選擇關羽或趙雲，以斬、閃、酒、兵書與破甲迎戰三路敵人。看穿敵人的攻勢，
             在戰後三選一強化中養成流派，最後挑戰 Boss 呂布。
           </p>
+          <section className="mt-8 rounded-xl border border-amber-700/40 bg-black/30 p-5 shadow-[0_18px_45px_rgba(0,0,0,0.28)]">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.2em] text-amber-300">
+                  選擇武將
+                </p>
+                <h2 className="mt-2 text-2xl font-black text-amber-50">
+                  {selectedHero.name}｜{selectedHero.title}
+                </h2>
+              </div>
+              <p className="text-sm font-bold text-stone-300">
+                體力 {selectedHero.maxHp} / 技能：{selectedHero.skillName}
+              </p>
+            </div>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              {heroes.map((hero) => {
+                const isSelected = hero.id === selectedHeroId;
+
+                return (
+                  <button
+                    key={hero.id}
+                    type="button"
+                    onClick={() => setSelectedHeroId(hero.id)}
+                    className={`rounded-lg border p-4 text-left transition hover:-translate-y-0.5 ${
+                      isSelected
+                        ? "border-amber-300 bg-amber-500/15 shadow-[0_12px_28px_rgba(245,158,11,0.16)]"
+                        : "border-stone-700 bg-stone-950/50 hover:border-amber-600"
+                    }`}
+                  >
+                    <span className="text-xl font-black text-stone-50">
+                      {hero.name}
+                    </span>
+                    <span className="ml-2 rounded-full border border-amber-300/40 px-2 py-0.5 text-xs font-bold text-amber-100">
+                      {hero.title}
+                    </span>
+                    <span className="mt-3 block text-sm leading-6 text-stone-300">
+                      {hero.skillDescription}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </section>
           <div className="mt-9 flex flex-wrap gap-3">
             <Link
-              href="/game"
+              href={`/game?hero=${selectedHeroId}`}
               className="inline-flex h-12 items-center justify-center rounded-md bg-amber-500 px-6 text-sm font-black text-stone-950 shadow-[0_14px_30px_rgba(245,158,11,0.18)] transition hover:bg-amber-300"
             >
               開始遊戲

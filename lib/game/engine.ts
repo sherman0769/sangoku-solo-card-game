@@ -1,9 +1,11 @@
 import { starterDeck } from "./cards";
 import { enemies } from "./enemies";
+import { resolveHero } from "./heroes";
 import type {
   Card,
   EnemyAction,
   GameState,
+  Hero,
   PlayerUpgrades,
   Reward,
   RewardId,
@@ -11,13 +13,30 @@ import type {
 
 const logLimit = 12;
 
-const startingPlayer = {
+function createStartingPlayer(hero: Hero) {
+  return {
+    heroId: hero.id,
+    name: hero.name,
+    title: hero.title,
+    skillName: hero.skillName,
+    skillText: hero.skillDescription,
+    maxHealth: hero.maxHp,
+    health: hero.maxHp,
+    morale: 3,
+    maxMorale: 3,
+    slashUsedThisTurn: false,
+    wineBonus: 0,
+  };
+}
+
+const fallbackPlayer = {
+  heroId: "guan-yu" as const,
   name: "關羽",
-  title: "單騎武將",
+  title: "武聖",
   skillName: "武聖",
-  skillText: "每回合第一次使用斬時，該次傷害 +1。",
-  maxHealth: 10,
-  health: 10,
+  skillText: "每回合第一次使用「斬」時，傷害 +1。",
+  maxHealth: 5,
+  health: 5,
   morale: 3,
   maxMorale: 3,
   slashUsedThisTurn: false,
@@ -36,7 +55,7 @@ export const rewardCatalog: Reward[] = [
   {
     id: "max-health",
     name: "最大體力 +1",
-    text: "關羽最大體力 +1，並回復 1 點體力。",
+    text: "武將最大體力 +1，並回復 1 點體力。",
   },
   {
     id: "starting-draw",
@@ -60,9 +79,10 @@ export const rewardCatalog: Reward[] = [
   },
 ];
 
-export function createGame(): GameState {
+export function createGame(heroId?: string): GameState {
+  const hero = resolveHero(heroId);
   const baseState: GameState = {
-    player: { ...startingPlayer },
+    player: createStartingPlayer(hero),
     playerUpgrades: { ...startingUpgrades },
     enemy: enemies[0],
     enemyHealth: enemies[0].maxHealth,
@@ -123,7 +143,7 @@ export function playCard(state: GameState, cardId: string): GameState {
   }
 
   const card = next.hand[cardIndex];
-  if (card.kind === "dodge") {
+  if (card.kind === "dodge" && next.player.heroId !== "zhao-yun") {
     return appendLog(next, "閃會在敵人攻擊時使用；敵人攻擊時會出現使用閃按鈕。");
   }
 
@@ -185,7 +205,12 @@ export function endTurn(state: GameState): GameState {
       ? `${next.enemy.name} 發動猛攻，準備造成 ${damage} 點傷害。`
       : `${next.enemy.name} 發動普通攻擊，準備造成 ${damage} 點傷害。`;
 
-  if (hasDodge(next)) {
+  if (hasDefenseCard(next)) {
+    const defenseHint =
+      next.player.heroId === "zhao-yun" && !hasDodge(next) && hasSlash(next)
+        ? "你手上有斬，可以發動龍膽抵消或承受。"
+        : "你手上有閃，可以選擇抵消或承受。";
+
     return appendLog({
       ...next,
       phase: "defense",
@@ -194,11 +219,11 @@ export function endTurn(state: GameState): GameState {
         actionLabel: action.label,
         damage,
       },
-    }, `${attackMessage} 你手上有閃，可以選擇抵消或承受。`);
+    }, `${attackMessage} ${defenseHint}`);
   }
 
   return finishEnemyDamage(
-    appendLog(next, `${attackMessage} 你沒有閃，受到 ${damage} 點傷害。`),
+    appendLog(next, `${attackMessage} 你沒有可抵消的牌，受到 ${damage} 點傷害。`),
     damage,
   );
 }
@@ -214,17 +239,29 @@ export function resolveDefense(state: GameState, useDodge: boolean): GameState {
 
   if (useDodge) {
     const dodgeIndex = next.hand.findIndex((card) => card.kind === "dodge");
-    if (dodgeIndex === -1) {
+    const slashAsDodgeIndex =
+      dodgeIndex === -1 && next.player.heroId === "zhao-yun"
+        ? next.hand.findIndex((card) => card.kind === "attack")
+        : -1;
+    const defenseCardIndex = dodgeIndex === -1 ? slashAsDodgeIndex : dodgeIndex;
+
+    if (defenseCardIndex === -1) {
       return finishEnemyDamage(
-        appendLog(next, `你沒有閃可用，受到 ${damage} 點傷害。`),
+        appendLog(next, `你沒有可抵消的牌，受到 ${damage} 點傷害。`),
         damage,
       );
     }
 
-    const [dodge] = next.hand.splice(dodgeIndex, 1);
-    next.discard.push(dodge);
+    const [defenseCard] = next.hand.splice(defenseCardIndex, 1);
+    next.discard.push(defenseCard);
     next.phase = "player";
     next.pendingDefense = undefined;
+
+    if (defenseCard.kind === "attack") {
+      return startNextTurn(
+        appendLog(next, `趙雲發動龍膽，將斬當作閃使用，抵消 ${damage} 點傷害。`),
+      );
+    }
 
     return startNextTurn(
       appendLog(next, `你使用了閃，抵消 ${damage} 點傷害。`),
@@ -270,41 +307,12 @@ export function selectReward(state: GameState, rewardId: RewardId): GameState {
 
 function applyCardEffect(state: GameState, card: Card) {
   if (card.kind === "attack") {
-    let damage =
-      card.value + (card.name === "斬" ? state.playerUpgrades.slashDamageBonus : 0);
-    const notes: string[] = [];
+    applySlashEffect(state, card.value, "你使用了斬");
+    return;
+  }
 
-    if (!state.player.slashUsedThisTurn) {
-      damage += 1;
-      state.player.slashUsedThisTurn = true;
-      notes.push("關羽發動武聖，第一次斬傷害 +1");
-    }
-
-    if (state.player.wineBonus > 0) {
-      damage += state.player.wineBonus;
-      notes.push(`酒勢加成，斬傷害 +${state.player.wineBonus}`);
-      state.player.wineBonus = 0;
-    }
-
-    if (state.enemyArmorBroken) {
-      const armorBreakBonus = 1 + state.playerUpgrades.armorBreakDamageBonus;
-      damage += armorBreakBonus;
-      state.enemyArmorBroken = false;
-      notes.push(`破甲生效，斬傷害 +${armorBreakBonus}`);
-    }
-
-    if (state.enemyGuarding) {
-      damage = Math.max(0, damage - 1);
-      state.enemyGuarding = false;
-      notes.push("敵人防守抵消 1 點傷害");
-    }
-
-    state.enemyHealth = Math.max(0, state.enemyHealth - damage);
-    state.log = [
-      `你使用了斬，造成 ${damage} 點傷害。`,
-      ...notes.map((note) => `${note}。`),
-      ...state.log,
-    ].slice(0, logLimit);
+  if (card.kind === "dodge" && state.player.heroId === "zhao-yun") {
+    applySlashEffect(state, 1, "趙雲發動龍膽，將閃當作斬使用");
     return;
   }
 
@@ -349,7 +357,7 @@ function advanceEnemy(state: GameState): GameState {
   if (nextEnemyIndex >= enemies.length) {
     return appendLog(
       { ...state, status: "won", enemyHealth: 0, phase: "player" },
-      "三關敵人全數擊敗，關羽單騎突圍成功。",
+      `三關敵人全數擊敗，${state.player.name}單騎突圍成功。`,
     );
   }
 
@@ -381,7 +389,7 @@ function finishEnemyDamage(state: GameState, damage: number): GameState {
   next.pendingDefense = undefined;
 
   if (next.player.health <= 0) {
-    return appendLog({ ...next, status: "lost" }, "關羽體力歸零，戰敗。");
+    return appendLog({ ...next, status: "lost" }, `${next.player.name}體力歸零，戰敗。`);
   }
 
   return startNextTurn(next);
@@ -459,14 +467,59 @@ function pickRewardOptions(): Reward[] {
   return [...rewardCatalog].sort(() => Math.random() - 0.5).slice(0, 3);
 }
 
+function applySlashEffect(state: GameState, baseValue: number, actionText: string) {
+  let damage = baseValue + state.playerUpgrades.slashDamageBonus;
+  const notes: string[] = [];
+
+  if (state.player.heroId === "guan-yu" && !state.player.slashUsedThisTurn) {
+    damage += 1;
+    state.player.slashUsedThisTurn = true;
+    notes.push("關羽發動武聖，第一次斬傷害 +1");
+  }
+
+  if (state.player.wineBonus > 0) {
+    damage += state.player.wineBonus;
+    notes.push(`酒勢加成，斬傷害 +${state.player.wineBonus}`);
+    state.player.wineBonus = 0;
+  }
+
+  if (state.enemyArmorBroken) {
+    const armorBreakBonus = 1 + state.playerUpgrades.armorBreakDamageBonus;
+    damage += armorBreakBonus;
+    state.enemyArmorBroken = false;
+    notes.push(`破甲生效，斬傷害 +${armorBreakBonus}`);
+  }
+
+  if (state.enemyGuarding) {
+    damage = Math.max(0, damage - 1);
+    state.enemyGuarding = false;
+    notes.push("敵人防守抵消 1 點傷害");
+  }
+
+  state.enemyHealth = Math.max(0, state.enemyHealth - damage);
+  state.log = [
+    `${actionText}，造成 ${damage} 點傷害。`,
+    ...notes.map((note) => `${note}。`),
+    ...state.log,
+  ].slice(0, logLimit);
+}
+
 function hasDodge(state: GameState): boolean {
   return state.hand.some((card) => card.kind === "dodge");
+}
+
+function hasSlash(state: GameState): boolean {
+  return state.hand.some((card) => card.kind === "attack");
+}
+
+function hasDefenseCard(state: GameState): boolean {
+  return hasDodge(state) || (state.player.heroId === "zhao-yun" && hasSlash(state));
 }
 
 function cloneState(state: GameState): GameState {
   return {
     ...state,
-    player: { ...state.player },
+    player: { ...fallbackPlayer, ...state.player },
     playerUpgrades: { ...state.playerUpgrades },
     enemy: {
       ...state.enemy,

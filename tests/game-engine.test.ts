@@ -11,12 +11,14 @@ import type { GameState, RewardId } from "@/lib/game/types";
 
 describe("game engine", () => {
   it("creates a Guan Yu game with the required starter hand", () => {
-    const state = createGame();
+    const state = createGame("guan-yu");
 
     expect(state.status).toBe("playing");
     expect(state.phase).toBe("player");
+    expect(state.player.heroId).toBe("guan-yu");
     expect(state.player.name).toBe("關羽");
-    expect(state.player.health).toBe(10);
+    expect(state.player.title).toBe("武聖");
+    expect(state.player.health).toBe(5);
     expect(state.enemy.name).toBe("黃巾兵");
     expect(state.hand.map((card) => card.name)).toEqual([
       "斬",
@@ -27,6 +29,23 @@ describe("game engine", () => {
     ]);
     expect(state.deck).toHaveLength(7);
     expect(state.log[0]).toBe("第一關｜黃巾兵登場，亂世初起，試試你的刀法。");
+  });
+
+  it("creates a Zhao Yun game when selected", () => {
+    const state = createGame("zhao-yun");
+
+    expect(state.player.heroId).toBe("zhao-yun");
+    expect(state.player.name).toBe("趙雲");
+    expect(state.player.title).toBe("常山趙子龍");
+    expect(state.player.health).toBe(4);
+    expect(state.player.skillName).toBe("龍膽");
+  });
+
+  it("defaults to Guan Yu for an unknown hero", () => {
+    const state = createGame("unknown-hero");
+
+    expect(state.player.heroId).toBe("guan-yu");
+    expect(state.player.name).toBe("關羽");
   });
 
   it("plays slash with Wusheng and spends morale", () => {
@@ -47,7 +66,7 @@ describe("game engine", () => {
     state = playCard(state, wine.id);
 
     expect(state.player.wineBonus).toBe(1);
-    expect(state.player.health).toBe(10);
+    expect(state.player.health).toBe(5);
 
     const manual = state.hand.find((card) => card.name === "兵書")!;
     state = playCard(state, manual.id);
@@ -78,7 +97,7 @@ describe("game engine", () => {
     const next = resolveDefense(pending, true);
 
     expect(next.phase).toBe("player");
-    expect(next.player.health).toBe(10);
+    expect(next.player.health).toBe(5);
     expect(next.turn).toBe(2);
     expect(next.hand).toHaveLength(5);
     expect(next.discard.some((card) => card.name === "閃")).toBe(true);
@@ -90,7 +109,7 @@ describe("game engine", () => {
     const next = resolveDefense(pending, false);
 
     expect(next.phase).toBe("player");
-    expect(next.player.health).toBe(8);
+    expect(next.player.health).toBe(3);
     expect(next.turn).toBe(2);
     expect(next.log[0]).toBe("你選擇承受攻擊，受到 2 點傷害。");
   });
@@ -145,15 +164,15 @@ describe("game engine", () => {
     const rewardState = forceReward(defeatFirstEnemy(), "max-health");
     const wounded = {
       ...rewardState,
-      player: { ...rewardState.player, health: 7 },
+      player: { ...rewardState.player, health: 3 },
     };
 
     const next = selectReward(wounded, "max-health");
 
     expect(next.phase).toBe("player");
     expect(next.enemy.name).toBe("山賊頭目");
-    expect(next.player.maxHealth).toBe(11);
-    expect(next.player.health).toBe(8);
+    expect(next.player.maxHealth).toBe(6);
+    expect(next.player.health).toBe(4);
     expect(next.playerUpgrades.maxHpBonus).toBe(1);
   });
 
@@ -189,6 +208,47 @@ describe("game engine", () => {
 
     expect(next.hand).toHaveLength(3);
     expect(next.log[0]).toBe("你使用了兵書，抽 3 張牌。");
+  });
+
+  it("lets Zhao Yun use dodge as slash", () => {
+    const state = createGame("zhao-yun");
+    const dodge = state.hand.find((card) => card.name === "閃")!;
+    const next = playCard(state, dodge.id);
+
+    expect(next.enemyHealth).toBe(state.enemyHealth - 1);
+    expect(next.discard).toContainEqual(dodge);
+    expect(next.log[0]).toBe("趙雲發動龍膽，將閃當作斬使用，造成 1 點傷害。");
+  });
+
+  it("applies slash damage upgrades to Zhao Yun's dodge as slash", () => {
+    const state = {
+      ...createGame("zhao-yun"),
+      playerUpgrades: {
+        maxHpBonus: 0,
+        startingDrawBonus: 0,
+        slashDamageBonus: 1,
+        strategyDrawBonus: 0,
+        armorBreakDamageBonus: 0,
+      },
+    };
+    const dodge = state.hand.find((card) => card.name === "閃")!;
+    const next = playCard(state, dodge.id);
+
+    expect(next.enemyHealth).toBe(state.enemyHealth - 2);
+    expect(next.log[0]).toBe("趙雲發動龍膽，將閃當作斬使用，造成 2 點傷害。");
+  });
+
+  it("lets Zhao Yun use slash as dodge during enemy attacks", () => {
+    const base = createGame("zhao-yun");
+    const slash = base.hand.find((card) => card.name === "斬")!;
+    const pending = endTurn({ ...base, hand: [slash] });
+    const next = resolveDefense(pending, true);
+
+    expect(pending.phase).toBe("defense");
+    expect(pending.log[0]).toContain("你手上有斬");
+    expect(next.player.health).toBe(4);
+    expect(next.discard.some((card) => card.name === "斬")).toBe(true);
+    expect(next.log[0]).toBe("趙雲發動龍膽，將斬當作閃使用，抵消 2 點傷害。");
   });
 
   it("moves to the next stage after choosing a reward", () => {

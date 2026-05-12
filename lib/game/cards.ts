@@ -7,7 +7,7 @@ export const starterDeck: Card[] = [
     kind: "attack",
     cost: 1,
     value: 2,
-    text: "造成 2 點傷害。每回合第一次斬會觸發武聖，傷害 +1。",
+    text: "造成 2 點傷害。關羽可觸發武聖，趙雲可當作閃使用。",
   },
   {
     id: "dodge-1",
@@ -15,7 +15,7 @@ export const starterDeck: Card[] = [
     kind: "dodge",
     cost: 0,
     value: 0,
-    text: "敵人攻擊時可選擇使用，抵消該次傷害。",
+    text: "敵人攻擊時可選擇使用，抵消該次傷害。趙雲可當作斬使用。",
   },
   {
     id: "wine-1",
@@ -47,7 +47,7 @@ export const starterDeck: Card[] = [
     kind: "attack",
     cost: 1,
     value: 2,
-    text: "造成 2 點傷害。每回合第一次斬會觸發武聖，傷害 +1。",
+    text: "造成 2 點傷害。關羽可觸發武聖，趙雲可當作閃使用。",
   },
   {
     id: "dodge-2",
@@ -55,7 +55,7 @@ export const starterDeck: Card[] = [
     kind: "dodge",
     cost: 0,
     value: 0,
-    text: "敵人攻擊時可選擇使用，抵消該次傷害。",
+    text: "敵人攻擊時可選擇使用，抵消該次傷害。趙雲可當作斬使用。",
   },
   {
     id: "slash-3",
@@ -63,7 +63,7 @@ export const starterDeck: Card[] = [
     kind: "attack",
     cost: 1,
     value: 2,
-    text: "造成 2 點傷害。每回合第一次斬會觸發武聖，傷害 +1。",
+    text: "造成 2 點傷害。關羽可觸發武聖，趙雲可當作閃使用。",
   },
   {
     id: "manual-2",
@@ -95,6 +95,6 @@ export const starterDeck: Card[] = [
     kind: "attack",
     cost: 1,
     value: 2,
-    text: "造成 2 點傷害。每回合第一次斬會觸發武聖，傷害 +1。",
+    text: "造成 2 點傷害。關羽可觸發武聖，趙雲可當作閃使用。",
   },
 ];

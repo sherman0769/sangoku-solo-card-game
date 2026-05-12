@@ -34,9 +34,9 @@ interface StageNotice {
   subtitle: string;
 }
 
-export default function GameBoard() {
+export default function GameBoard({ initialHeroId }: { initialHeroId?: string }) {
   const router = useRouter();
-  const [state, setState] = useState(() => createGame());
+  const [state, setState] = useState(() => createGame(initialHeroId));
   const [eventToast, setEventToast] = useState<EventToast | null>(null);
   const [panelFeedback, setPanelFeedback] = useState<PanelFeedback | null>(null);
   const [stageNotice, setStageNotice] = useState<StageNotice | null>(null);
@@ -54,6 +54,7 @@ export default function GameBoard() {
   );
   const nextEnemyAction = getCurrentEnemyAction(state);
   const playerStatuses = getPlayerStatuses({
+    heroId: state.player.heroId,
     slashUsedThisTurn: state.player.slashUsedThisTurn,
     wineBonus: state.player.wineBonus,
     enemyArmorBroken: state.enemyArmorBroken,
@@ -135,7 +136,7 @@ export default function GameBoard() {
     const next = playCard(state, cardId);
 
     if (next !== state && card && state.phase === "player") {
-      const toast = getCardToast(card.name);
+      const toast = getCardToast(card.name, state.player.heroId);
       showEventToast(toast.text, toast.tone);
 
       if (next.enemyHealth < beforeEnemyHealth) {
@@ -209,7 +210,7 @@ export default function GameBoard() {
           <div className="mt-4 flex flex-wrap gap-3 sm:mt-0">
             <button
               type="button"
-              onClick={() => setState(createGame())}
+              onClick={() => setState(createGame(initialHeroId))}
               className="h-10 rounded-md border border-amber-600/60 bg-stone-950/70 px-4 text-sm font-bold text-amber-100 transition hover:border-amber-300 hover:bg-amber-950/70"
             >
               重新開始
@@ -244,13 +245,14 @@ export default function GameBoard() {
                 tone="player"
                 eyebrow="武將"
                 title={state.player.name}
-                badge="關羽"
+                badge={state.player.title}
                 health={`♥ ${state.player.health} / ${state.player.maxHealth}`}
                 percent={playerPercent}
                 details={[
+                  `稱號：${state.player.title}`,
                   `士氣 ${state.player.morale}/${state.player.maxMorale}`,
                   `技能：${state.player.skillName}`,
-                  "每回合第一次使用「斬」時，傷害 +1",
+                  state.player.skillText,
                 ]}
                 statuses={playerStatuses}
                 feedback={
@@ -291,7 +293,7 @@ export default function GameBoard() {
                     onClick={() => handleResolveDefense(true)}
                     className="h-11 rounded-md bg-sky-600 px-5 text-sm font-black text-white transition hover:bg-sky-500 disabled:cursor-not-allowed disabled:opacity-45"
                   >
-                    使用閃
+                    {getDefenseButtonLabel(state)}
                   </button>
                   <button
                     type="button"
@@ -345,7 +347,7 @@ export default function GameBoard() {
                     disabled={
                       state.status !== "playing" ||
                       state.phase !== "player" ||
-                      card.kind === "dodge" ||
+                      (card.kind === "dodge" && state.player.heroId !== "zhao-yun") ||
                       card.cost > state.player.morale
                     }
                     onPlay={handlePlayCard}
@@ -521,18 +523,27 @@ function InfoPanel({ title, children }: { title: string; children: React.ReactNo
 }
 
 function getPlayerStatuses({
+  heroId,
   slashUsedThisTurn,
   wineBonus,
   enemyArmorBroken,
   phase,
 }: {
+  heroId: string;
   slashUsedThisTurn: boolean;
   wineBonus: number;
   enemyArmorBroken: boolean;
   phase: string;
 }) {
+  const skillStatus =
+    heroId === "guan-yu"
+      ? slashUsedThisTurn
+        ? "已使用武聖"
+        : "武聖待發"
+      : "龍膽可用";
+
   return [
-    slashUsedThisTurn ? "已使用武聖" : "武聖待發",
+    skillStatus,
     wineBonus > 0 ? `酒勢 +${wineBonus}` : null,
     enemyArmorBroken ? "破甲中" : null,
     phase === "defense" ? "等待防禦" : null,
@@ -591,7 +602,11 @@ function getRewardStyleHint(rewardId: Reward["id"]) {
   return "攻擊流";
 }
 
-function getCardToast(cardName: string): Pick<EventToast, "text" | "tone"> {
+function getCardToast(cardName: string, heroId: string): Pick<EventToast, "text" | "tone"> {
+  if (cardName === "閃" && heroId === "zhao-yun") {
+    return { text: "⚔ 龍膽！", tone: "attack" };
+  }
+
   if (cardName === "斬") {
     return { text: "⚔ 斬！", tone: "attack" };
   }
@@ -609,6 +624,17 @@ function getCardToast(cardName: string): Pick<EventToast, "text" | "tone"> {
   }
 
   return { text: "🛡 閃避！", tone: "guard" };
+}
+
+function getDefenseButtonLabel(state: ReturnType<typeof createGame>) {
+  const hasDodge = state.hand.some((card) => card.kind === "dodge");
+  const hasSlash = state.hand.some((card) => card.kind === "attack");
+
+  if (!hasDodge && hasSlash && state.player.heroId === "zhao-yun") {
+    return "以斬作閃";
+  }
+
+  return "使用閃";
 }
 
 function getStageEntranceText(enemyName: string) {
