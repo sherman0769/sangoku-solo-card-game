@@ -2,7 +2,7 @@ export type CardKind = "attack" | "dodge" | "wine" | "draw" | "pierce" | "equipm
 
 export type EnemyActionKind = "attack" | "fierce" | "guard" | "charge";
 
-export type GamePhase = "player" | "defense" | "reward" | "observe";
+export type GamePhase = "player" | "defense" | "reward" | "observe" | "event";
 
 export type GameStatus = "playing" | "won" | "lost";
 
@@ -14,6 +14,12 @@ export type RewardId =
   | "armor-break-damage";
 
 export type HeroId = "guan-yu" | "zhao-yun" | "zhuge-liang";
+
+export type GameEventId = "village-supply" | "strategist-advice" | "ambush";
+
+export type GameEventType = "supply" | "strategy" | "danger";
+
+export type EventEffectType = "heal" | "draw" | "ambush-upgrade";
 
 export interface Hero {
   id: HeroId;
@@ -59,6 +65,21 @@ export interface PendingDefense {
 export interface PendingObservation {
   cards: Card[];
   drawCount: number;
+}
+
+export interface EventOption {
+  id: string;
+  label: string;
+  description: string;
+  effectType: EventEffectType;
+}
+
+export interface GameEvent {
+  id: GameEventId;
+  name: string;
+  description: string;
+  type: GameEventType;
+  options: EventOption[];
 }
 
 export interface PlayerState {
@@ -114,6 +135,7 @@ export interface GameState {
   phase: GamePhase;
   pendingDefense?: PendingDefense;
   pendingObservation?: PendingObservation;
+  currentEvent?: GameEvent;
   rewardOptions: Reward[];
   status: GameStatus;
   log: string[];

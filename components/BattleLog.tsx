@@ -28,6 +28,23 @@ export default function BattleLog({ entries }: BattleLogProps) {
 }
 
 function getLogMarker(entry: string) {
+  if (
+    entry.includes("事件") ||
+    entry.includes("荒村補給") ||
+    entry.includes("軍師獻策") ||
+    entry.includes("伏兵突襲")
+  ) {
+    if (entry.includes("伏兵突襲")) {
+      return "☠";
+    }
+
+    if (entry.includes("軍師獻策")) {
+      return "📜";
+    }
+
+    return "🎁";
+  }
+
   if (entry.includes("獎勵") || entry.includes("強化")) {
     return "🎁";
   }

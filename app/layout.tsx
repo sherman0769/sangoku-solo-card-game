@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "三國單騎傳",
-  description: "關羽、趙雲、諸葛亮可選，支援裝備卡的三國卡牌闖關遊戲。",
+  description: "關羽、趙雲、諸葛亮可選，支援裝備卡與事件關卡的三國卡牌闖關遊戲。",
 };
 
 export default function RootLayout({

@@ -6,16 +6,18 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import BattleLog from "@/components/BattleLog";
 import CardView from "@/components/CardView";
 import { equipmentEffects } from "@/lib/game/cards";
+import { getEventTypeLabel } from "@/lib/game/events";
 import {
   createGame,
   endTurn,
   getCurrentEnemyAction,
   playCard,
+  resolveEventOption,
   resolveDefense,
   selectObservation,
   selectReward,
 } from "@/lib/game/engine";
-import type { PlayerUpgrades, Reward } from "@/lib/game/types";
+import type { GameEvent, PlayerUpgrades, Reward } from "@/lib/game/types";
 
 interface EventToast {
   id: number;
@@ -207,6 +209,31 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
     setState(next);
   }
 
+  function handleResolveEvent(optionId: string) {
+    const beforePlayerHealth = state.player.health;
+    const beforeHandCount = state.hand.length;
+    const eventName = state.currentEvent?.name ?? "事件";
+    const next = resolveEventOption(state, optionId);
+
+    if (next !== state) {
+      showEventToast(`${eventName}完成`, eventName === "伏兵突襲" ? "danger" : "strategy");
+
+      if (next.player.health > beforePlayerHealth) {
+        showPanelFeedback("player", "heal", "回復體力");
+      }
+
+      if (next.player.health < beforePlayerHealth) {
+        showPanelFeedback("player", "hit", "受到傷害");
+      }
+
+      if (next.hand.length > beforeHandCount) {
+        showEventToast("📜 抽牌！", "strategy");
+      }
+    }
+
+    setState(next);
+  }
+
   return (
     <main className="min-h-screen bg-[#140c09] bg-[radial-gradient(circle_at_top_left,rgba(127,29,29,0.34),transparent_34%),linear-gradient(135deg,#1b100b_0%,#2a120d_45%,#090605_100%)] px-4 py-5 text-stone-100 sm:px-6 lg:px-8">
       {eventToast ? <EventToastView key={eventToast.id} toast={eventToast} /> : null}
@@ -307,6 +334,39 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
                       key={card.id}
                       card={card}
                       onPlay={handleSelectObservation}
+                    />
+                  ))}
+                </div>
+              </section>
+            ) : null}
+
+            {state.phase === "event" && state.currentEvent ? (
+              <section className={`rounded-xl border p-5 shadow-[0_18px_45px_rgba(0,0,0,0.35)] ${getEventFrameClass(state.currentEvent.type)}`}>
+                <p className="text-xs font-bold uppercase tracking-[0.2em] text-amber-200">
+                  事件
+                </p>
+                <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <h2 className="text-2xl font-black text-stone-50">
+                      {state.currentEvent.name}
+                    </h2>
+                    <p className="mt-3 text-sm leading-6 text-stone-200">
+                      {state.currentEvent.description}
+                    </p>
+                  </div>
+                  <span className="inline-flex w-fit rounded-full border border-amber-200/50 bg-black/25 px-3 py-1 text-xs font-black text-amber-100">
+                    {getEventTypeLabel(state.currentEvent.type)}
+                  </span>
+                </div>
+                <div className="mt-5 grid gap-4 md:grid-cols-2">
+                  {state.currentEvent.options.map((option) => (
+                    <EventOptionCard
+                      key={option.id}
+                      event={state.currentEvent!}
+                      optionId={option.id}
+                      label={option.label}
+                      description={option.description}
+                      onChoose={handleResolveEvent}
                     />
                   ))}
                 </div>
@@ -427,7 +487,7 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
           </div>
         </section>
         <footer className="mt-8 pb-2 text-center text-xs font-bold uppercase tracking-[0.18em] text-stone-500">
-          版本：v0.4.0 裝備系統測試版
+          版本：v0.5.0 事件系統測試版
         </footer>
       </div>
     </main>
@@ -561,6 +621,34 @@ function RewardCard({ reward, onChoose }: { reward: Reward; onChoose: () => void
   );
 }
 
+function EventOptionCard({
+  event,
+  optionId,
+  label,
+  description,
+  onChoose,
+}: {
+  event: GameEvent;
+  optionId: string;
+  label: string;
+  description: string;
+  onChoose: (optionId: string) => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={() => onChoose(optionId)}
+      className={`min-h-36 rounded-lg border p-4 text-left shadow-[0_16px_34px_rgba(0,0,0,0.34)] transition hover:-translate-y-1 ${getEventButtonClass(event.type)}`}
+    >
+      <span className="rounded-full border border-white/25 bg-black/25 px-3 py-1 text-xs font-black text-stone-100">
+        {getEventTypeLabel(event.type)}
+      </span>
+      <span className="mt-4 block text-xl font-black text-stone-50">{label}</span>
+      <span className="mt-3 block text-sm leading-6 text-stone-200">{description}</span>
+    </button>
+  );
+}
+
 function InfoPanel({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="rounded-lg border border-amber-700/40 bg-stone-950/80 p-4 text-sm text-stone-200 shadow-[0_18px_45px_rgba(0,0,0,0.35)]">
@@ -618,6 +706,10 @@ function getEnemyStatuses({
 }) {
   if (phase === "reward") {
     return ["戰後整備"];
+  }
+
+  if (phase === "event") {
+    return ["事件中"];
   }
 
   if (phase === "observe") {
@@ -724,4 +816,28 @@ function getStageEntranceText(enemyName: string) {
   }
 
   return "呂布現身";
+}
+
+function getEventFrameClass(type: GameEvent["type"]) {
+  if (type === "supply") {
+    return "border-emerald-400/50 bg-emerald-950/55 text-emerald-50";
+  }
+
+  if (type === "strategy") {
+    return "border-purple-400/50 bg-purple-950/55 text-purple-50";
+  }
+
+  return "border-red-400/60 bg-red-950/65 text-red-50";
+}
+
+function getEventButtonClass(type: GameEvent["type"]) {
+  if (type === "supply") {
+    return "border-emerald-300/50 bg-emerald-950/80 hover:border-emerald-100 hover:bg-emerald-900/70";
+  }
+
+  if (type === "strategy") {
+    return "border-purple-300/50 bg-purple-950/80 hover:border-purple-100 hover:bg-purple-900/70";
+  }
+
+  return "border-red-300/60 bg-red-950/85 hover:border-red-100 hover:bg-red-900/75";
 }

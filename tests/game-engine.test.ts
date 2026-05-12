@@ -3,12 +3,15 @@ import { starterDeck } from "@/lib/game/cards";
 import {
   createGame,
   endTurn,
+  enterEventPhase,
   playCard,
   rewardCatalog,
+  resolveEventOption,
   resolveDefense,
   selectObservation,
   selectReward,
 } from "@/lib/game/engine";
+import { gameEvents } from "@/lib/game/events";
 import { heroes } from "@/lib/game/heroes";
 import type { GameState, RewardId } from "@/lib/game/types";
 
@@ -42,6 +45,14 @@ describe("game engine", () => {
       "青龍偃月刀",
       "的盧馬",
       "太平要術",
+    ]);
+  });
+
+  it("includes the first event set", () => {
+    expect(gameEvents.map((event) => event.name)).toEqual([
+      "荒村補給",
+      "軍師獻策",
+      "伏兵突襲",
     ]);
   });
 
@@ -189,7 +200,7 @@ describe("game engine", () => {
       enemyHealth: 3,
     };
 
-    const next = playCard(nearDefeat, slash.id);
+    const next = playCard(nearDefeat, slash.id, { eventRoll: () => 1 });
 
     expect(next.status).toBe("playing");
     expect(next.phase).toBe("reward");
@@ -197,6 +208,110 @@ describe("game engine", () => {
     expect(next.enemyHealth).toBe(0);
     expect(next.rewardOptions).toHaveLength(3);
     expect(next.log[0]).toBe("擊敗黃巾兵，選擇一項通關獎勵。");
+  });
+
+  it("can enter an event phase after defeating the first enemy", () => {
+    const state = createGame();
+    const slash = state.hand.find((card) => card.name === "斬")!;
+    const nearDefeat = {
+      ...state,
+      enemyHealth: 3,
+    };
+
+    const next = playCard(nearDefeat, slash.id, {
+      eventRoll: () => 0,
+      eventId: "village-supply",
+    });
+
+    expect(next.status).toBe("playing");
+    expect(next.phase).toBe("event");
+    expect(next.currentEvent?.name).toBe("荒村補給");
+    expect(next.rewardOptions).toHaveLength(0);
+    expect(next.log[0]).toBe("事件出現：荒村補給。");
+  });
+
+  it("heals two health from village supply without exceeding max health", () => {
+    const eventState = enterEventPhase(
+      {
+        ...defeatFirstEnemy(),
+        player: { ...defeatFirstEnemy().player, health: 4 },
+      },
+      "village-supply",
+    );
+
+    const next = resolveEventOption(eventState, "rest");
+
+    expect(next.phase).toBe("reward");
+    expect(next.currentEvent).toBeUndefined();
+    expect(next.player.health).toBe(next.player.maxHealth);
+    expect(next.rewardOptions).toHaveLength(3);
+    expect(next.log).toContain("荒村補給：回復 2 點體力。");
+  });
+
+  it("draws two cards from strategist advice", () => {
+    const eventState = enterEventPhase(
+      {
+        ...defeatFirstEnemy(),
+        hand: [],
+        deck: createGame().deck,
+        discard: [],
+      },
+      "strategist-advice",
+    );
+
+    const next = resolveEventOption(eventState, "listen");
+
+    expect(next.phase).toBe("reward");
+    expect(next.hand).toHaveLength(2);
+    expect(next.log).toContain("軍師獻策：抽 2 張牌。");
+  });
+
+  it("loses one health and gains slash damage from ambush", () => {
+    const eventState = enterEventPhase(
+      {
+        ...defeatFirstEnemy(),
+        player: { ...defeatFirstEnemy().player, health: 3 },
+      },
+      "ambush",
+    );
+
+    const next = resolveEventOption(eventState, "break-through");
+
+    expect(next.phase).toBe("reward");
+    expect(next.player.health).toBe(2);
+    expect(next.playerUpgrades.slashDamageBonus).toBe(1);
+    expect(next.log).toContain("伏兵突襲：失去 1 點體力，斬傷害 +1。");
+  });
+
+  it("loses from ambush when health reaches zero", () => {
+    const eventState = enterEventPhase(
+      {
+        ...defeatFirstEnemy(),
+        player: { ...defeatFirstEnemy().player, health: 1 },
+      },
+      "ambush",
+    );
+
+    const next = resolveEventOption(eventState, "break-through");
+
+    expect(next.status).toBe("lost");
+    expect(next.currentEvent).toBeUndefined();
+    expect(next.log[0]).toBe("關羽體力歸零，戰敗。");
+  });
+
+  it("keeps the original reward flow when no event triggers", () => {
+    const state = createGame();
+    const slash = state.hand.find((card) => card.name === "斬")!;
+    const nearDefeat = {
+      ...state,
+      enemyHealth: 3,
+    };
+
+    const next = playCard(nearDefeat, slash.id, { eventRoll: () => 1 });
+
+    expect(next.phase).toBe("reward");
+    expect(next.currentEvent).toBeUndefined();
+    expect(next.rewardOptions).toHaveLength(3);
   });
 
   it("increases max health and heals after choosing max health reward", () => {
@@ -383,6 +498,7 @@ describe("game engine", () => {
         player: { ...equipped.player, morale: equipped.player.maxMorale },
       },
       slash.id,
+      { eventRoll: () => 1 },
     );
     const nextStage = selectReward(forceReward(defeated, "max-health"), "max-health");
     const dodged = endTurn({ ...nextStage, hand: [] });
@@ -490,9 +606,11 @@ describe("game engine", () => {
       enemyHealth: 3,
     };
     const slash = state.hand.find((card) => card.name === "斬")!;
-    const next = playCard(state, slash.id);
+    const next = playCard(state, slash.id, { eventRoll: () => 0 });
 
     expect(next.status).toBe("won");
+    expect(next.phase).toBe("player");
+    expect(next.currentEvent).toBeUndefined();
     expect(next.log[0]).toContain("三關敵人全數擊敗");
   });
 
@@ -513,7 +631,7 @@ function defeatFirstEnemy(): GameState {
   const state = createGame();
   const slash = state.hand.find((card) => card.name === "斬")!;
 
-  return playCard({ ...state, enemyHealth: 3 }, slash.id);
+  return playCard({ ...state, enemyHealth: 3 }, slash.id, { eventRoll: () => 1 });
 }
 
 function forceReward(state: GameState, rewardId: RewardId): GameState {

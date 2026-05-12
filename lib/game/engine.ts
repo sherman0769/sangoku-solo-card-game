@@ -1,9 +1,11 @@
 import { starterDeck } from "./cards";
 import { enemies } from "./enemies";
+import { gameEvents, resolveEvent } from "./events";
 import { resolveHero } from "./heroes";
 import type {
   Card,
   EnemyAction,
+  GameEventId,
   GameState,
   Hero,
   PlayerUpgrades,
@@ -13,6 +15,12 @@ import type {
 
 const logLimit = 12;
 const zhugeLiangTurnDraw = 2;
+const eventChance = 0.5;
+
+interface EventRollOptions {
+  eventRoll?: () => number;
+  eventId?: GameEventId;
+}
 
 function createStartingPlayer(hero: Hero) {
   return {
@@ -144,7 +152,11 @@ export function drawCards(state: GameState, count: number): GameState {
   return next;
 }
 
-export function playCard(state: GameState, cardId: string): GameState {
+export function playCard(
+  state: GameState,
+  cardId: string,
+  eventOptions?: EventRollOptions,
+): GameState {
   if (state.status !== "playing") {
     return state;
   }
@@ -159,6 +171,10 @@ export function playCard(state: GameState, cardId: string): GameState {
 
   if (state.phase === "observe") {
     return appendLog(state, "請先完成觀星，選擇一張牌加入手牌。");
+  }
+
+  if (state.phase === "event") {
+    return appendLog(state, "請先處理事件，再進入戰後獎勵。");
   }
 
   const next = cloneState(state);
@@ -190,7 +206,7 @@ export function playCard(state: GameState, cardId: string): GameState {
   }
 
   if (next.enemyHealth <= 0) {
-    return advanceEnemy(next);
+    return advanceEnemy(next, eventOptions);
   }
 
   return next;
@@ -211,6 +227,10 @@ export function endTurn(state: GameState): GameState {
 
   if (state.phase === "observe") {
     return appendLog(state, "請先完成觀星，選擇一張牌加入手牌。");
+  }
+
+  if (state.phase === "event") {
+    return appendLog(state, "請先處理事件，再進入戰後獎勵。");
   }
 
   const next = cloneState(state);
@@ -387,6 +407,89 @@ export function selectReward(state: GameState, rewardId: RewardId): GameState {
   );
 }
 
+export function enterEventPhase(
+  state: GameState,
+  eventId?: GameEventId,
+): GameState {
+  const event = resolveEvent(eventId);
+
+  return appendLog(
+    {
+      ...cloneState(state),
+      phase: "event",
+      pendingDefense: undefined,
+      pendingObservation: undefined,
+      currentEvent: event,
+      rewardOptions: [],
+    },
+    `事件出現：${event.name}。`,
+  );
+}
+
+export function resolveEventOption(state: GameState, optionId: string): GameState {
+  if (state.status !== "playing" || state.phase !== "event" || !state.currentEvent) {
+    return state;
+  }
+
+  const event = state.currentEvent;
+  const option = event.options.find((item) => item.id === optionId);
+
+  if (!option) {
+    return appendLog(state, "這個事件選項目前不能選擇。");
+  }
+
+  const next = cloneState(state);
+  let effectMessage = "";
+
+  if (event.id === "village-supply") {
+    next.player.health = Math.min(next.player.maxHealth, next.player.health + 2);
+    effectMessage = "荒村補給：回復 2 點體力。";
+  }
+
+  if (event.id === "strategist-advice") {
+    const drawn = drawCards(next, 2);
+    next.deck = drawn.deck;
+    next.hand = drawn.hand;
+    next.discard = drawn.discard;
+    effectMessage = "軍師獻策：抽 2 張牌。";
+  }
+
+  if (event.id === "ambush") {
+    next.player.health = Math.max(0, next.player.health - 1);
+
+    if (next.player.health <= 0) {
+      return {
+        ...next,
+        status: "lost",
+        phase: "player",
+        currentEvent: undefined,
+        log: [
+          `${next.player.name}體力歸零，戰敗。`,
+          "伏兵突襲：失去 1 點體力。",
+          `你選擇了「${option.label}」。`,
+          ...next.log,
+        ].slice(0, logLimit),
+      };
+    }
+
+    next.playerUpgrades.slashDamageBonus += 1;
+    effectMessage = "伏兵突襲：失去 1 點體力，斬傷害 +1。";
+  }
+
+  return {
+    ...next,
+    phase: "reward",
+    currentEvent: undefined,
+    rewardOptions: pickRewardOptions(),
+    log: [
+      "事件結束，進入戰後獎勵。",
+      effectMessage,
+      `你選擇了「${option.label}」。`,
+      ...next.log,
+    ].slice(0, logLimit),
+  };
+}
+
 function applyCardEffect(state: GameState, card: Card) {
   if (card.kind === "equipment") {
     state.player.equippedItems.push(card);
@@ -450,13 +553,40 @@ function applyCardEffect(state: GameState, card: Card) {
   }
 }
 
-function advanceEnemy(state: GameState): GameState {
+function advanceEnemy(state: GameState, eventOptions?: EventRollOptions): GameState {
   const nextEnemyIndex = state.enemyIndex + 1;
 
   if (nextEnemyIndex >= enemies.length) {
     return appendLog(
       { ...state, status: "won", enemyHealth: 0, phase: "player" },
       `三關敵人全數擊敗，${state.player.name}單騎突圍成功。`,
+    );
+  }
+
+  const shouldEnterEvent = (eventOptions?.eventRoll ?? Math.random)() < eventChance;
+
+  if (shouldEnterEvent) {
+    const event = eventOptions?.eventId
+      ? resolveEvent(eventOptions.eventId)
+      : gameEvents[Math.floor(Math.random() * gameEvents.length)];
+
+    return enterEventPhase(
+      {
+        ...state,
+        enemyActionIndex: 0,
+        enemyGuarding: false,
+        enemyCharged: false,
+        enemyArmorBroken: false,
+        pendingDefense: undefined,
+        player: {
+          ...state.player,
+          morale: state.player.maxMorale,
+          slashUsedThisTurn: false,
+          wineBonus: 0,
+          equipmentUsageThisTurn: createTurnEquipmentUsage(),
+        },
+      },
+      event.id,
     );
   }
 
@@ -470,6 +600,7 @@ function advanceEnemy(state: GameState): GameState {
       phase: "reward",
       pendingDefense: undefined,
       rewardOptions: pickRewardOptions(),
+      currentEvent: undefined,
       player: {
         ...state.player,
         morale: state.player.maxMorale,
@@ -713,6 +844,12 @@ function cloneState(state: GameState): GameState {
       ? {
           cards: [...state.pendingObservation.cards],
           drawCount: state.pendingObservation.drawCount,
+        }
+      : undefined,
+    currentEvent: state.currentEvent
+      ? {
+          ...state.currentEvent,
+          options: state.currentEvent.options.map((option) => ({ ...option })),
         }
       : undefined,
     rewardOptions: state.rewardOptions.map((reward) => ({ ...reward })),

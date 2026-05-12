@@ -23,7 +23,7 @@ export default function Home() {
           </p>
           <p className="mt-6 max-w-2xl text-base leading-8 text-stone-300 sm:text-lg">
             選擇關羽、趙雲或諸葛亮，以斬、閃、酒、兵書與破甲迎戰三路敵人。看穿敵人的攻勢，
-            在戰後三選一強化中養成流派，最後挑戰 Boss 呂布。
+            在隨機事件與戰後三選一強化中養成流派，最後挑戰 Boss 呂布。
           </p>
           <section className="mt-8 rounded-xl border border-amber-700/40 bg-black/30 p-5 shadow-[0_18px_45px_rgba(0,0,0,0.28)]">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
@@ -90,10 +90,11 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="mt-14 grid gap-4 md:grid-cols-3">
+        <div className="mt-14 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {[
             ["單人卡牌闖關", "每回合管理士氣與手牌，在攻防之間找出突破口。"],
-            ["三選一戰後強化", "擊敗敵人後選擇強化，讓關羽逐步形成戰鬥風格。"],
+            ["三選一戰後強化", "擊敗敵人後選擇強化，讓武將逐步形成戰鬥風格。"],
+            ["隨機事件考驗", "戰鬥之後可能遇到補給、策略或危險事件。"],
             ["挑戰最終 Boss 呂布", "前兩關累積優勢，第三關迎戰真正的亂世猛將。"],
           ].map(([title, text]) => (
             <section
@@ -114,7 +115,7 @@ export default function Home() {
           </p>
         </section>
         <p className="mt-8 text-xs font-bold uppercase tracking-[0.18em] text-stone-500">
-          版本：v0.4.0 裝備系統測試版
+          版本：v0.5.0 事件系統測試版
         </p>
       </section>
     </main>
