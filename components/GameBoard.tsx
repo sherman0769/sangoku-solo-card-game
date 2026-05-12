@@ -19,6 +19,7 @@ import {
   selectRoute,
 } from "@/lib/game/engine";
 import { currentVersionLabel, getPhaseHint, quickRules } from "@/lib/game/showcase";
+import { totalStages } from "@/lib/game/stages";
 import type { GameEvent, PlayerUpgrades, Reward, StageRoute } from "@/lib/game/types";
 
 interface EventToast {
@@ -118,11 +119,11 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
     feedbackIdRef.current += 1;
     setStageNotice({
       id: feedbackIdRef.current,
-      title: state.enemy.title,
+      title: `第 ${state.stageConfig.stage} 關｜${state.stageConfig.name}`,
       subtitle: getStageEntranceText(state.enemy.name),
     });
     stageTimerRef.current = setTimeout(() => setStageNotice(null), 1200);
-  }, [state.enemy.name, state.enemy.title]);
+  }, [state.enemy.name, state.stageConfig.name, state.stageConfig.stage]);
 
   useEffect(() => {
     return () => {
@@ -255,11 +256,15 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
         <header className="rounded-xl border border-amber-700/40 bg-black/30 p-4 shadow-[0_18px_45px_rgba(0,0,0,0.35)] backdrop-blur sm:flex sm:items-end sm:justify-between">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.22em] text-amber-300">
-              第 {state.enemyIndex + 1} 關 / 3 · 第 {state.turn} 回合
+              {state.chapter.name} · 第 {state.enemyIndex + 1} 關 / {totalStages} ·
+              第 {state.turn} 回合
             </p>
             <h1 className="mt-2 text-3xl font-black tracking-normal text-amber-50 sm:text-4xl">
               三國單騎傳
             </h1>
+            <p className="mt-2 text-sm leading-6 text-stone-300">
+              第 {state.stageConfig.stage} 關｜{state.stageConfig.name}：{state.stageConfig.flavorText}
+            </p>
           </div>
           <div className="mt-4 flex flex-wrap gap-3 sm:mt-0">
             <button
@@ -322,7 +327,7 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
               />
               <CombatantPanel
                 tone="enemy"
-                eyebrow={state.enemy.title}
+                eyebrow={`第 ${state.stageConfig.stage} 關｜${state.stageConfig.name}`}
                 title={state.enemy.name}
                 badge={state.enemy.id === "lu-bu" ? "Boss" : "敵將"}
                 health={`♥ ${state.enemyHealth} / ${state.enemy.maxHealth}`}
@@ -530,7 +535,12 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
               )}
             </InfoPanel>
             <InfoPanel title="戰局">
-              <p>目前第 {state.enemyIndex + 1} 關，共 3 關</p>
+              <p>
+                目前第 {state.enemyIndex + 1} 關，共 {totalStages} 關
+              </p>
+              <p className="mt-2">章節：{state.chapter.name}</p>
+              <p className="mt-2">關卡：{state.stageConfig.name}</p>
+              <p className="mt-2">關卡敘事：{state.stageConfig.flavorText}</p>
               <p className="mt-2">
                 牌庫 {state.deck.length} 張 / 棄牌 {state.discard.length} 張
               </p>

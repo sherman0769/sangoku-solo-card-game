@@ -1,6 +1,6 @@
 import type { GamePhase } from "./types";
 
-export const currentVersionLabel = "v0.8.1 展示與教學優化版";
+export const currentVersionLabel = "v0.9.0 第一章關卡擴充版";
 
 export const howToSteps = [
   {
@@ -13,7 +13,7 @@ export const howToSteps = [
   },
   {
     title: "擊敗敵人",
-    text: "每一關會遇到不同敵人，第 3 關挑戰呂布。",
+    text: "第一章共有 8 關，最後在虎牢關前挑戰呂布。",
   },
   {
     title: "遇見事件",
@@ -31,11 +31,13 @@ export const howToSteps = [
 
 export const currentFeatureHighlights = [
   "三位可選武將：關羽、趙雲、諸葛亮",
+  "第一章 8 關流程",
   "31 張玩家牌組",
   "戰術卡：連斬、固守、激勵、火攻",
   "裝備系統：青龍偃月刀、的盧馬、太平要術",
+  "Mini-boss 張梁 / 張寶",
   "隨機事件與路線選擇",
-  "第 1、2 關敵人池隨機，第 3 關挑戰呂布",
+  "第 1～7 關依關卡敵人池隨機，第 8 關挑戰呂布",
   "可完整通關、失敗重來",
 ] as const;
 
@@ -45,7 +47,7 @@ export const quickRules = [
   "按「結束回合」後，敵人會行動。",
   "擊敗敵人後，可能遇到事件，再選擇戰後獎勵。",
   "選擇路線後，進入下一關。",
-  "第 3 關擊敗呂布即可通關。",
+  "第 8 關擊敗呂布即可通關。",
 ] as const;
 
 export function getPhaseHint(phase: GamePhase) {

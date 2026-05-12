@@ -14,14 +14,16 @@ import {
 } from "@/lib/game/engine";
 import {
   bossEnemy,
-  enemies,
+  enemyPool,
   firstStageEnemyPool,
+  getEnemiesForStage,
   secondStageEnemyPool,
   selectEnemyForStage,
 } from "@/lib/game/enemies";
 import { gameEvents } from "@/lib/game/events";
 import { heroes } from "@/lib/game/heroes";
 import { stageRoutes } from "@/lib/game/routes";
+import { chapterOne, chapterStages, getEventChanceForStage, getStageConfig } from "@/lib/game/stages";
 import type { GameState, RewardId, StageRouteId } from "@/lib/game/types";
 
 describe("game engine", () => {
@@ -43,7 +45,9 @@ describe("game engine", () => {
       "破甲",
     ]);
     expect(state.deck).toHaveLength(26);
-    expect(state.log[0]).toBe("第一關｜黃巾兵登場：基礎敵人，行動單純，適合熱身。");
+    expect(state.chapter).toEqual(chapterOne);
+    expect(state.stageConfig.name).toBe("荒村初戰");
+    expect(state.log[0]).toBe("第 1 關｜荒村初戰｜黃巾兵登場：基礎敵人，行動單純，適合熱身。");
   });
 
   it("includes three equipment cards and eight tactical cards in the starter deck", () => {
@@ -76,22 +80,54 @@ describe("game engine", () => {
     expect(firstStageEnemyPool.map((enemy) => enemy.name)).toEqual([
       "黃巾兵",
       "黃巾弓手",
-      "黃巾力士",
     ]);
   });
 
   it("includes the second stage enemy pool", () => {
     expect(secondStageEnemyPool.map((enemy) => enemy.name)).toEqual([
-      "山賊頭目",
-      "黑山賊將",
-      "西涼騎兵",
+      "黃巾弓手",
+      "黃巾力士",
     ]);
   });
 
-  it("keeps Lu Bu as the third stage boss", () => {
+  it("keeps Lu Bu as the eighth stage boss", () => {
     expect(bossEnemy.name).toBe("呂布");
-    expect(bossEnemy.stage).toBe(3);
+    expect(bossEnemy.stage).toBe(8);
     expect(bossEnemy.type).toBe("boss");
+    expect(bossEnemy.maxHealth).toBe(12);
+  });
+
+  it("includes chapter one with eight stages", () => {
+    expect(chapterOne.name).toBe("第一章：黃巾亂起");
+    expect(chapterStages).toHaveLength(8);
+    expect(chapterStages[0].name).toBe("荒村初戰");
+    expect(chapterStages[6].name).toBe("黃巾祭壇");
+    expect(chapterStages[6].enemyIds).toEqual(["zhang-liang", "zhang-bao"]);
+    expect(chapterStages[7].name).toBe("虎牢關前");
+    expect(chapterStages[7].enemyIds).toEqual(["lu-bu"]);
+    expect(chapterStages[7].isFinalBoss).toBe(true);
+  });
+
+  it("includes Zhang Liang and Zhang Bao mini-boss enemies", () => {
+    expect(enemyPool).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: "zhang-liang", name: "張梁", stage: 7 }),
+        expect.objectContaining({ id: "zhang-bao", name: "張寶", stage: 7 }),
+      ]),
+    );
+  });
+
+  it("selects enemies from each configured stage pool", () => {
+    expect(selectEnemyForStage(1, "yellow-turban-archer").name).toBe("黃巾弓手");
+    expect(selectEnemyForStage(4, "black-mountain-general").name).toBe("黑山賊將");
+    expect(selectEnemyForStage(8, "yellow-turban-soldier").name).toBe("呂布");
+  });
+
+  it("uses higher event chance for event-heavy stages", () => {
+    expect(getEventChanceForStage(getStageConfig(3))).toBe(0.75);
+    expect(getEventChanceForStage(getStageConfig(6))).toBe(0.75);
+    expect(getEventChanceForStage(getStageConfig(1))).toBe(0.5);
+    expect(getEventChanceForStage(getStageConfig(7))).toBe(0.5);
   });
 
   it("includes the first route set", () => {
@@ -387,14 +423,14 @@ describe("game engine", () => {
     const ready = {
       ...rewarded,
       hand: [slash],
-      enemyHealth: rewarded.enemy.maxHealth,
+      enemyHealth: 8,
       player: { ...rewarded.player, morale: rewarded.player.maxMorale },
       discard: [],
     };
 
     const next = playCard(ready, slash.id);
 
-    expect(next.enemyHealth).toBe(rewarded.enemy.maxHealth - 4);
+    expect(next.enemyHealth).toBe(4);
     expect(next.log[0]).toBe("你使用了斬，造成 4 點傷害。");
   });
 
@@ -843,25 +879,24 @@ describe("game engine", () => {
 
     expect(next.phase).toBe("player");
     expect(next.enemyIndex).toBe(1);
-    expect(next.enemy.name).toBe("山賊頭目");
-    expect(next.enemyHealth).toBe(enemies[1].maxHealth);
+    expect(next.stageConfig.name).toBe("山道伏兵");
+    expect(next.enemy.name).toBe("黃巾弓手");
+    expect(next.enemyHealth).toBe(getEnemiesForStage(2)[0].maxHealth);
     expect(next.playerUpgrades.startingDrawBonus).toBe(1);
     expect(next.hand).toHaveLength(6);
-    expect(next.log[0]).toBe("第二關｜山賊頭目登場：均衡型敵人，懂得攻擊、防守與蓄力。");
+    expect(next.log[0]).toBe("第 2 關｜山道伏兵｜黃巾弓手登場：體力較低，但攻擊較頻繁。");
   });
 
-  it("can deterministically select Xiliang Cavalry for stage two", () => {
-    const routeState = selectReward(forceReward(defeatFirstEnemy(), "max-health"), "max-health");
+  it("can deterministically select Xiliang Cavalry for stage five", () => {
+    const routeState = prepareRouteStateAtStage(4);
     const next = selectRoute(routeState, "official-road", {
-      enemyIds: { 2: "xiliang-cavalry" },
+      enemyIds: { 5: "xiliang-cavalry" },
     });
 
     expect(next.enemy.name).toBe("西涼騎兵");
     expect(next.enemy.maxHealth).toBe(5);
-    expect(next.encounteredEnemyIds).toEqual([
-      "yellow-turban-soldier",
-      "xiliang-cavalry",
-    ]);
+    expect(next.stageConfig.name).toBe("西涼突騎");
+    expect(next.encounteredEnemyIds.at(-1)).toBe("xiliang-cavalry");
   });
 
   it("enters route selection after defeating the second enemy and choosing reward", () => {
@@ -879,9 +914,9 @@ describe("game engine", () => {
     const routeState = selectReward(forceReward(defeatFirstEnemy(), "max-health"), "max-health");
     const next = selectRoute(routeState, "mountain-path");
 
-    expect(next.enemy.name).toBe("山賊頭目");
-    expect(next.enemy.maxHealth).toBe(enemies[1].maxHealth - 1);
-    expect(next.enemyHealth).toBe(enemies[1].maxHealth - 1);
+    expect(next.enemy.name).toBe("黃巾弓手");
+    expect(next.enemy.maxHealth).toBe(getEnemiesForStage(2)[0].maxHealth - 1);
+    expect(next.enemyHealth).toBe(getEnemiesForStage(2)[0].maxHealth - 1);
     expect(next.log).toContain("你選擇山道，下一關敵人體力 -1。");
   });
 
@@ -889,8 +924,8 @@ describe("game engine", () => {
     const routeState = selectReward(forceReward(defeatFirstEnemy(), "max-health"), "max-health");
     const next = selectRoute(routeState, "official-road");
 
-    expect(next.enemy.maxHealth).toBe(enemies[1].maxHealth);
-    expect(next.enemyHealth).toBe(enemies[1].maxHealth);
+    expect(next.enemy.maxHealth).toBe(getEnemiesForStage(2)[0].maxHealth);
+    expect(next.enemyHealth).toBe(getEnemiesForStage(2)[0].maxHealth);
     expect(next.log).toContain("你選擇官道，下一關維持正常難度。");
   });
 
@@ -898,8 +933,8 @@ describe("game engine", () => {
     const routeState = selectReward(forceReward(defeatFirstEnemy(), "max-health"), "max-health");
     const next = selectRoute(routeState, "dangerous-pass");
 
-    expect(next.enemy.maxHealth).toBe(enemies[1].maxHealth + 2);
-    expect(next.enemyHealth).toBe(enemies[1].maxHealth + 2);
+    expect(next.enemy.maxHealth).toBe(getEnemiesForStage(2)[0].maxHealth + 2);
+    expect(next.enemyHealth).toBe(getEnemiesForStage(2)[0].maxHealth + 2);
     expect(next.rewardOptionBonus).toBe(1);
     expect(next.log).toContain("你選擇險道，下一關敵人體力 +2，但戰後獎勵多 1 個選項。");
   });
@@ -912,6 +947,30 @@ describe("game engine", () => {
     expect(next.rewardOptions).toHaveLength(4);
     expect(next.rewardOptionBonus).toBe(0);
     expect(next.log).toContain("險道報酬觸發，本次戰後獎勵增加 1 個選項。");
+  });
+
+  it("keeps stage seven victory in the reward and route flow before Lu Bu", () => {
+    const defeated = defeatStage(7, "zhang-liang", { eventRoll: () => 1 });
+    const routeState = selectReward(forceReward(defeated, "max-health"), "max-health");
+    const next = selectRoute(routeState, "official-road");
+
+    expect(defeated.phase).toBe("reward");
+    expect(routeState.phase).toBe("route");
+    expect(next.phase).toBe("player");
+    expect(next.stageConfig.name).toBe("虎牢關前");
+    expect(next.enemy.name).toBe("呂布");
+  });
+
+  it("uses a higher event trigger chance on event-heavy stages", () => {
+    const eventHeavy = defeatStage(3, "bandit-leader", {
+      eventRoll: () => 0.6,
+      eventId: "strategist-advice",
+    });
+    const normal = defeatStage(4, "bandit-leader", { eventRoll: () => 0.6 });
+
+    expect(eventHeavy.phase).toBe("event");
+    expect(eventHeavy.currentEvent?.name).toBe("軍師獻策");
+    expect(normal.phase).toBe("reward");
   });
 
   it("caps reward options at the available reward count", () => {
@@ -942,7 +1001,7 @@ describe("game engine", () => {
     expect(rewardState.phase).toBe("reward");
     expect(routeState.phase).toBe("route");
     expect(next.phase).toBe("player");
-    expect(next.enemy.name).toBe("山賊頭目");
+    expect(next.enemy.name).toBe("黃巾弓手");
   });
 
   it("runs reward to route to next stage flow when no event triggers", () => {
@@ -953,14 +1012,15 @@ describe("game engine", () => {
     expect(rewardState.phase).toBe("reward");
     expect(routeState.phase).toBe("route");
     expect(next.phase).toBe("player");
-    expect(next.enemy.name).toBe("山賊頭目");
+    expect(next.enemy.name).toBe("黃巾弓手");
   });
 
-  it("wins after the third enemy is defeated", () => {
-    const luBu = selectEnemyForStage(3);
+  it("wins after the eighth enemy is defeated", () => {
+    const luBu = selectEnemyForStage(8);
     const state = {
       ...createGame(),
-      enemyIndex: 2,
+      enemyIndex: 7,
+      stageConfig: getStageConfig(8),
       enemy: luBu,
       enemyHealth: 3,
     };
@@ -970,7 +1030,7 @@ describe("game engine", () => {
     expect(next.status).toBe("won");
     expect(next.phase).toBe("player");
     expect(next.currentEvent).toBeUndefined();
-    expect(next.log[0]).toContain("三關敵人全數擊敗");
+    expect(next.log[0]).toBe("你突破虎牢關前的考驗，第一章：黃巾亂起 已完成。");
   });
 
   it("loses when Guan Yu takes lethal enemy damage", () => {
@@ -1010,6 +1070,38 @@ function defeatCurrentEnemy(state: GameState): GameState {
     slash.id,
     { eventRoll: () => 1 },
   );
+}
+
+function defeatStage(
+  stage: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8,
+  enemyId: string,
+  eventOptions: Parameters<typeof playCard>[2],
+): GameState {
+  const slash = getCard("斬");
+  const enemy = selectEnemyForStage(stage, enemyId);
+  const state = {
+    ...createGame(),
+    enemyIndex: stage - 1,
+    stageConfig: getStageConfig(stage),
+    enemy,
+    enemyHealth: 3,
+    hand: [slash],
+    player: {
+      ...createGame().player,
+      morale: createGame().player.maxMorale,
+      slashUsedThisTurn: false,
+    },
+  };
+
+  return playCard(state, slash.id, eventOptions);
+}
+
+function prepareRouteStateAtStage(stage: 1 | 2 | 3 | 4 | 5 | 6 | 7): GameState {
+  return {
+    ...forceReward(defeatStage(stage, getStageConfig(stage).enemyIds[0], { eventRoll: () => 1 }), "max-health"),
+    phase: "route",
+    availableRoutes: stageRoutes.map((route) => ({ ...route })),
+  };
 }
 
 function chooseRewardAndRoute(

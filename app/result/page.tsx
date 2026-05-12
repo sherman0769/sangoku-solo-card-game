@@ -10,7 +10,7 @@ export default async function ResultPage({
   const isLost = outcome === "lost";
   const title = isWon ? "通關成功" : isLost ? "戰敗" : "戰役結果";
   const message = isWon
-    ? "關羽單騎破敵，亂世再添一段傳奇。"
+    ? "你突破虎牢關前的考驗，第一章：黃巾亂起 已完成。"
     : isLost
       ? "亂世無情，重整旗鼓，再試一次。"
       : "完成一局遊戲後，這裡會顯示勝利或失敗結果。";

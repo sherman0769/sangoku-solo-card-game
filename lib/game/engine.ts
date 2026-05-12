@@ -1,8 +1,15 @@
 import { starterDeck } from "./cards";
-import { cloneEnemy, enemies, selectEnemyForStage } from "./enemies";
+import { cloneEnemy, selectEnemyForStage } from "./enemies";
 import { gameEvents, resolveEvent } from "./events";
 import { resolveHero } from "./heroes";
 import { resolveStageRoute, stageRoutes } from "./routes";
+import {
+  chapterOne,
+  getEventChanceForStage,
+  getStageConfig,
+  getStageConfigByIndex,
+  totalStages,
+} from "./stages";
 import type {
   Card,
   Enemy,
@@ -20,7 +27,6 @@ import type {
 
 const logLimit = 12;
 const zhugeLiangTurnDraw = 2;
-const eventChance = 0.5;
 
 interface EventRollOptions {
   eventRoll?: () => number;
@@ -118,12 +124,15 @@ export const rewardCatalog: Reward[] = [
 
 export function createGame(heroId?: string, enemyOptions?: EnemySelectionOptions): GameState {
   const hero = resolveHero(heroId);
+  const firstStage = getStageConfig(1);
   const firstEnemy = selectEnemyForStage(
     1,
     enemyOptions?.enemyIds?.[1],
     enemyOptions?.enemyRandom,
   );
   const baseState: GameState = {
+    chapter: chapterOne,
+    stageConfig: firstStage,
     player: createStartingPlayer(hero),
     playerUpgrades: { ...startingUpgrades },
     enemy: firstEnemy,
@@ -143,7 +152,7 @@ export function createGame(heroId?: string, enemyOptions?: EnemySelectionOptions
     rewardOptionBonus: 0,
     rewardOptions: [],
     status: "playing",
-    log: [firstEnemy.intro],
+    log: [firstEnemy.intro, firstStage.flavorText],
   };
 
   if (hero.id === "zhuge-liang") {
@@ -447,7 +456,7 @@ export function selectRoute(
   const route = state.availableRoutes.find((item) => item.id === routeId) ?? resolveStageRoute(routeId);
   const nextEnemyIndex = state.enemyIndex + 1;
 
-  if (nextEnemyIndex >= enemies.length) {
+  if (nextEnemyIndex >= totalStages) {
     return appendLog(state, "已無下一關可選擇路線。");
   }
 
@@ -674,14 +683,15 @@ function applyCardEffect(state: GameState, card: Card) {
 function advanceEnemy(state: GameState, eventOptions?: EventRollOptions): GameState {
   const nextEnemyIndex = state.enemyIndex + 1;
 
-  if (nextEnemyIndex >= enemies.length) {
+  if (nextEnemyIndex >= totalStages) {
     return appendLog(
       { ...state, status: "won", enemyHealth: 0, phase: "player", availableRoutes: [] },
-      `三關敵人全數擊敗，${state.player.name}單騎突圍成功。`,
+      "你突破虎牢關前的考驗，第一章：黃巾亂起 已完成。",
     );
   }
 
-  const shouldEnterEvent = (eventOptions?.eventRoll ?? Math.random)() < eventChance;
+  const shouldEnterEvent =
+    (eventOptions?.eventRoll ?? Math.random)() < getEventChanceForStage(state.stageConfig);
 
   if (shouldEnterEvent) {
     const event = eventOptions?.eventId
@@ -801,6 +811,7 @@ function startNextStage(
 ): GameState {
   const next = cloneState(state);
   const stage = (next.enemyIndex + 1) as EnemyStage;
+  const stageConfig = getStageConfig(stage);
   const baseEnemy = selectEnemyForStage(
     stage,
     enemyOptions?.enemyIds?.[stage],
@@ -812,6 +823,7 @@ function startNextStage(
   next.enemyCharged = false;
   next.enemyArmorBroken = false;
   next.enemy = nextEnemy;
+  next.stageConfig = stageConfig;
   next.enemyHealth = nextEnemy.maxHealth;
   next.encounteredEnemyIds = [...next.encounteredEnemyIds, nextEnemy.id];
   next.discard.push(...next.hand);
@@ -829,7 +841,7 @@ function startNextStage(
     ...next,
     log: [
       next.enemy.intro,
-      `下一關開始：${route.flavorText}`,
+      `下一關開始：${stageConfig.name}。${stageConfig.flavorText}`,
       getRouteLogMessage(route),
       ...next.log,
     ].slice(0, logLimit),
@@ -983,8 +995,15 @@ function startObservation(state: GameState, drawCount: number): GameState {
 }
 
 function cloneState(state: GameState): GameState {
+  const fallbackStageConfig = getStageConfigByIndex(state.enemyIndex ?? 0);
+
   return {
     ...state,
+    chapter: { ...(state.chapter ?? chapterOne) },
+    stageConfig: {
+      ...(state.stageConfig ?? fallbackStageConfig),
+      enemyIds: [...(state.stageConfig?.enemyIds ?? fallbackStageConfig.enemyIds)],
+    },
     player: {
       ...fallbackPlayer,
       ...state.player,

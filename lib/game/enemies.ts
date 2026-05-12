@@ -1,4 +1,5 @@
 import type { Enemy, EnemyAction, EnemyStage } from "./types";
+import { getStageConfig } from "./stages";
 
 const actionTemplates = {
   attack2: { kind: "attack", label: "普通攻擊", text: "造成 2 點傷害。" },
@@ -11,11 +12,12 @@ const actionTemplates = {
 
 function createEnemy(enemy: Omit<Enemy, "title" | "intro" | "maxHealth" | "actions">): Enemy {
   const title = getStageTitle(enemy.stage);
+  const stageConfig = getStageConfig(enemy.stage);
 
   return {
     ...enemy,
     title,
-    intro: getEnemyIntro(title, enemy.name, enemy.description),
+    intro: getEnemyIntro(title, stageConfig.name, enemy.name, enemy.description),
     maxHealth: enemy.maxHp,
     actions: enemy.actionDeck.map((action) => ({ ...action })),
   };
@@ -119,13 +121,45 @@ export const enemyPool: Enemy[] = [
     ],
   }),
   createEnemy({
+    id: "zhang-liang",
+    name: "張梁",
+    stage: 7,
+    type: "elite",
+    maxHp: 9,
+    description: "黃巾三公將軍之一，攻勢猛烈，擅長蓄力後爆發。",
+    traits: ["黃巾將領", "蓄力爆發", "猛攻"],
+    attack: 3,
+    actionDeck: [
+      actionTemplates.attack3,
+      actionTemplates.fierce4,
+      actionTemplates.charge,
+      actionTemplates.charge,
+    ],
+  }),
+  createEnemy({
+    id: "zhang-bao",
+    name: "張寶",
+    stage: 7,
+    type: "elite",
+    maxHp: 8,
+    description: "擅用妖術迷惑敵軍，防守與蓄力能力較強。",
+    traits: ["黃巾將領", "妖術", "防守"],
+    attack: 2,
+    actionDeck: [
+      actionTemplates.guard,
+      actionTemplates.charge,
+      actionTemplates.attack2,
+      actionTemplates.guard,
+    ],
+  }),
+  createEnemy({
     id: "lu-bu",
     name: "呂布",
-    stage: 3,
+    stage: 8,
     type: "boss",
-    maxHp: 10,
-    description: "最終 Boss，真正的考驗開始。",
-    traits: ["Boss", "猛攻", "蓄力爆發"],
+    maxHp: 12,
+    description: "虎牢關前的最終考驗，擁有高壓攻勢與蓄力爆發。",
+    traits: ["Boss", "無雙", "猛攻", "蓄力爆發"],
     attack: 3,
     actionDeck: [
       actionTemplates.attack3,
@@ -136,18 +170,20 @@ export const enemyPool: Enemy[] = [
   }),
 ];
 
-export const firstStageEnemyPool = enemyPool.filter((enemy) => enemy.stage === 1);
-export const secondStageEnemyPool = enemyPool.filter((enemy) => enemy.stage === 2);
+export const firstStageEnemyPool = getEnemiesForStage(1);
+export const secondStageEnemyPool = getEnemiesForStage(2);
 export const bossEnemy = enemyPool.find((enemy) => enemy.id === "lu-bu")!;
 
 export const enemies: Enemy[] = [
-  firstStageEnemyPool[0],
-  secondStageEnemyPool[0],
-  bossEnemy,
+  ...enemyPool,
 ];
 
 export function getEnemiesForStage(stage: EnemyStage): Enemy[] {
-  return enemyPool.filter((enemy) => enemy.stage === stage);
+  const stageConfig = getStageConfig(stage);
+
+  return stageConfig.enemyIds
+    .map((enemyId) => enemyPool.find((enemy) => enemy.id === enemyId))
+    .filter((enemy): enemy is Enemy => Boolean(enemy));
 }
 
 export function selectEnemyForStage(
@@ -155,17 +191,16 @@ export function selectEnemyForStage(
   enemyId?: string,
   random: () => number = () => 0,
 ): Enemy {
-  if (stage === 3) {
-    return cloneEnemy(bossEnemy);
-  }
-
   const pool = getEnemiesForStage(stage);
+  const stageConfig = getStageConfig(stage);
   const selected =
-    pool.find((enemy) => enemy.id === enemyId) ??
-    pool[Math.floor(random() * pool.length)] ??
-    pool[0];
+    stageConfig.isFinalBoss
+      ? pool[0]
+      : (pool.find((enemy) => enemy.id === enemyId) ??
+        pool[Math.floor(random() * pool.length)] ??
+        pool[0]);
 
-  return cloneEnemy(selected);
+  return cloneEnemyForStage(selected, stage);
 }
 
 export function cloneEnemy(enemy: Enemy): Enemy {
@@ -177,22 +212,24 @@ export function cloneEnemy(enemy: Enemy): Enemy {
   };
 }
 
-function getStageTitle(stage: EnemyStage) {
-  if (stage === 1) {
-    return "第一關";
-  }
+function cloneEnemyForStage(enemy: Enemy, stage: EnemyStage): Enemy {
+  const next = cloneEnemy(enemy);
+  const stageConfig = getStageConfig(stage);
+  next.stage = stage;
+  next.title = getStageTitle(stage);
+  next.intro = getEnemyIntro(next.title, stageConfig.name, next.name, next.description);
 
-  if (stage === 2) {
-    return "第二關";
-  }
-
-  return "第三關";
+  return next;
 }
 
-function getEnemyIntro(title: string, enemyName: string, description: string) {
+function getStageTitle(stage: EnemyStage) {
+  return `第 ${stage} 關`;
+}
+
+function getEnemyIntro(title: string, stageName: string, enemyName: string, description: string) {
   if (enemyName === "呂布") {
-    return `${title}｜呂布現身：${description}`;
+    return `${title}｜${stageName}｜呂布現身：${description}`;
   }
 
-  return `${title}｜${enemyName}登場：${description}`;
+  return `${title}｜${stageName}｜${enemyName}登場：${description}`;
 }

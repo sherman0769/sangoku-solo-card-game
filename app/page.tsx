@@ -27,8 +27,9 @@ export default function Home() {
             一將入亂世，闖關定天下
           </p>
           <p className="mt-6 max-w-2xl text-base leading-8 text-stone-300 sm:text-lg">
-            選擇關羽、趙雲或諸葛亮，以斬、閃、酒、兵書、破甲與戰術卡迎戰三路敵人。看穿敵人的攻勢，
-            在隨機敵人池、事件、路線選擇與戰後三選一強化中養成流派，最後挑戰 Boss 呂布。
+            選擇關羽、趙雲或諸葛亮，以斬、閃、酒、兵書、破甲與戰術卡迎戰第一章 8 關。
+            看穿敵人的攻勢，在隨機敵人池、事件、路線選擇與戰後三選一強化中養成流派，
+            最後於虎牢關前挑戰 Boss 呂布。
           </p>
           <section className="mt-8 rounded-xl border border-amber-700/40 bg-black/30 p-5 shadow-[0_18px_45px_rgba(0,0,0,0.28)]">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
@@ -114,7 +115,7 @@ export default function Home() {
         </section>
 
         <section className="mt-10 rounded-xl border border-amber-700/40 bg-black/30 p-5 shadow-[0_18px_45px_rgba(0,0,0,0.28)]">
-          <h2 className="text-3xl font-black text-amber-50">v0.8.1 目前特色</h2>
+          <h2 className="text-3xl font-black text-amber-50">v0.9.0 目前特色</h2>
           <ul className="mt-5 grid gap-3 text-sm leading-6 text-stone-300 md:grid-cols-2">
             {currentFeatureHighlights.map((feature) => (
               <li
@@ -135,7 +136,9 @@ export default function Home() {
             ["戰術卡牌", "連斬、固守、激勵、火攻，讓每回合選擇更豐富。"],
             ["隨機事件考驗", "戰鬥之後可能遇到補給、策略或危險事件。"],
             ["路線選擇", "風險越高，報酬越好，下一關也會更凶險。"],
-            ["挑戰最終 Boss 呂布", "前兩關累積優勢，第三關迎戰真正的亂世猛將。"],
+            ["第一章 8 關流程", "從荒村初戰推進到虎牢關前，逐步累積資源與強化。"],
+            ["Mini-boss 張梁 / 張寶", "第 7 關黃巾祭壇將遭遇黃巾殘部的強敵。"],
+            ["挑戰最終 Boss 呂布", "前七關累積優勢，第八關迎戰真正的亂世猛將。"],
           ].map(([title, text]) => (
             <section
               key={title}
@@ -152,7 +155,7 @@ export default function Home() {
           <p className="mt-3 max-w-4xl text-sm leading-7 text-stone-300">
             使用「斬」造成傷害，「閃」在敵人攻擊時抵消傷害，「酒」強化下一次斬，
             「兵書」補充手牌，「破甲」打開敵人防守；連斬、固守、激勵、火攻提供額外戰術選擇。
-            擊敗三關即可通關。
+            擊敗第 8 關呂布即可完成第一章。
           </p>
         </section>
         <p className="mt-8 text-xs font-bold uppercase tracking-[0.18em] text-stone-500">

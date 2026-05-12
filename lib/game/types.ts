@@ -12,9 +12,11 @@ export type CardKind =
 
 export type EnemyActionKind = "attack" | "fierce" | "guard" | "charge";
 
-export type EnemyStage = 1 | 2 | 3;
+export type EnemyStage = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 
 export type EnemyType = "soldier" | "elite" | "boss";
+
+export type ChapterStageType = "normal" | "event-heavy" | "elite" | "mini-boss" | "boss";
 
 export type GamePhase = "player" | "defense" | "reward" | "observe" | "event" | "route";
 
@@ -72,6 +74,21 @@ export interface Enemy {
   attack: number;
   actionDeck: EnemyAction[];
   actions: EnemyAction[];
+}
+
+export interface Chapter {
+  id: string;
+  name: string;
+  description: string;
+}
+
+export interface ChapterStageConfig {
+  stage: EnemyStage;
+  name: string;
+  type: ChapterStageType;
+  enemyIds: string[];
+  flavorText: string;
+  isFinalBoss?: boolean;
 }
 
 export interface EnemyAction {
@@ -155,6 +172,8 @@ export interface Reward {
 }
 
 export interface GameState {
+  chapter: Chapter;
+  stageConfig: ChapterStageConfig;
   player: PlayerState;
   playerUpgrades: PlayerUpgrades;
   enemy: Enemy;
