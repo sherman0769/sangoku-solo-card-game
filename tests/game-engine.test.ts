@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { starterDeck } from "@/lib/game/cards";
 import {
   createGame,
   endTurn,
@@ -29,8 +30,19 @@ describe("game engine", () => {
       "兵書",
       "破甲",
     ]);
-    expect(state.deck).toHaveLength(7);
+    expect(state.deck).toHaveLength(18);
     expect(state.log[0]).toBe("第一關｜黃巾兵登場，亂世初起，試試你的刀法。");
+  });
+
+  it("includes three equipment cards in the starter deck", () => {
+    const equipmentCards = starterDeck.filter((card) => card.kind === "equipment");
+
+    expect(starterDeck).toHaveLength(23);
+    expect(equipmentCards.map((card) => card.name)).toEqual([
+      "青龍偃月刀",
+      "的盧馬",
+      "太平要術",
+    ]);
   });
 
   it("creates a Zhao Yun game when selected", () => {
@@ -278,6 +290,129 @@ describe("game engine", () => {
     expect(next.log[0]).toBe("趙雲發動龍膽，將斬當作閃使用，抵消 2 點傷害。");
   });
 
+  it("equips Green Dragon Crescent Blade", () => {
+    const equipment = getCard("青龍偃月刀");
+    const state = {
+      ...createGame(),
+      hand: [equipment],
+      discard: [],
+    };
+
+    const next = playCard(state, equipment.id);
+
+    expect(next.hand).toHaveLength(0);
+    expect(next.discard).toHaveLength(0);
+    expect(next.player.equippedItems.map((card) => card.name)).toEqual(["青龍偃月刀"]);
+    expect(next.log[0]).toBe("裝備成功：青龍偃月刀。");
+  });
+
+  it("does not equip duplicate equipment", () => {
+    const equipment = getCard("青龍偃月刀");
+    const duplicate = { ...equipment, id: "green-dragon-blade-duplicate" };
+    const equipped = playCard({ ...createGame(), hand: [equipment], discard: [] }, equipment.id);
+    const next = playCard({ ...equipped, hand: [duplicate] }, duplicate.id);
+
+    expect(next.player.equippedItems).toHaveLength(1);
+    expect(next.hand).toEqual([duplicate]);
+    expect(next.log[0]).toBe("已裝備相同裝備。");
+  });
+
+  it("adds Green Dragon Crescent Blade damage to the first slash each turn", () => {
+    const equipment = getCard("青龍偃月刀");
+    const slash = getCard("斬");
+    const equipped = playCard(
+      {
+        ...createGame("zhao-yun"),
+        hand: [equipment],
+        discard: [],
+      },
+      equipment.id,
+    );
+    const next = playCard(
+      {
+        ...equipped,
+        hand: [slash],
+        player: { ...equipped.player, morale: equipped.player.maxMorale },
+      },
+      slash.id,
+    );
+
+    expect(next.enemyHealth).toBe(equipped.enemyHealth - 3);
+    expect(next.log[1]).toBe("青龍偃月刀發動，第一次斬額外 +1 傷害。");
+  });
+
+  it("stacks Green Dragon Crescent Blade with Guan Yu Wusheng", () => {
+    const equipment = getCard("青龍偃月刀");
+    const slash = getCard("斬");
+    const equipped = playCard({ ...createGame(), hand: [equipment], discard: [] }, equipment.id);
+    const next = playCard(
+      {
+        ...equipped,
+        hand: [slash],
+        player: { ...equipped.player, morale: equipped.player.maxMorale },
+      },
+      slash.id,
+    );
+
+    expect(next.enemyHealth).toBe(equipped.enemyHealth - 4);
+    expect(next.log[0]).toBe("你使用了斬，造成 4 點傷害。");
+    expect(next.log).toContain("關羽發動武聖，第一次斬傷害 +1。");
+    expect(next.log).toContain("青龍偃月刀發動，第一次斬額外 +1 傷害。");
+  });
+
+  it("uses Dilu Horse to automatically dodge the first enemy attack each battle", () => {
+    const equipment = getCard("的盧馬");
+    const equipped = playCard({ ...createGame(), hand: [equipment], discard: [] }, equipment.id);
+    const next = endTurn({ ...equipped, hand: [] });
+
+    expect(next.player.health).toBe(equipped.player.health);
+    expect(next.turn).toBe(2);
+    expect(next.player.equipmentUsageThisBattle.diluDodged).toBe(true);
+    expect(next.log[0]).toContain("的盧馬發動，自動閃避一次攻擊");
+  });
+
+  it("resets Dilu Horse after entering the next stage", () => {
+    const equipment = getCard("的盧馬");
+    const slash = getCard("斬");
+    const equipped = playCard({ ...createGame(), hand: [equipment], discard: [] }, equipment.id);
+    const defeated = playCard(
+      {
+        ...equipped,
+        hand: [slash],
+        enemyHealth: 3,
+        player: { ...equipped.player, morale: equipped.player.maxMorale },
+      },
+      slash.id,
+    );
+    const nextStage = selectReward(forceReward(defeated, "max-health"), "max-health");
+    const dodged = endTurn({ ...nextStage, hand: [] });
+
+    expect(nextStage.player.equipmentUsageThisBattle.diluDodged).toBe(false);
+    expect(dodged.player.health).toBe(nextStage.player.health);
+    expect(dodged.player.equipmentUsageThisBattle.diluDodged).toBe(true);
+    expect(dodged.log[0]).toContain("的盧馬發動，自動閃避一次攻擊");
+  });
+
+  it("draws one extra card on the first manual each turn with Taiping Arts", () => {
+    const equipment = getCard("太平要術");
+    const manual = getCard("兵書");
+    const equipped = playCard({ ...createGame(), hand: [equipment], discard: [] }, equipment.id);
+    const next = playCard(
+      {
+        ...equipped,
+        hand: [manual],
+        deck: createGame().deck,
+        discard: [],
+        player: { ...equipped.player, morale: equipped.player.maxMorale },
+      },
+      manual.id,
+    );
+
+    expect(next.hand).toHaveLength(3);
+    expect(next.log[0]).toBe("你使用了兵書，抽 3 張牌。");
+    expect(next.log[1]).toBe("太平要術發動，兵書額外抽 1 張。");
+  });
+
   it("lets Zhuge Liang choose one observed card and bottom the rest", () => {
     const state = createGame("zhuge-liang");
     const observedCards = state.pendingObservation!.cards;
@@ -391,4 +526,13 @@ function forceReward(state: GameState, rewardId: RewardId): GameState {
     ...state,
     rewardOptions: [reward],
   };
+}
+
+function getCard(cardName: string) {
+  const card = starterDeck.find((item) => item.name === cardName);
+  if (!card) {
+    throw new Error(`Missing card ${cardName}`);
+  }
+
+  return card;
 }

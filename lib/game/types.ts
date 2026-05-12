@@ -1,4 +1,4 @@
-export type CardKind = "attack" | "dodge" | "wine" | "draw" | "pierce";
+export type CardKind = "attack" | "dodge" | "wine" | "draw" | "pierce" | "equipment";
 
 export type EnemyActionKind = "attack" | "fierce" | "guard" | "charge";
 
@@ -73,6 +73,14 @@ export interface PlayerState {
   maxMorale: number;
   slashUsedThisTurn: boolean;
   wineBonus: number;
+  equippedItems: Card[];
+  equipmentUsageThisTurn: {
+    greenDragonBladeSlash: boolean;
+    taipingManual: boolean;
+  };
+  equipmentUsageThisBattle: {
+    diluDodged: boolean;
+  };
 }
 
 export interface PlayerUpgrades {

@@ -11,7 +11,7 @@ export default function CardView({
   disabled = false,
   onPlay,
 }: CardViewProps) {
-  const style = getCardStyle(card.name);
+  const style = getCardStyle(card);
 
   return (
     <button
@@ -39,8 +39,18 @@ export default function CardView({
   );
 }
 
-function getCardStyle(cardName: string) {
-  if (cardName === "斬") {
+function getCardStyle(card: Card) {
+  if (card.kind === "equipment") {
+    return {
+      label: "裝備",
+      card: "border-amber-400/80 bg-stone-950/95 hover:border-amber-200",
+      bar: "bg-amber-300",
+      badge: "border-amber-300/60 bg-amber-400/15 text-amber-100",
+      cost: "border-amber-200/80 bg-amber-500 text-stone-950",
+    };
+  }
+
+  if (card.name === "斬") {
     return {
       label: "攻擊",
       card: "border-red-500/70 bg-red-950/90 hover:border-red-300",
@@ -50,7 +60,7 @@ function getCardStyle(cardName: string) {
     };
   }
 
-  if (cardName === "閃") {
+  if (card.name === "閃") {
     return {
       label: "防禦",
       card: "border-sky-500/70 bg-sky-950/90 hover:border-sky-300",
@@ -60,7 +70,7 @@ function getCardStyle(cardName: string) {
     };
   }
 
-  if (cardName === "酒") {
+  if (card.name === "酒") {
     return {
       label: "回復",
       card: "border-emerald-500/70 bg-emerald-950/90 hover:border-emerald-300",
@@ -70,7 +80,7 @@ function getCardStyle(cardName: string) {
     };
   }
 
-  if (cardName === "兵書") {
+  if (card.name === "兵書") {
     return {
       label: "策略",
       card: "border-purple-500/70 bg-purple-950/90 hover:border-purple-300",

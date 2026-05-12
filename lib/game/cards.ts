@@ -1,5 +1,11 @@
 import type { Card } from "./types";
 
+export const equipmentEffects = {
+  greenDragonBlade: "每回合第一次斬額外 +1 傷害",
+  diluHorse: "每場戰鬥第一次受到攻擊時自動閃避",
+  taipingManual: "每回合第一次兵書額外抽 1 張",
+} as const;
+
 export const starterDeck: Card[] = [
   {
     id: "slash-1",
@@ -96,5 +102,93 @@ export const starterDeck: Card[] = [
     cost: 1,
     value: 2,
     text: "造成 2 點傷害。關羽可觸發武聖，趙雲可當作閃使用。",
+  },
+  {
+    id: "dodge-3",
+    name: "閃",
+    kind: "dodge",
+    cost: 0,
+    value: 0,
+    text: "敵人攻擊時可選擇使用，抵消該次傷害。趙雲可當作斬使用。",
+  },
+  {
+    id: "slash-5",
+    name: "斬",
+    kind: "attack",
+    cost: 1,
+    value: 2,
+    text: "造成 2 點傷害。關羽可觸發武聖，趙雲可當作閃使用。",
+  },
+  {
+    id: "wine-3",
+    name: "酒",
+    kind: "wine",
+    cost: 0,
+    value: 1,
+    text: "下一張斬傷害 +1，並恢復 1 點體力。",
+  },
+  {
+    id: "dodge-4",
+    name: "閃",
+    kind: "dodge",
+    cost: 0,
+    value: 0,
+    text: "敵人攻擊時可選擇使用，抵消該次傷害。趙雲可當作斬使用。",
+  },
+  {
+    id: "slash-6",
+    name: "斬",
+    kind: "attack",
+    cost: 1,
+    value: 2,
+    text: "造成 2 點傷害。關羽可觸發武聖，趙雲可當作閃使用。",
+  },
+  {
+    id: "dodge-5",
+    name: "閃",
+    kind: "dodge",
+    cost: 0,
+    value: 0,
+    text: "敵人攻擊時可選擇使用，抵消該次傷害。趙雲可當作斬使用。",
+  },
+  {
+    id: "slash-7",
+    name: "斬",
+    kind: "attack",
+    cost: 1,
+    value: 2,
+    text: "造成 2 點傷害。關羽可觸發武聖，趙雲可當作閃使用。",
+  },
+  {
+    id: "slash-8",
+    name: "斬",
+    kind: "attack",
+    cost: 1,
+    value: 2,
+    text: "造成 2 點傷害。關羽可觸發武聖，趙雲可當作閃使用。",
+  },
+  {
+    id: "green-dragon-blade-1",
+    name: "青龍偃月刀",
+    kind: "equipment",
+    cost: 1,
+    value: 0,
+    text: `裝備。攻擊流。${equipmentEffects.greenDragonBlade}。`,
+  },
+  {
+    id: "dilu-horse-1",
+    name: "的盧馬",
+    kind: "equipment",
+    cost: 1,
+    value: 0,
+    text: `裝備。防守流。${equipmentEffects.diluHorse}。`,
+  },
+  {
+    id: "taiping-manual-1",
+    name: "太平要術",
+    kind: "equipment",
+    cost: 1,
+    value: 0,
+    text: `裝備。策略流。${equipmentEffects.taipingManual}。`,
   },
 ];

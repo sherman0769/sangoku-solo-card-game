@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import BattleLog from "@/components/BattleLog";
 import CardView from "@/components/CardView";
+import { equipmentEffects } from "@/lib/game/cards";
 import {
   createGame,
   endTurn,
@@ -68,6 +69,7 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
     nextAction: nextEnemyAction.label,
   });
   const upgradeLabels = getUpgradeLabels(state.playerUpgrades);
+  const equippedLabels = getEquippedLabels(state.player.equippedItems);
 
   useEffect(() => {
     if (state.status === "won" || state.status === "lost") {
@@ -381,6 +383,8 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
                       state.status !== "playing" ||
                       state.phase !== "player" ||
                       (card.kind === "dodge" && state.player.heroId !== "zhao-yun") ||
+                      (card.kind === "equipment" &&
+                        state.player.equippedItems.some((item) => item.name === card.name)) ||
                       card.cost > state.player.morale
                     }
                     onPlay={handlePlayCard}
@@ -403,6 +407,17 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
                 <p className="text-sm text-stone-300">尚未獲得強化</p>
               )}
             </InfoPanel>
+            <InfoPanel title="已裝備">
+              {equippedLabels.length > 0 ? (
+                <ul className="space-y-2 text-sm text-amber-50">
+                  {equippedLabels.map((label) => (
+                    <li key={label}>{label}</li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-sm text-stone-300">尚未裝備</p>
+              )}
+            </InfoPanel>
             <InfoPanel title="戰局">
               <p>目前第 {state.enemyIndex + 1} 關，共 3 關</p>
               <p className="mt-2">
@@ -412,7 +427,7 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
           </div>
         </section>
         <footer className="mt-8 pb-2 text-center text-xs font-bold uppercase tracking-[0.18em] text-stone-500">
-          版本：v0.3.0 三武將測試版
+          版本：v0.4.0 裝備系統測試版
         </footer>
       </div>
     </main>
@@ -647,6 +662,10 @@ function getRewardStyleHint(rewardId: Reward["id"]) {
 }
 
 function getCardToast(cardName: string, heroId: string): Pick<EventToast, "text" | "tone"> {
+  if (cardName === "青龍偃月刀" || cardName === "的盧馬" || cardName === "太平要術") {
+    return { text: `裝備：${cardName}`, tone: "reward" };
+  }
+
   if (cardName === "閃" && heroId === "zhao-yun") {
     return { text: "⚔ 龍膽！", tone: "attack" };
   }
@@ -668,6 +687,20 @@ function getCardToast(cardName: string, heroId: string): Pick<EventToast, "text"
   }
 
   return { text: "🛡 閃避！", tone: "guard" };
+}
+
+function getEquippedLabels(equippedItems: ReturnType<typeof createGame>["player"]["equippedItems"]) {
+  return equippedItems.map((item) => {
+    if (item.name === "青龍偃月刀") {
+      return `青龍偃月刀：${equipmentEffects.greenDragonBlade}`;
+    }
+
+    if (item.name === "的盧馬") {
+      return `的盧馬：${equipmentEffects.diluHorse}`;
+    }
+
+    return `太平要術：${equipmentEffects.taipingManual}`;
+  });
 }
 
 function getDefenseButtonLabel(state: ReturnType<typeof createGame>) {

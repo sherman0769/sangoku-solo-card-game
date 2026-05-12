@@ -32,6 +32,15 @@ function getLogMarker(entry: string) {
     return "🎁";
   }
 
+  if (
+    entry.includes("裝備") ||
+    entry.includes("青龍偃月刀") ||
+    entry.includes("的盧馬") ||
+    entry.includes("太平要術")
+  ) {
+    return "🎁";
+  }
+
   if (entry.includes("防守") || entry.includes("閃") || entry.includes("抵消")) {
     return "🛡";
   }

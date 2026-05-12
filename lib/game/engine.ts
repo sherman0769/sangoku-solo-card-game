@@ -27,6 +27,14 @@ function createStartingPlayer(hero: Hero) {
     maxMorale: 3,
     slashUsedThisTurn: false,
     wineBonus: 0,
+    equippedItems: [],
+    equipmentUsageThisTurn: {
+      greenDragonBladeSlash: false,
+      taipingManual: false,
+    },
+    equipmentUsageThisBattle: {
+      diluDodged: false,
+    },
   };
 }
 
@@ -42,6 +50,14 @@ const fallbackPlayer = {
   maxMorale: 3,
   slashUsedThisTurn: false,
   wineBonus: 0,
+  equippedItems: [],
+  equipmentUsageThisTurn: {
+    greenDragonBladeSlash: false,
+    taipingManual: false,
+  },
+  equipmentUsageThisBattle: {
+    diluDodged: false,
+  },
 };
 
 const startingUpgrades: PlayerUpgrades = {
@@ -156,6 +172,10 @@ export function playCard(state: GameState, cardId: string): GameState {
     return appendLog(next, "閃會在敵人攻擊時使用；敵人攻擊時會出現使用閃按鈕。");
   }
 
+  if (card.kind === "equipment" && hasEquipment(next, card.name)) {
+    return appendLog(next, "已裝備相同裝備。");
+  }
+
   if (card.cost > next.player.morale) {
     return appendLog(next, `士氣不足，${card.name} 需要 ${card.cost} 點士氣。`);
   }
@@ -164,7 +184,10 @@ export function playCard(state: GameState, cardId: string): GameState {
   next.player.morale -= card.cost;
 
   applyCardEffect(next, card);
-  next.discard.push(card);
+
+  if (card.kind !== "equipment") {
+    next.discard.push(card);
+  }
 
   if (next.enemyHealth <= 0) {
     return advanceEnemy(next);
@@ -217,6 +240,16 @@ export function endTurn(state: GameState): GameState {
     action.kind === "fierce"
       ? `${next.enemy.name} 發動猛攻，準備造成 ${damage} 點傷害。`
       : `${next.enemy.name} 發動普通攻擊，準備造成 ${damage} 點傷害。`;
+
+  if (hasEquipment(next, "的盧馬") && !next.player.equipmentUsageThisBattle.diluDodged) {
+    next.player.equipmentUsageThisBattle.diluDodged = true;
+    return startNextTurn(
+      appendLog(
+        next,
+        `${attackMessage} 的盧馬發動，自動閃避一次攻擊。`,
+      ),
+    );
+  }
 
   if (hasDefenseCard(next)) {
     const defenseHint =
@@ -355,6 +388,12 @@ export function selectReward(state: GameState, rewardId: RewardId): GameState {
 }
 
 function applyCardEffect(state: GameState, card: Card) {
+  if (card.kind === "equipment") {
+    state.player.equippedItems.push(card);
+    state.log = [`裝備成功：${card.name}。`, ...state.log].slice(0, logLimit);
+    return;
+  }
+
   if (card.kind === "attack") {
     applySlashEffect(state, card.value, "你使用了斬");
     return;
@@ -376,12 +415,23 @@ function applyCardEffect(state: GameState, card: Card) {
   }
 
   if (card.kind === "draw") {
-    const drawCount = card.value + state.playerUpgrades.strategyDrawBonus;
+    const notes: string[] = [];
+    let drawCount = card.value + state.playerUpgrades.strategyDrawBonus;
+
+    if (hasEquipment(state, "太平要術") && !state.player.equipmentUsageThisTurn.taipingManual) {
+      drawCount += 1;
+      state.player.equipmentUsageThisTurn.taipingManual = true;
+      notes.push("太平要術發動，兵書額外抽 1 張。");
+    }
+
     const drawn = drawCards(state, drawCount);
     state.deck = drawn.deck;
     state.hand = drawn.hand;
     state.discard = drawn.discard;
-    state.log = [`你使用了兵書，抽 ${drawCount} 張牌。`, ...state.log].slice(0, logLimit);
+    state.log = [`你使用了兵書，抽 ${drawCount} 張牌。`, ...notes, ...state.log].slice(
+      0,
+      logLimit,
+    );
     return;
   }
 
@@ -425,6 +475,7 @@ function advanceEnemy(state: GameState): GameState {
         morale: state.player.maxMorale,
         slashUsedThisTurn: false,
         wineBonus: 0,
+        equipmentUsageThisTurn: createTurnEquipmentUsage(),
       },
     },
     `擊敗${state.enemy.name}，選擇一項通關獎勵。`,
@@ -454,6 +505,7 @@ function startNextTurn(state: GameState): GameState {
   next.player.morale = next.player.maxMorale;
   next.player.slashUsedThisTurn = false;
   next.player.wineBonus = 0;
+  next.player.equipmentUsageThisTurn = createTurnEquipmentUsage();
   next.enemyArmorBroken = false;
 
   if (next.player.heroId === "zhuge-liang") {
@@ -475,6 +527,8 @@ function startNextStage(state: GameState, reward: Reward): GameState {
   next.player.morale = next.player.maxMorale;
   next.player.slashUsedThisTurn = false;
   next.player.wineBonus = 0;
+  next.player.equipmentUsageThisTurn = createTurnEquipmentUsage();
+  next.player.equipmentUsageThisBattle = createBattleEquipmentUsage();
 
   const stagedState = {
     ...next,
@@ -529,11 +583,25 @@ function pickRewardOptions(): Reward[] {
 function applySlashEffect(state: GameState, baseValue: number, actionText: string) {
   let damage = baseValue + state.playerUpgrades.slashDamageBonus;
   const notes: string[] = [];
+  const isFirstSlashThisTurn = !state.player.slashUsedThisTurn;
 
-  if (state.player.heroId === "guan-yu" && !state.player.slashUsedThisTurn) {
-    damage += 1;
+  if (isFirstSlashThisTurn) {
     state.player.slashUsedThisTurn = true;
+  }
+
+  if (state.player.heroId === "guan-yu" && isFirstSlashThisTurn) {
+    damage += 1;
     notes.push("關羽發動武聖，第一次斬傷害 +1");
+  }
+
+  if (
+    hasEquipment(state, "青龍偃月刀") &&
+    isFirstSlashThisTurn &&
+    !state.player.equipmentUsageThisTurn.greenDragonBladeSlash
+  ) {
+    damage += 1;
+    state.player.equipmentUsageThisTurn.greenDragonBladeSlash = true;
+    notes.push("青龍偃月刀發動，第一次斬額外 +1 傷害");
   }
 
   if (state.player.wineBonus > 0) {
@@ -575,6 +643,23 @@ function hasDefenseCard(state: GameState): boolean {
   return hasDodge(state) || (state.player.heroId === "zhao-yun" && hasSlash(state));
 }
 
+function hasEquipment(state: GameState, equipmentName: string): boolean {
+  return state.player.equippedItems.some((item) => item.name === equipmentName);
+}
+
+function createTurnEquipmentUsage() {
+  return {
+    greenDragonBladeSlash: false,
+    taipingManual: false,
+  };
+}
+
+function createBattleEquipmentUsage() {
+  return {
+    diluDodged: false,
+  };
+}
+
 function startObservation(state: GameState, drawCount: number): GameState {
   const next = cloneState(state);
   const cards = next.deck.splice(0, 3);
@@ -602,7 +687,19 @@ function startObservation(state: GameState, drawCount: number): GameState {
 function cloneState(state: GameState): GameState {
   return {
     ...state,
-    player: { ...fallbackPlayer, ...state.player },
+    player: {
+      ...fallbackPlayer,
+      ...state.player,
+      equippedItems: [...(state.player.equippedItems ?? [])],
+      equipmentUsageThisTurn: {
+        ...fallbackPlayer.equipmentUsageThisTurn,
+        ...(state.player.equipmentUsageThisTurn ?? {}),
+      },
+      equipmentUsageThisBattle: {
+        ...fallbackPlayer.equipmentUsageThisBattle,
+        ...(state.player.equipmentUsageThisBattle ?? {}),
+      },
+    },
     playerUpgrades: { ...state.playerUpgrades },
     enemy: {
       ...state.enemy,

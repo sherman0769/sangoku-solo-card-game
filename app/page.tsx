@@ -114,7 +114,7 @@ export default function Home() {
           </p>
         </section>
         <p className="mt-8 text-xs font-bold uppercase tracking-[0.18em] text-stone-500">
-          版本：v0.3.0 三武將測試版
+          版本：v0.4.0 裝備系統測試版
         </p>
       </section>
     </main>
