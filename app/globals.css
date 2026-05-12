@@ -1,26 +1,118 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f8f7f2;
+  --foreground: #1f1d1a;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: "Geist", "Geist Fallback", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono", "Geist Mono Fallback", ui-monospace, monospace;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #17130f;
+    --foreground: #f6f1e7;
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+}
+
+@keyframes shake-hit {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-5px);
+  }
+  40% {
+    transform: translateX(5px);
+  }
+  60% {
+    transform: translateX(-3px);
+  }
+  80% {
+    transform: translateX(3px);
+  }
+}
+
+@keyframes pulse-hit {
+  0%,
+  100% {
+    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.35);
+  }
+  45% {
+    box-shadow:
+      0 0 0 2px rgba(248, 113, 113, 0.75),
+      0 18px 45px rgba(127, 29, 29, 0.45);
+  }
+}
+
+@keyframes pulse-heal {
+  0%,
+  100% {
+    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.35);
+  }
+  45% {
+    box-shadow:
+      0 0 0 2px rgba(52, 211, 153, 0.75),
+      0 18px 45px rgba(6, 95, 70, 0.45);
+  }
+}
+
+@keyframes float-up {
+  0% {
+    opacity: 0;
+    transform: translateY(12px) scale(0.96);
+  }
+  18% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  82% {
+    opacity: 1;
+    transform: translateY(-4px) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-18px) scale(0.98);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-shake-hit {
+  animation: shake-hit 420ms ease-in-out;
+}
+
+.animate-pulse-hit {
+  animation: pulse-hit 700ms ease-out;
+}
+
+.animate-pulse-heal {
+  animation: pulse-heal 700ms ease-out;
+}
+
+.animate-float-up {
+  animation: float-up 1s ease-out forwards;
+}
+
+.animate-fade-in {
+  animation: fade-in 420ms ease-out;
 }
