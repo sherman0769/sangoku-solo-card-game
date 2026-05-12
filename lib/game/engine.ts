@@ -208,8 +208,9 @@ export function resolveDefense(state: GameState, useDodge: boolean): GameState {
     return state;
   }
 
+  const pendingDefense = state.pendingDefense;
   const next = cloneState(state);
-  const damage = next.pendingDefense.damage;
+  const damage = pendingDefense.damage;
 
   if (useDodge) {
     const dodgeIndex = next.hand.findIndex((card) => card.kind === "dodge");
