@@ -2,6 +2,10 @@ export type CardKind = "attack" | "dodge" | "wine" | "draw" | "pierce" | "equipm
 
 export type EnemyActionKind = "attack" | "fierce" | "guard" | "charge";
 
+export type EnemyStage = 1 | 2 | 3;
+
+export type EnemyType = "soldier" | "elite" | "boss";
+
 export type GamePhase = "player" | "defense" | "reward" | "observe" | "event" | "route";
 
 export type GameStatus = "playing" | "won" | "lost";
@@ -47,10 +51,16 @@ export interface Card {
 export interface Enemy {
   id: string;
   name: string;
+  stage: EnemyStage;
+  type: EnemyType;
   title: string;
   intro: string;
+  maxHp: number;
   maxHealth: number;
+  description: string;
+  traits: string[];
   attack: number;
+  actionDeck: EnemyAction[];
   actions: EnemyAction[];
 }
 
@@ -138,6 +148,7 @@ export interface GameState {
   enemy: Enemy;
   enemyHealth: number;
   enemyIndex: number;
+  encounteredEnemyIds: string[];
   enemyActionIndex: number;
   enemyGuarding: boolean;
   enemyCharged: boolean;

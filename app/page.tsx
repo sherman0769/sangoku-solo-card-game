@@ -23,7 +23,7 @@ export default function Home() {
           </p>
           <p className="mt-6 max-w-2xl text-base leading-8 text-stone-300 sm:text-lg">
             選擇關羽、趙雲或諸葛亮，以斬、閃、酒、兵書與破甲迎戰三路敵人。看穿敵人的攻勢，
-            在隨機事件、路線選擇與戰後三選一強化中養成流派，最後挑戰 Boss 呂布。
+            在隨機敵人池、事件、路線選擇與戰後三選一強化中養成流派，最後挑戰 Boss 呂布。
           </p>
           <section className="mt-8 rounded-xl border border-amber-700/40 bg-black/30 p-5 shadow-[0_18px_45px_rgba(0,0,0,0.28)]">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
@@ -90,10 +90,11 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="mt-14 grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+        <div className="mt-14 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {[
             ["單人卡牌闖關", "每回合管理士氣與手牌，在攻防之間找出突破口。"],
             ["三選一戰後強化", "擊敗敵人後選擇強化，讓武將逐步形成戰鬥風格。"],
+            ["隨機敵人池", "每局遭遇不同挑戰，前兩關不再固定敵人。"],
             ["隨機事件考驗", "戰鬥之後可能遇到補給、策略或危險事件。"],
             ["路線選擇", "風險越高，報酬越好，下一關也會更凶險。"],
             ["挑戰最終 Boss 呂布", "前兩關累積優勢，第三關迎戰真正的亂世猛將。"],
@@ -116,7 +117,7 @@ export default function Home() {
           </p>
         </section>
         <p className="mt-8 text-xs font-bold uppercase tracking-[0.18em] text-stone-500">
-          版本：v0.6.0 路線選擇測試版
+          版本：v0.7.0 敵人池測試版
         </p>
       </section>
     </main>

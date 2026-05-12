@@ -41,7 +41,7 @@ interface StageNotice {
 
 export default function GameBoard({ initialHeroId }: { initialHeroId?: string }) {
   const router = useRouter();
-  const [state, setState] = useState(() => createGame(initialHeroId));
+  const [state, setState] = useState(() => createGame(initialHeroId, { enemyRandom: Math.random }));
   const [eventToast, setEventToast] = useState<EventToast | null>(null);
   const [panelFeedback, setPanelFeedback] = useState<PanelFeedback | null>(null);
   const [stageNotice, setStageNotice] = useState<StageNotice | null>(null);
@@ -211,7 +211,7 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
   }
 
   function handleSelectRoute(route: StageRoute) {
-    const next = selectRoute(state, route.id);
+    const next = selectRoute(state, route.id, { enemyRandom: Math.random });
 
     if (next !== state) {
       showEventToast(`選擇路線：${route.name}`, route.id === "dangerous-pass" ? "danger" : "reward");
@@ -261,7 +261,7 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
           <div className="mt-4 flex flex-wrap gap-3 sm:mt-0">
             <button
               type="button"
-              onClick={() => setState(createGame(initialHeroId))}
+              onClick={() => setState(createGame(initialHeroId, { enemyRandom: Math.random }))}
               className="h-10 rounded-md border border-amber-600/60 bg-stone-950/70 px-4 text-sm font-bold text-amber-100 transition hover:border-amber-300 hover:bg-amber-950/70"
             >
               重新開始
@@ -318,7 +318,9 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
                 health={`♥ ${state.enemyHealth} / ${state.enemy.maxHealth}`}
                 percent={enemyPercent}
                 details={[
-                  `基礎攻擊 ${state.enemy.attack}`,
+                  `類型：${getEnemyTypeLabel(state.enemy.type)}`,
+                  `特性：${state.enemy.traits.join("、")}`,
+                  state.enemy.description,
                   `下一步：${nextEnemyAction.label}`,
                   nextEnemyAction.text,
                 ]}
@@ -527,7 +529,7 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
           </div>
         </section>
         <footer className="mt-8 pb-2 text-center text-xs font-bold uppercase tracking-[0.18em] text-stone-500">
-          版本：v0.6.0 路線選擇測試版
+          版本：v0.7.0 敵人池測試版
         </footer>
       </div>
     </main>
@@ -877,15 +879,19 @@ function getDefenseButtonLabel(state: ReturnType<typeof createGame>) {
 }
 
 function getStageEntranceText(enemyName: string) {
-  if (enemyName === "黃巾兵") {
-    return "黃巾兵登場";
+  return enemyName === "呂布" ? "呂布現身" : `${enemyName}登場`;
+}
+
+function getEnemyTypeLabel(type: ReturnType<typeof createGame>["enemy"]["type"]) {
+  if (type === "soldier") {
+    return "小兵";
   }
 
-  if (enemyName === "山賊頭目") {
-    return "山賊頭目攔路";
+  if (type === "elite") {
+    return "精英";
   }
 
-  return "呂布現身";
+  return "Boss";
 }
 
 function getEventFrameClass(type: GameEvent["type"]) {

@@ -12,7 +12,13 @@ import {
   selectReward,
   selectRoute,
 } from "@/lib/game/engine";
-import { enemies } from "@/lib/game/enemies";
+import {
+  bossEnemy,
+  enemies,
+  firstStageEnemyPool,
+  secondStageEnemyPool,
+  selectEnemyForStage,
+} from "@/lib/game/enemies";
 import { gameEvents } from "@/lib/game/events";
 import { heroes } from "@/lib/game/heroes";
 import { stageRoutes } from "@/lib/game/routes";
@@ -37,7 +43,7 @@ describe("game engine", () => {
       "破甲",
     ]);
     expect(state.deck).toHaveLength(18);
-    expect(state.log[0]).toBe("第一關｜黃巾兵登場，亂世初起，試試你的刀法。");
+    expect(state.log[0]).toBe("第一關｜黃巾兵登場：基礎敵人，行動單純，適合熱身。");
   });
 
   it("includes three equipment cards in the starter deck", () => {
@@ -57,6 +63,28 @@ describe("game engine", () => {
       "軍師獻策",
       "伏兵突襲",
     ]);
+  });
+
+  it("includes the first stage enemy pool", () => {
+    expect(firstStageEnemyPool.map((enemy) => enemy.name)).toEqual([
+      "黃巾兵",
+      "黃巾弓手",
+      "黃巾力士",
+    ]);
+  });
+
+  it("includes the second stage enemy pool", () => {
+    expect(secondStageEnemyPool.map((enemy) => enemy.name)).toEqual([
+      "山賊頭目",
+      "黑山賊將",
+      "西涼騎兵",
+    ]);
+  });
+
+  it("keeps Lu Bu as the third stage boss", () => {
+    expect(bossEnemy.name).toBe("呂布");
+    expect(bossEnemy.stage).toBe(3);
+    expect(bossEnemy.type).toBe("boss");
   });
 
   it("includes the first route set", () => {
@@ -134,7 +162,7 @@ describe("game engine", () => {
     const pierce = state.hand.find((card) => card.name === "破甲")!;
     state = playCard(state, pierce.id);
 
-    expect(state.enemyHealth).toBe(6);
+    expect(state.enemyHealth).toBe(3);
     expect(state.enemyArmorBroken).toBe(true);
     expect(state.log[0]).toBe("你使用了破甲，造成 1 點傷害，下一次斬傷害 +1。");
   });
@@ -235,6 +263,16 @@ describe("game engine", () => {
     expect(next.currentEvent?.name).toBe("荒村補給");
     expect(next.rewardOptions).toHaveLength(0);
     expect(next.log[0]).toBe("事件出現：荒村補給。");
+  });
+
+  it("can deterministically select Yellow Turban Archer for stage one", () => {
+    const state = createGame("guan-yu", {
+      enemyIds: { 1: "yellow-turban-archer" },
+    });
+
+    expect(state.enemy.name).toBe("黃巾弓手");
+    expect(state.enemy.maxHealth).toBe(3);
+    expect(state.encounteredEnemyIds).toEqual(["yellow-turban-archer"]);
   });
 
   it("heals two health from village supply without exceeding max health", () => {
@@ -470,12 +508,13 @@ describe("game engine", () => {
       {
         ...equipped,
         hand: [slash],
+        enemyHealth: 8,
         player: { ...equipped.player, morale: equipped.player.maxMorale },
       },
       slash.id,
     );
 
-    expect(next.enemyHealth).toBe(equipped.enemyHealth - 4);
+    expect(next.enemyHealth).toBe(4);
     expect(next.log[0]).toBe("你使用了斬，造成 4 點傷害。");
     expect(next.log).toContain("關羽發動武聖，第一次斬傷害 +1。");
     expect(next.log).toContain("青龍偃月刀發動，第一次斬額外 +1 傷害。");
@@ -607,7 +646,21 @@ describe("game engine", () => {
     expect(next.enemyHealth).toBe(enemies[1].maxHealth);
     expect(next.playerUpgrades.startingDrawBonus).toBe(1);
     expect(next.hand).toHaveLength(6);
-    expect(next.log[0]).toBe("第二關｜山賊頭目攔路，敵人開始懂得防守與蓄力。");
+    expect(next.log[0]).toBe("第二關｜山賊頭目登場：均衡型敵人，懂得攻擊、防守與蓄力。");
+  });
+
+  it("can deterministically select Xiliang Cavalry for stage two", () => {
+    const routeState = selectReward(forceReward(defeatFirstEnemy(), "max-health"), "max-health");
+    const next = selectRoute(routeState, "official-road", {
+      enemyIds: { 2: "xiliang-cavalry" },
+    });
+
+    expect(next.enemy.name).toBe("西涼騎兵");
+    expect(next.enemy.maxHealth).toBe(5);
+    expect(next.encounteredEnemyIds).toEqual([
+      "yellow-turban-soldier",
+      "xiliang-cavalry",
+    ]);
   });
 
   it("enters route selection after defeating the second enemy and choosing reward", () => {
@@ -703,18 +756,11 @@ describe("game engine", () => {
   });
 
   it("wins after the third enemy is defeated", () => {
+    const luBu = selectEnemyForStage(3);
     const state = {
       ...createGame(),
       enemyIndex: 2,
-      enemy: {
-        id: "lu-bu",
-        name: "呂布",
-        title: "第三關",
-        intro: "第三關｜呂布現身，真正的考驗開始了。",
-        maxHealth: 12,
-        attack: 3,
-        actions: [],
-      },
+      enemy: luBu,
       enemyHealth: 3,
     };
     const slash = state.hand.find((card) => card.name === "斬")!;

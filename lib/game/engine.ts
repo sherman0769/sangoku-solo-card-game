@@ -1,11 +1,12 @@
 import { starterDeck } from "./cards";
-import { enemies } from "./enemies";
+import { cloneEnemy, enemies, selectEnemyForStage } from "./enemies";
 import { gameEvents, resolveEvent } from "./events";
 import { resolveHero } from "./heroes";
 import { resolveStageRoute, stageRoutes } from "./routes";
 import type {
   Card,
   Enemy,
+  EnemyStage,
   EnemyAction,
   GameEventId,
   GameState,
@@ -24,6 +25,11 @@ const eventChance = 0.5;
 interface EventRollOptions {
   eventRoll?: () => number;
   eventId?: GameEventId;
+}
+
+interface EnemySelectionOptions {
+  enemyIds?: Partial<Record<EnemyStage, string>>;
+  enemyRandom?: () => number;
 }
 
 function createStartingPlayer(hero: Hero) {
@@ -108,14 +114,20 @@ export const rewardCatalog: Reward[] = [
   },
 ];
 
-export function createGame(heroId?: string): GameState {
+export function createGame(heroId?: string, enemyOptions?: EnemySelectionOptions): GameState {
   const hero = resolveHero(heroId);
+  const firstEnemy = selectEnemyForStage(
+    1,
+    enemyOptions?.enemyIds?.[1],
+    enemyOptions?.enemyRandom,
+  );
   const baseState: GameState = {
     player: createStartingPlayer(hero),
     playerUpgrades: { ...startingUpgrades },
-    enemy: enemies[0],
-    enemyHealth: enemies[0].maxHealth,
+    enemy: firstEnemy,
+    enemyHealth: firstEnemy.maxHealth,
     enemyIndex: 0,
+    encounteredEnemyIds: [firstEnemy.id],
     enemyActionIndex: 0,
     enemyGuarding: false,
     enemyCharged: false,
@@ -129,7 +141,7 @@ export function createGame(heroId?: string): GameState {
     rewardOptionBonus: 0,
     rewardOptions: [],
     status: "playing",
-    log: [enemies[0].intro],
+    log: [firstEnemy.intro],
   };
 
   if (hero.id === "zhuge-liang") {
@@ -421,7 +433,11 @@ export function selectReward(state: GameState, rewardId: RewardId): GameState {
   };
 }
 
-export function selectRoute(state: GameState, routeId: StageRouteId): GameState {
+export function selectRoute(
+  state: GameState,
+  routeId: StageRouteId,
+  enemyOptions?: EnemySelectionOptions,
+): GameState {
   if (state.status !== "playing" || state.phase !== "route") {
     return state;
   }
@@ -445,6 +461,7 @@ export function selectRoute(state: GameState, routeId: StageRouteId): GameState 
       currentEvent: undefined,
     },
     route,
+    enemyOptions,
   );
 }
 
@@ -688,9 +705,18 @@ function startNextTurn(state: GameState): GameState {
   return drawCards(next, 5);
 }
 
-function startNextStage(state: GameState, route: StageRoute): GameState {
+function startNextStage(
+  state: GameState,
+  route: StageRoute,
+  enemyOptions?: EnemySelectionOptions,
+): GameState {
   const next = cloneState(state);
-  const baseEnemy = enemies[next.enemyIndex];
+  const stage = (next.enemyIndex + 1) as EnemyStage;
+  const baseEnemy = selectEnemyForStage(
+    stage,
+    enemyOptions?.enemyIds?.[stage],
+    enemyOptions?.enemyRandom,
+  );
   const nextEnemy = applyRouteToEnemy(baseEnemy, route);
   next.enemyActionIndex = 0;
   next.enemyGuarding = false;
@@ -698,6 +724,7 @@ function startNextStage(state: GameState, route: StageRoute): GameState {
   next.enemyArmorBroken = false;
   next.enemy = nextEnemy;
   next.enemyHealth = nextEnemy.maxHealth;
+  next.encounteredEnemyIds = [...next.encounteredEnemyIds, nextEnemy.id];
   next.discard.push(...next.hand);
   next.hand = [];
   next.turn += 1;
@@ -883,9 +910,9 @@ function cloneState(state: GameState): GameState {
     },
     playerUpgrades: { ...state.playerUpgrades },
     enemy: {
-      ...state.enemy,
-      actions: state.enemy.actions.map((action) => ({ ...action })),
+      ...cloneEnemy(state.enemy),
     },
+    encounteredEnemyIds: [...(state.encounteredEnemyIds ?? [])],
     deck: [...state.deck],
     hand: [...state.hand],
     discard: [...state.discard],
@@ -937,7 +964,10 @@ function applyRouteToEnemy(enemy: Enemy, route: StageRoute): Enemy {
 
   return {
     ...enemy,
+    maxHp: maxHealth,
     maxHealth,
+    traits: [...enemy.traits],
+    actionDeck: enemy.actionDeck.map((action) => ({ ...action })),
     actions: enemy.actions.map((action) => ({ ...action })),
   };
 }
