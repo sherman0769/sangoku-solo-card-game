@@ -12,6 +12,7 @@ import type {
 } from "./types";
 
 const logLimit = 12;
+const zhugeLiangTurnDraw = 2;
 
 function createStartingPlayer(hero: Hero) {
   return {
@@ -101,6 +102,10 @@ export function createGame(heroId?: string): GameState {
     log: [enemies[0].intro],
   };
 
+  if (hero.id === "zhuge-liang") {
+    return startObservation(baseState, zhugeLiangTurnDraw);
+  }
+
   return drawCards(baseState, 5);
 }
 
@@ -134,6 +139,10 @@ export function playCard(state: GameState, cardId: string): GameState {
 
   if (state.phase === "reward") {
     return appendLog(state, "請先選擇通關獎勵，再進入下一關。");
+  }
+
+  if (state.phase === "observe") {
+    return appendLog(state, "請先完成觀星，選擇一張牌加入手牌。");
   }
 
   const next = cloneState(state);
@@ -175,6 +184,10 @@ export function endTurn(state: GameState): GameState {
 
   if (state.phase === "reward") {
     return appendLog(state, "請先選擇通關獎勵，再進入下一關。");
+  }
+
+  if (state.phase === "observe") {
+    return appendLog(state, "請先完成觀星，選擇一張牌加入手牌。");
   }
 
   const next = cloneState(state);
@@ -276,6 +289,42 @@ export function resolveDefense(state: GameState, useDodge: boolean): GameState {
 
 export function getCurrentEnemyAction(state: GameState): EnemyAction {
   return state.enemy.actions[state.enemyActionIndex % state.enemy.actions.length];
+}
+
+export function selectObservation(state: GameState, cardId: string): GameState {
+  if (
+    state.status !== "playing" ||
+    state.phase !== "observe" ||
+    !state.pendingObservation
+  ) {
+    return state;
+  }
+
+  const next = cloneState(state);
+  const pendingObservation = next.pendingObservation;
+
+  if (!pendingObservation) {
+    return next;
+  }
+
+  const selectedIndex = pendingObservation.cards.findIndex((card) => card.id === cardId);
+
+  if (selectedIndex === -1) {
+    return appendLog(next, "觀星中沒有這張牌。");
+  }
+
+  const [selectedCard] = pendingObservation.cards.splice(selectedIndex, 1);
+  next.hand.push(selectedCard);
+  next.deck.push(...pendingObservation.cards);
+  const drawCount = pendingObservation.drawCount;
+  next.phase = "player";
+  next.pendingObservation = undefined;
+  next.log = [
+    "諸葛亮發動觀星，選擇了一張牌加入手牌。",
+    ...next.log,
+  ].slice(0, logLimit);
+
+  return drawCards(next, drawCount);
 }
 
 export function selectReward(state: GameState, rewardId: RewardId): GameState {
@@ -407,6 +456,10 @@ function startNextTurn(state: GameState): GameState {
   next.player.wineBonus = 0;
   next.enemyArmorBroken = false;
 
+  if (next.player.heroId === "zhuge-liang") {
+    return startObservation(next, zhugeLiangTurnDraw);
+  }
+
   return drawCards(next, 5);
 }
 
@@ -423,17 +476,23 @@ function startNextStage(state: GameState, reward: Reward): GameState {
   next.player.slashUsedThisTurn = false;
   next.player.wineBonus = 0;
 
-  return drawCards(
-    {
-      ...next,
-      log: [
-        next.enemy.intro,
-        `獲得獎勵：${reward.name}。${reward.text}`,
-        ...next.log,
-      ].slice(0, logLimit),
-    },
-    5 + next.playerUpgrades.startingDrawBonus,
-  );
+  const stagedState = {
+    ...next,
+    log: [
+      next.enemy.intro,
+      `獲得獎勵：${reward.name}。${reward.text}`,
+      ...next.log,
+    ].slice(0, logLimit),
+  };
+
+  if (next.player.heroId === "zhuge-liang") {
+    return startObservation(
+      stagedState,
+      zhugeLiangTurnDraw + next.playerUpgrades.startingDrawBonus,
+    );
+  }
+
+  return drawCards(stagedState, 5 + next.playerUpgrades.startingDrawBonus);
 }
 
 function applyReward(state: GameState, reward: Reward): GameState {
@@ -516,6 +575,30 @@ function hasDefenseCard(state: GameState): boolean {
   return hasDodge(state) || (state.player.heroId === "zhao-yun" && hasSlash(state));
 }
 
+function startObservation(state: GameState, drawCount: number): GameState {
+  const next = cloneState(state);
+  const cards = next.deck.splice(0, 3);
+
+  if (cards.length === 0) {
+    return drawCards(
+      appendLog(
+        { ...next, phase: "player", pendingObservation: undefined },
+        "諸葛亮觀星時牌堆無牌，改為正常抽牌。",
+      ),
+      drawCount,
+    );
+  }
+
+  return {
+    ...next,
+    phase: "observe",
+    pendingObservation: {
+      cards,
+      drawCount,
+    },
+  };
+}
+
 function cloneState(state: GameState): GameState {
   return {
     ...state,
@@ -529,6 +612,12 @@ function cloneState(state: GameState): GameState {
     hand: [...state.hand],
     discard: [...state.discard],
     pendingDefense: state.pendingDefense ? { ...state.pendingDefense } : undefined,
+    pendingObservation: state.pendingObservation
+      ? {
+          cards: [...state.pendingObservation.cards],
+          drawCount: state.pendingObservation.drawCount,
+        }
+      : undefined,
     rewardOptions: state.rewardOptions.map((reward) => ({ ...reward })),
     log: [...state.log],
   };

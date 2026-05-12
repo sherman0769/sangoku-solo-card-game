@@ -40,7 +40,7 @@ function getLogMarker(entry: string) {
     return "🍶";
   }
 
-  if (entry.includes("兵書") || entry.includes("抽")) {
+  if (entry.includes("兵書") || entry.includes("觀星") || entry.includes("抽")) {
     return "📜";
   }
 

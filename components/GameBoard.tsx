@@ -11,6 +11,7 @@ import {
   getCurrentEnemyAction,
   playCard,
   resolveDefense,
+  selectObservation,
   selectReward,
 } from "@/lib/game/engine";
 import type { PlayerUpgrades, Reward } from "@/lib/game/types";
@@ -179,6 +180,16 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
     setState(next);
   }
 
+  function handleSelectObservation(cardId: string) {
+    const next = selectObservation(state, cardId);
+
+    if (next !== state) {
+      showEventToast("觀星入手！", "strategy");
+    }
+
+    setState(next);
+  }
+
   function handleSelectReward(reward: Reward) {
     const beforePlayerHealth = state.player.health;
     const next = selectReward(state, reward.id);
@@ -277,6 +288,28 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
                 }
               />
             </div>
+
+            {state.phase === "observe" && state.pendingObservation ? (
+              <section className="rounded-xl border border-purple-400/50 bg-purple-950/55 p-5 text-purple-50 shadow-[0_18px_45px_rgba(0,0,0,0.35)]">
+                <p className="text-xs font-bold uppercase tracking-[0.2em] text-amber-200">
+                  諸葛亮技能
+                </p>
+                <h2 className="mt-2 text-2xl font-black">觀星</h2>
+                <p className="mt-2 text-sm leading-6 text-purple-100">
+                  選擇一張牌加入手牌，其餘放回牌堆底。選完後會再抽
+                  {state.pendingObservation.drawCount} 張牌。
+                </p>
+                <div className="mt-5 grid gap-4 md:grid-cols-3">
+                  {state.pendingObservation.cards.map((card) => (
+                    <CardView
+                      key={card.id}
+                      card={card}
+                      onPlay={handleSelectObservation}
+                    />
+                  ))}
+                </div>
+              </section>
+            ) : null}
 
             {state.phase === "defense" && state.pendingDefense ? (
               <section className="rounded-xl border border-red-500/60 bg-red-950/70 p-5 text-red-50 shadow-[0_18px_45px_rgba(0,0,0,0.35)]">
@@ -379,7 +412,7 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
           </div>
         </section>
         <footer className="mt-8 pb-2 text-center text-xs font-bold uppercase tracking-[0.18em] text-stone-500">
-          版本：v0.1.0 MVP
+          版本：v0.3.0 三武將測試版
         </footer>
       </div>
     </main>
@@ -535,12 +568,7 @@ function getPlayerStatuses({
   enemyArmorBroken: boolean;
   phase: string;
 }) {
-  const skillStatus =
-    heroId === "guan-yu"
-      ? slashUsedThisTurn
-        ? "已使用武聖"
-        : "武聖待發"
-      : "龍膽可用";
+  const skillStatus = getSkillStatus(heroId, slashUsedThisTurn, phase);
 
   return [
     skillStatus,
@@ -548,6 +576,18 @@ function getPlayerStatuses({
     enemyArmorBroken ? "破甲中" : null,
     phase === "defense" ? "等待防禦" : null,
   ].filter((status): status is string => Boolean(status));
+}
+
+function getSkillStatus(heroId: string, slashUsedThisTurn: boolean, phase: string) {
+  if (heroId === "guan-yu") {
+    return slashUsedThisTurn ? "已使用武聖" : "武聖待發";
+  }
+
+  if (heroId === "zhao-yun") {
+    return "龍膽可用";
+  }
+
+  return phase === "observe" ? "觀星中" : "觀星已定";
 }
 
 function getEnemyStatuses({
@@ -563,6 +603,10 @@ function getEnemyStatuses({
 }) {
   if (phase === "reward") {
     return ["戰後整備"];
+  }
+
+  if (phase === "observe") {
+    return ["等待觀星", `預告：${nextAction}`];
   }
 
   return [

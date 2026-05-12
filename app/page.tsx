@@ -22,7 +22,7 @@ export default function Home() {
             一將入亂世，闖關定天下
           </p>
           <p className="mt-6 max-w-2xl text-base leading-8 text-stone-300 sm:text-lg">
-            選擇關羽或趙雲，以斬、閃、酒、兵書與破甲迎戰三路敵人。看穿敵人的攻勢，
+            選擇關羽、趙雲或諸葛亮，以斬、閃、酒、兵書與破甲迎戰三路敵人。看穿敵人的攻勢，
             在戰後三選一強化中養成流派，最後挑戰 Boss 呂布。
           </p>
           <section className="mt-8 rounded-xl border border-amber-700/40 bg-black/30 p-5 shadow-[0_18px_45px_rgba(0,0,0,0.28)]">
@@ -36,10 +36,10 @@ export default function Home() {
                 </h2>
               </div>
               <p className="text-sm font-bold text-stone-300">
-                體力 {selectedHero.maxHp} / 技能：{selectedHero.skillName}
+                體力 {selectedHero.maxHp} / 技能：{selectedHero.skillName} / {selectedHero.role}
               </p>
             </div>
-            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            <div className="mt-4 grid gap-3 lg:grid-cols-3">
               {heroes.map((hero) => {
                 const isSelected = hero.id === selectedHeroId;
 
@@ -59,6 +59,12 @@ export default function Home() {
                     </span>
                     <span className="ml-2 rounded-full border border-amber-300/40 px-2 py-0.5 text-xs font-bold text-amber-100">
                       {hero.title}
+                    </span>
+                    <span className="mt-3 block text-sm leading-6 text-stone-300">
+                      體力 {hero.maxHp}｜技能：{hero.skillName}
+                    </span>
+                    <span className="mt-2 inline-flex rounded-full border border-purple-300/40 bg-purple-500/15 px-3 py-1 text-xs font-black text-purple-100">
+                      {hero.role}
                     </span>
                     <span className="mt-3 block text-sm leading-6 text-stone-300">
                       {hero.skillDescription}
@@ -108,7 +114,7 @@ export default function Home() {
           </p>
         </section>
         <p className="mt-8 text-xs font-bold uppercase tracking-[0.18em] text-stone-500">
-          版本：v0.1.0 MVP
+          版本：v0.3.0 三武將測試版
         </p>
       </section>
     </main>

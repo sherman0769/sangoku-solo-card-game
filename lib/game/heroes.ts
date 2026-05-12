@@ -8,6 +8,7 @@ export const heroes: Hero[] = [
     maxHp: 5,
     skillName: "武聖",
     skillDescription: "每回合第一次使用「斬」時，傷害 +1。",
+    role: "攻擊爆發",
   },
   {
     id: "zhao-yun",
@@ -16,6 +17,16 @@ export const heroes: Hero[] = [
     maxHp: 4,
     skillName: "龍膽",
     skillDescription: "你可以將「閃」當作「斬」使用，也可以將「斬」當作「閃」使用。",
+    role: "攻防靈活",
+  },
+  {
+    id: "zhuge-liang",
+    name: "諸葛亮",
+    title: "臥龍",
+    maxHp: 3,
+    skillName: "觀星",
+    skillDescription: "每回合開始時，查看牌堆頂 3 張，選 1 張加入手牌，其餘放回牌堆底。",
+    role: "策略控牌",
   },
 ];
 

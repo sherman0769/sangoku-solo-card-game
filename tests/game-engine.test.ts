@@ -5,8 +5,10 @@ import {
   playCard,
   rewardCatalog,
   resolveDefense,
+  selectObservation,
   selectReward,
 } from "@/lib/game/engine";
+import { heroes } from "@/lib/game/heroes";
 import type { GameState, RewardId } from "@/lib/game/types";
 
 describe("game engine", () => {
@@ -39,6 +41,31 @@ describe("game engine", () => {
     expect(state.player.title).toBe("常山趙子龍");
     expect(state.player.health).toBe(4);
     expect(state.player.skillName).toBe("龍膽");
+  });
+
+  it("contains Zhuge Liang in the hero list", () => {
+    expect(heroes).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: "zhuge-liang",
+          name: "諸葛亮",
+          title: "臥龍",
+          role: "策略控牌",
+        }),
+      ]),
+    );
+  });
+
+  it("creates a Zhuge Liang game and starts in observation", () => {
+    const state = createGame("zhuge-liang");
+
+    expect(state.player.heroId).toBe("zhuge-liang");
+    expect(state.player.name).toBe("諸葛亮");
+    expect(state.player.health).toBe(3);
+    expect(state.player.skillName).toBe("觀星");
+    expect(state.phase).toBe("observe");
+    expect(state.pendingObservation?.cards).toHaveLength(3);
+    expect(state.hand).toHaveLength(0);
   });
 
   it("defaults to Guan Yu for an unknown hero", () => {
@@ -249,6 +276,55 @@ describe("game engine", () => {
     expect(next.player.health).toBe(4);
     expect(next.discard.some((card) => card.name === "斬")).toBe(true);
     expect(next.log[0]).toBe("趙雲發動龍膽，將斬當作閃使用，抵消 2 點傷害。");
+  });
+
+  it("lets Zhuge Liang choose one observed card and bottom the rest", () => {
+    const state = createGame("zhuge-liang");
+    const observedCards = state.pendingObservation!.cards;
+    const selected = observedCards[1];
+    const unselected = [observedCards[0], observedCards[2]];
+
+    const next = selectObservation(state, selected.id);
+
+    expect(next.phase).toBe("player");
+    expect(next.pendingObservation).toBeUndefined();
+    expect(next.hand[0]).toEqual(selected);
+    expect(next.hand).toHaveLength(3);
+    expect(next.deck.slice(-2)).toEqual(unselected);
+    expect(next.log[0]).toBe("諸葛亮發動觀星，選擇了一張牌加入手牌。");
+  });
+
+  it("handles Zhuge Liang observation with fewer than three deck cards", () => {
+    const initial = createGame("zhuge-liang");
+    const ready = selectObservation(initial, initial.pendingObservation!.cards[0].id);
+    const onlyCard = createGame().hand[0];
+    const next = endTurn({
+      ...ready,
+      deck: [onlyCard],
+      hand: [],
+      discard: [],
+      enemyActionIndex: 1,
+    });
+
+    expect(next.phase).toBe("observe");
+    expect(next.pendingObservation?.cards).toHaveLength(1);
+    expect(next.pendingObservation?.cards[0]).toEqual(onlyCard);
+  });
+
+  it("does not crash Zhuge Liang observation when the deck is empty", () => {
+    const initial = createGame("zhuge-liang");
+    const ready = selectObservation(initial, initial.pendingObservation!.cards[0].id);
+    const next = endTurn({
+      ...ready,
+      deck: [],
+      hand: [],
+      discard: [],
+      enemyActionIndex: 1,
+    });
+
+    expect(next.phase).toBe("player");
+    expect(next.pendingObservation).toBeUndefined();
+    expect(next.log[0]).toBe("諸葛亮觀星時牌堆無牌，改為正常抽牌。");
   });
 
   it("moves to the next stage after choosing a reward", () => {
