@@ -18,6 +18,7 @@ import {
   selectReward,
   selectRoute,
 } from "@/lib/game/engine";
+import { currentVersionLabel, getPhaseHint, quickRules } from "@/lib/game/showcase";
 import type { GameEvent, PlayerUpgrades, Reward, StageRoute } from "@/lib/game/types";
 
 interface EventToast {
@@ -74,6 +75,7 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
   });
   const upgradeLabels = getUpgradeLabels(state.playerUpgrades);
   const equippedLabels = getEquippedLabels(state.player.equippedItems);
+  const phaseHint = getPhaseHint(state.phase);
 
   useEffect(() => {
     if (state.status === "won" || state.status === "lost") {
@@ -290,6 +292,13 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
           </section>
         ) : null}
 
+        <section className="mt-5 rounded-xl border border-amber-400/45 bg-amber-950/30 p-4 shadow-[0_18px_45px_rgba(0,0,0,0.28)]">
+          <p className="text-xs font-black uppercase tracking-[0.2em] text-amber-200">
+            提示
+          </p>
+          <p className="mt-2 text-sm leading-6 text-stone-100">{phaseHint}</p>
+        </section>
+
         <section className="mt-5 grid gap-5 lg:grid-cols-[1fr_340px]">
           <div className="space-y-5">
             <div className="grid gap-5 md:grid-cols-2">
@@ -491,6 +500,13 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
 
           <div className="space-y-5">
             <BattleLog entries={state.log} />
+            <InfoPanel title="快速規則">
+              <ul className="space-y-2 text-sm leading-6 text-stone-200">
+                {quickRules.map((rule) => (
+                  <li key={rule}>{rule}</li>
+                ))}
+              </ul>
+            </InfoPanel>
             <InfoPanel title="目前強化">
               {upgradeLabels.length > 0 ? (
                 <ul className="space-y-2 text-sm text-amber-50">
@@ -530,7 +546,7 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
           </div>
         </section>
         <footer className="mt-8 pb-2 text-center text-xs font-bold uppercase tracking-[0.18em] text-stone-500">
-          版本：v0.8.0 戰術卡測試版
+          版本：{currentVersionLabel}
         </footer>
       </div>
     </main>

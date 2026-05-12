@@ -1,0 +1,73 @@
+import type { GamePhase } from "./types";
+
+export const currentVersionLabel = "v0.8.1 展示與教學優化版";
+
+export const howToSteps = [
+  {
+    title: "選擇武將",
+    text: "關羽、趙雲、諸葛亮，各有不同玩法。",
+  },
+  {
+    title: "進入戰鬥",
+    text: "使用手牌攻擊、防守、回血或發動策略。",
+  },
+  {
+    title: "擊敗敵人",
+    text: "每一關會遇到不同敵人，第 3 關挑戰呂布。",
+  },
+  {
+    title: "遇見事件",
+    text: "戰鬥後可能觸發補給、策略或危險事件。",
+  },
+  {
+    title: "選擇獎勵",
+    text: "戰後三選一強化，提升後續戰鬥能力。",
+  },
+  {
+    title: "選擇路線",
+    text: "山道較安全，險道更危險但報酬更高。",
+  },
+] as const;
+
+export const currentFeatureHighlights = [
+  "三位可選武將：關羽、趙雲、諸葛亮",
+  "31 張玩家牌組",
+  "戰術卡：連斬、固守、激勵、火攻",
+  "裝備系統：青龍偃月刀、的盧馬、太平要術",
+  "隨機事件與路線選擇",
+  "第 1、2 關敵人池隨機，第 3 關挑戰呂布",
+  "可完整通關、失敗重來",
+] as const;
+
+export const quickRules = [
+  "每回合開始會抽牌。",
+  "使用卡牌後，可能造成傷害、回血、抽牌或改變狀態。",
+  "按「結束回合」後，敵人會行動。",
+  "擊敗敵人後，可能遇到事件，再選擇戰後獎勵。",
+  "選擇路線後，進入下一關。",
+  "第 3 關擊敗呂布即可通關。",
+] as const;
+
+export function getPhaseHint(phase: GamePhase) {
+  if (phase === "defense") {
+    return "敵人正在攻擊，你可以使用閃或相關技能抵消，也可以選擇承受傷害。";
+  }
+
+  if (phase === "reward") {
+    return "選擇一項戰後強化，它會影響後續整局戰鬥。";
+  }
+
+  if (phase === "event") {
+    return "事件會帶來補給、策略或風險，請選擇你的處理方式。";
+  }
+
+  if (phase === "route") {
+    return "選擇下一條路線。風險越高，下一戰越難，但可能獲得更好報酬。";
+  }
+
+  if (phase === "observe") {
+    return "諸葛亮發動觀星，選擇一張你最需要的牌加入手牌。";
+  }
+
+  return "先觀察敵人狀態，再決定使用攻擊、防禦、回復或策略卡。準備好了就按結束回合。";
+}

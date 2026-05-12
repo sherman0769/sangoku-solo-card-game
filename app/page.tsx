@@ -3,6 +3,11 @@
 import Link from "next/link";
 import { useState } from "react";
 import { heroes } from "@/lib/game/heroes";
+import {
+  currentFeatureHighlights,
+  currentVersionLabel,
+  howToSteps,
+} from "@/lib/game/showcase";
 
 export default function Home() {
   const [selectedHeroId, setSelectedHeroId] = useState("guan-yu");
@@ -90,6 +95,38 @@ export default function Home() {
           </div>
         </div>
 
+        <section className="mt-14">
+          <h2 className="text-3xl font-black text-amber-50">怎麼玩？</h2>
+          <div className="mt-5 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {howToSteps.map((step, index) => (
+              <section
+                key={step.title}
+                className="rounded-xl border border-amber-700/40 bg-black/30 p-5 shadow-[0_18px_45px_rgba(0,0,0,0.28)]"
+              >
+                <span className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-amber-300/60 bg-amber-500/15 text-sm font-black text-amber-100">
+                  {index + 1}
+                </span>
+                <h3 className="mt-4 text-lg font-black text-amber-100">{step.title}</h3>
+                <p className="mt-3 text-sm leading-6 text-stone-300">{step.text}</p>
+              </section>
+            ))}
+          </div>
+        </section>
+
+        <section className="mt-10 rounded-xl border border-amber-700/40 bg-black/30 p-5 shadow-[0_18px_45px_rgba(0,0,0,0.28)]">
+          <h2 className="text-3xl font-black text-amber-50">v0.8.1 目前特色</h2>
+          <ul className="mt-5 grid gap-3 text-sm leading-6 text-stone-300 md:grid-cols-2">
+            {currentFeatureHighlights.map((feature) => (
+              <li
+                key={feature}
+                className="rounded-lg border border-stone-700/70 bg-stone-950/45 px-4 py-3"
+              >
+                {feature}
+              </li>
+            ))}
+          </ul>
+        </section>
+
         <div className="mt-14 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {[
             ["單人卡牌闖關", "每回合管理士氣與手牌，在攻防之間找出突破口。"],
@@ -119,7 +156,7 @@ export default function Home() {
           </p>
         </section>
         <p className="mt-8 text-xs font-bold uppercase tracking-[0.18em] text-stone-500">
-          版本：v0.8.0 戰術卡測試版
+          版本：{currentVersionLabel}
         </p>
       </section>
     </main>
