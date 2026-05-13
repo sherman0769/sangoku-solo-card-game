@@ -35,6 +35,9 @@ describe("voice playback framework", () => {
     });
 
     expect(canPlayVoice("guan-yu-slash")).toBe(false);
+    expect(canPlayVoice("guan-yu-preview")).toBe(false);
+    expect(canPlayVoice("zhao-yun-preview")).toBe(false);
+    expect(canPlayVoice("zhuge-liang-preview")).toBe(false);
     expect(canPlayVoice("missing-audio-key")).toBe(false);
   });
 

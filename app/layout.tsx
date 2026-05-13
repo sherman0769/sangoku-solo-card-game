@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "三國單騎傳",
-  description: "v0.17.1 Boss 戰體驗強化版：呂布 Boss 特性觸發時有更明顯的畫面提示、台詞與手機 HUD 狀態。",
+  description: "v0.18.0 首頁武將試聽台詞版：首頁試聽台詞與遊戲內登場台詞分離。",
 };
 
 export default function RootLayout({

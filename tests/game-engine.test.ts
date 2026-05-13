@@ -288,9 +288,39 @@ describe("game engine", () => {
   it("includes the first character dialogue set", () => {
     expect(dialogueLines).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ speakerId: "guan-yu", trigger: "hero_intro" }),
-        expect.objectContaining({ speakerId: "zhao-yun", trigger: "hero_intro" }),
-        expect.objectContaining({ speakerId: "zhuge-liang", trigger: "hero_intro" }),
+        expect.objectContaining({
+          speakerId: "guan-yu",
+          trigger: "hero_preview",
+          text: "吾乃關雲長，願以此刀，斬開亂世。",
+          audioKey: "guan-yu-preview",
+        }),
+        expect.objectContaining({
+          speakerId: "zhao-yun",
+          trigger: "hero_preview",
+          text: "常山趙子龍，聽候差遣。",
+          audioKey: "zhao-yun-preview",
+        }),
+        expect.objectContaining({
+          speakerId: "zhuge-liang",
+          trigger: "hero_preview",
+          text: "既入此局，便當謀定而後動。",
+          audioKey: "zhuge-liang-preview",
+        }),
+        expect.objectContaining({
+          speakerId: "guan-yu",
+          trigger: "hero_intro",
+          text: "關某在此，何人敢擋？",
+        }),
+        expect.objectContaining({
+          speakerId: "zhao-yun",
+          trigger: "hero_intro",
+          text: "常山趙子龍，願護此路周全。",
+        }),
+        expect.objectContaining({
+          speakerId: "zhuge-liang",
+          trigger: "hero_intro",
+          text: "觀天時，察地利，方能制勝。",
+        }),
       ]),
     );
     expect(getEnemyIntroDialogue("lu-bu", true)?.text).toBe("吾乃呂布，誰敢與我一戰？");

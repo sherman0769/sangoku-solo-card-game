@@ -5,11 +5,13 @@ import { useEffect, useState } from "react";
 import { GameImage } from "@/components/GameImage";
 import { OpeningVideo } from "@/components/OpeningVideo";
 import { playSound } from "@/lib/game/audio";
+import { getHeroDialogue } from "@/lib/game/dialogues";
 import { heroes } from "@/lib/game/heroes";
 import { getOpeningVideoConfig } from "@/lib/game/openingVideo";
 import {
-  getHeroIntroAudioKey,
+  getHeroPreviewAudioKey,
   getHeroStartLabel,
+  homeHeroPreviewCopy,
   homeHeroSelectionCopy,
   homeCollapsibleSections,
   currentFeatureHighlights,
@@ -34,6 +36,7 @@ export default function Home() {
   const openingVideo = getOpeningVideoConfig();
   const selectedHeroStartHref = `/game?hero=${selectedHeroId}`;
   const selectedHeroStartLabel = getHeroStartLabel(selectedHero.name);
+  const selectedHeroPreviewDialogue = getHeroDialogue(selectedHero.id, "hero_preview");
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -49,7 +52,7 @@ export default function Home() {
     playSound("reward");
 
     if (voiceEnabled) {
-      const audioKey = getHeroIntroAudioKey(heroId);
+      const audioKey = getHeroPreviewAudioKey(heroId);
 
       if (audioKey) {
         playVoice(audioKey);
@@ -136,9 +139,19 @@ export default function Home() {
           <p className="mt-3 inline-flex rounded-full border border-amber-300/40 bg-amber-500/12 px-3 py-1 text-sm font-black text-amber-100">
             目前選擇：{selectedHero.name}
           </p>
+          {selectedHeroPreviewDialogue ? (
+            <div className="mt-3 rounded-lg border border-amber-300/35 bg-amber-500/10 px-4 py-3">
+              <p className="text-xs font-black tracking-[0.16em] text-amber-200">
+                首頁試聽台詞
+              </p>
+              <p className="mt-2 text-base font-bold leading-7 text-amber-50">
+                「{selectedHeroPreviewDialogue.text}」
+              </p>
+            </div>
+          ) : null}
           <div className="mt-4 flex flex-col gap-3 rounded-lg border border-purple-500/30 bg-purple-950/25 p-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-sm font-bold leading-6 text-purple-100">
-              點選武將可試聽登場語音；若語音關閉，仍會播放選擇音效。
+              {homeHeroPreviewCopy}
             </p>
             <button
               type="button"
@@ -237,7 +250,7 @@ export default function Home() {
           <summary className="cursor-pointer text-2xl font-black text-amber-50">
             {homeCollapsibleSections[1].title}
           </summary>
-          <h2 className="sr-only">v0.17.1 目前特色</h2>
+          <h2 className="sr-only">v0.18.0 目前特色</h2>
           <ul className="mt-5 grid gap-3 text-sm leading-6 text-stone-300 md:grid-cols-2">
             {currentFeatureHighlights.map((feature) => (
               <li
@@ -267,6 +280,7 @@ export default function Home() {
             ["TTS 配音規劃", "已建立配音素材清單，為角色語音與開場旁白做準備。"],
             ["語音播放框架", "已建立 audioKey 對應與未來 TTS 音檔播放機制。"],
             ["第一批 TTS 語音", "章節開場、三位武將登場與呂布登場語音已可在語音開啟後播放。"],
+            ["首頁武將試聽台詞", "選角時可看到專屬台詞，與進入遊戲後登場台詞分離。"],
             ["開頭動畫", "以 AI 圖像、影片與音樂製作第一章開場，可觀看或略過後開始遊戲。"],
             ["手機遊玩優化", "戰鬥 HUD、底部手牌操作區、紀錄與狀態設定收合，降低直屏滑動負擔。"],
             ["首頁主流程", "首頁改為觀看開場動畫、選擇武將、開始遊戲，避免選角前直接進入遊戲。"],

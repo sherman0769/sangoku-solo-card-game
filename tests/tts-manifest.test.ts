@@ -51,6 +51,33 @@ describe("TTS dialogue manifest", () => {
     });
   });
 
+  it("includes planned homepage hero preview voice assets", () => {
+    expect(getTtsAssetByAudioKey("guan-yu-preview")).toMatchObject({
+      speakerName: "關羽",
+      trigger: "hero_preview",
+      text: "吾乃關雲長，願以此刀，斬開亂世。",
+      filePath: "/audio/voices/guan-yu/guan-yu-preview.mp3",
+      usage: "首頁武將選擇試聽，不同於遊戲內登場台詞",
+      status: "planned",
+    });
+    expect(getTtsAssetByAudioKey("zhao-yun-preview")).toMatchObject({
+      speakerName: "趙雲",
+      trigger: "hero_preview",
+      text: "常山趙子龍，聽候差遣。",
+      filePath: "/audio/voices/zhao-yun/zhao-yun-preview.mp3",
+      usage: "首頁武將選擇試聽，不同於遊戲內登場台詞",
+      status: "planned",
+    });
+    expect(getTtsAssetByAudioKey("zhuge-liang-preview")).toMatchObject({
+      speakerName: "諸葛亮",
+      trigger: "hero_preview",
+      text: "既入此局，便當謀定而後動。",
+      filePath: "/audio/voices/zhuge-liang/zhuge-liang-preview.mp3",
+      usage: "首頁武將選擇試聽，不同於遊戲內登場台詞",
+      status: "planned",
+    });
+  });
+
   it("maps every dialogue audioKey to a planned TTS asset", () => {
     dialogueLines.forEach((line) => {
       const audioKey = line.audioKey;

@@ -4,9 +4,11 @@ import {
   currentVersionLabel,
   getPhaseHint,
   getHeroIntroAudioKey,
+  getHeroPreviewAudioKey,
   getHeroStartLabel,
   gameLoadingCopy,
   homeCollapsibleSections,
+  homeHeroPreviewCopy,
   homeHeroSelectionCopy,
   homeMainFlowSteps,
   homeOpeningVideoEntry,
@@ -20,7 +22,7 @@ import { canPlayVoice } from "@/lib/game/voice";
 
 describe("showcase and onboarding copy", () => {
   it("includes homepage how-to and current feature copy", () => {
-    expect(currentVersionLabel).toBe("v0.17.1 Boss 戰體驗強化版");
+    expect(currentVersionLabel).toBe("v0.18.0 首頁武將試聽台詞版");
     expect(howToSteps.map((step) => step.title)).toEqual([
       "選擇武將",
       "進入戰鬥",
@@ -54,13 +56,16 @@ describe("showcase and onboarding copy", () => {
       "第一批 TTS 語音：章節開場、三位武將登場與呂布登場",
     );
     expect(currentFeatureHighlights).toContain(
+      "首頁武將試聽台詞：選角時可看到專屬台詞，與進入遊戲後登場台詞分離。",
+    );
+    expect(currentFeatureHighlights).toContain(
       "開頭動畫：以 AI 圖像、影片與音樂製作第一章開場",
     );
     expect(currentFeatureHighlights).toContain(
       "手機遊玩優化：戰鬥 HUD、底部手牌操作區、紀錄與設定收合",
     );
     expect(currentFeatureHighlights).toContain(
-      "首頁互動修正：武將試聽登場語音、開場動畫入口上移、教學與特色收合",
+      "首頁互動修正：武將試聽台詞、開場動畫入口上移、教學與特色收合",
     );
     expect(currentFeatureHighlights).toContain(
       "開場動畫體驗：一次點擊全螢幕播放、可略過、可關閉、可重播",
@@ -116,6 +121,7 @@ describe("showcase and onboarding copy", () => {
   it("describes the corrected homepage start flow", () => {
     expect(homeMainFlowSteps).toEqual(["觀看開場動畫", "選擇武將", "開始遊戲"]);
     expect(homeHeroSelectionCopy).toBe("先選擇你的武將，再開始遊戲。");
+    expect(homeHeroPreviewCopy).toBe("點選武將可查看專屬試聽台詞；語音檔將陸續補齊。");
     expect(homeOpeningVideoEntry).toMatchObject({
       title: "開場動畫",
       description: "觀看第一章：黃巾亂起 的 20 秒直式開場動畫",
@@ -182,7 +188,19 @@ describe("showcase and onboarding copy", () => {
     ]);
   });
 
-  it("maps homepage hero voice previews to ready intro audio", () => {
+  it("maps homepage hero selection to planned preview audio instead of intro audio", () => {
+    expect(getHeroPreviewAudioKey("guan-yu")).toBe("guan-yu-preview");
+    expect(getHeroPreviewAudioKey("zhao-yun")).toBe("zhao-yun-preview");
+    expect(getHeroPreviewAudioKey("zhuge-liang")).toBe("zhuge-liang-preview");
+    expect(getHeroPreviewAudioKey("guan-yu")).not.toBe("guan-yu-intro");
+    expect(getHeroPreviewAudioKey("zhao-yun")).not.toBe("zhao-yun-intro");
+    expect(getHeroPreviewAudioKey("zhuge-liang")).not.toBe("zhuge-liang-intro");
+    expect(canPlayVoice("guan-yu-preview")).toBe(false);
+    expect(canPlayVoice("zhao-yun-preview")).toBe(false);
+    expect(canPlayVoice("zhuge-liang-preview")).toBe(false);
+  });
+
+  it("keeps game intro audio keys ready for entering the game", () => {
     expect(getHeroIntroAudioKey("guan-yu")).toBe("guan-yu-intro");
     expect(getHeroIntroAudioKey("zhao-yun")).toBe("zhao-yun-intro");
     expect(getHeroIntroAudioKey("zhuge-liang")).toBe("zhuge-liang-intro");

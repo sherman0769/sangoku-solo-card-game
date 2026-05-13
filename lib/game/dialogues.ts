@@ -14,6 +14,14 @@ const enemyPortraits: Record<string, string> = {
 };
 
 export const dialogueLines: DialogueLine[] = [
+  createHeroDialogue(
+    "guan-yu",
+    "關羽",
+    "hero_preview",
+    "吾乃關雲長，願以此刀，斬開亂世。",
+    "威嚴、沉穩",
+    "guan-yu-preview",
+  ),
   createHeroDialogue("guan-yu", "關羽", "hero_intro", "關某在此，何人敢擋？", "威嚴", "guan-yu-intro"),
   createHeroDialogue(
     "guan-yu",
@@ -28,6 +36,14 @@ export const dialogueLines: DialogueLine[] = [
   createHeroDialogue("guan-yu", "關羽", "low_hp", "此身尚在，義不容退。", "不屈", "guan-yu-low-hp"),
   createHeroDialogue("guan-yu", "關羽", "victory", "賊寇已破，前路仍遠。", "沉穩", "guan-yu-victory"),
 
+  createHeroDialogue(
+    "zhao-yun",
+    "趙雲",
+    "hero_preview",
+    "常山趙子龍，聽候差遣。",
+    "清亮、堅定",
+    "zhao-yun-preview",
+  ),
   createHeroDialogue(
     "zhao-yun",
     "趙雲",
@@ -56,6 +72,14 @@ export const dialogueLines: DialogueLine[] = [
   createHeroDialogue("zhao-yun", "趙雲", "take_damage", "無妨，尚能再戰。", "堅定", "zhao-yun-damage"),
   createHeroDialogue("zhao-yun", "趙雲", "victory", "此戰已定，繼續前行。", "從容", "zhao-yun-victory"),
 
+  createHeroDialogue(
+    "zhuge-liang",
+    "諸葛亮",
+    "hero_preview",
+    "既入此局，便當謀定而後動。",
+    "沉著、智慧",
+    "zhuge-liang-preview",
+  ),
   createHeroDialogue(
     "zhuge-liang",
     "諸葛亮",

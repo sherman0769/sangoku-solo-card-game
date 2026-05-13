@@ -34,6 +34,7 @@ export type GameStatus = "playing" | "won" | "lost";
 export type DialogueSpeakerType = "hero" | "enemy" | "narrator" | "system";
 
 export type DialogueTrigger =
+  | "hero_preview"
   | "hero_intro"
   | "battle_start"
   | "use_slash"

@@ -13,6 +13,12 @@ const readyVoiceFilePaths: Record<string, string> = {
   "lu-bu-intro": "/audio/voices/lu-bu/lu-bu-intro.mp3",
 };
 
+const plannedVoiceFilePaths: Record<string, string> = {
+  "guan-yu-preview": "/audio/voices/guan-yu/guan-yu-preview.mp3",
+  "zhao-yun-preview": "/audio/voices/zhao-yun/zhao-yun-preview.mp3",
+  "zhuge-liang-preview": "/audio/voices/zhuge-liang/zhuge-liang-preview.mp3",
+};
+
 export interface TtsDialogueAsset {
   audioKey: string;
   speakerId: string;
@@ -90,6 +96,12 @@ function getSuggestedFilePath(line: DialogueLine, audioKey: string) {
     return readyFilePath;
   }
 
+  const plannedFilePath = plannedVoiceFilePaths[audioKey];
+
+  if (plannedFilePath) {
+    return plannedFilePath;
+  }
+
   if (line.speakerId === "guan-yu") {
     return `public/audio/voices/guan-yu/${audioKey}.mp3`;
   }
@@ -119,6 +131,7 @@ function getTtsAssetStatus(audioKey: string): TtsAssetStatus {
 
 function getUsage(line: DialogueLine) {
   const usageByTrigger: Record<DialogueLine["trigger"], string> = {
+    hero_preview: "首頁武將選擇試聽，不同於遊戲內登場台詞",
     hero_intro: "選擇武將並建立遊戲時播放",
     battle_start: "每場戰鬥開始時播放",
     use_slash: "使用斬或攻擊行為時播放",
