@@ -54,21 +54,21 @@
 
 | audioKey | speakerName | speakerType | trigger | text | tone | suggestedVoice | suggestedSpeed | suggestedFilePath | usage |
 |---|---|---|---|---|---|---|---|---|---|
-| guan-yu-preview | 關羽 | hero | hero_preview | 吾乃關雲長，願以此刀，斬開亂世。 | 威嚴、沉穩 | 關羽：低沉、厚實、威嚴 | 中慢速 | /audio/voices/guan-yu/guan-yu-preview.mp3 | 首頁武將選擇試聽，不同於遊戲內登場台詞 |
+| guan-yu-preview | 關羽 | hero | hero_preview | 吾乃關雲長，願以此刀，斬開亂世。 | 威嚴、沉穩 | 關羽：低沉、厚實、威嚴 | 中慢速 | /audio/voices/guan-yu/guan-yu-preview.mp3 | 首頁武將選擇試聽語音，不同於遊戲內登場台詞 |
 | guan-yu-intro | 關羽 | hero | hero_intro | 關某在此，何人敢擋？ | 威嚴 | 關羽：低沉、厚實、威嚴 | 中慢速 | /audio/voices/guan-yu/guan-yu-intro.mp3 | 選擇武將並建立遊戲時播放 |
 | guan-yu-battle-start | 關羽 | hero | battle_start | 賊寇當前，且看關某一刀破陣。 | 昂揚 | 關羽：低沉、厚實、威嚴 | 中慢速 | public/audio/voices/guan-yu/guan-yu-battle-start.mp3 | 每場戰鬥開始時播放 |
 | guan-yu-slash | 關羽 | hero | use_slash | 看刀！ | 攻擊 | 關羽：低沉、厚實、威嚴 | 中慢速 | public/audio/voices/guan-yu/guan-yu-slash.mp3 | 使用斬或攻擊行為時播放 |
 | guan-yu-damage | 關羽 | hero | take_damage | 此傷不足懼。 | 堅毅 | 關羽：低沉、厚實、威嚴 | 中慢速 | public/audio/voices/guan-yu/guan-yu-damage.mp3 | 玩家受到傷害時播放 |
 | guan-yu-low-hp | 關羽 | hero | low_hp | 此身尚在，義不容退。 | 不屈 | 關羽：低沉、厚實、威嚴 | 中慢速 | public/audio/voices/guan-yu/guan-yu-low-hp.mp3 | 每場戰鬥首次低血量時播放 |
 | guan-yu-victory | 關羽 | hero | victory | 賊寇已破，前路仍遠。 | 沉穩 | 關羽：低沉、厚實、威嚴 | 中慢速 | public/audio/voices/guan-yu/guan-yu-victory.mp3 | 擊敗敵人後播放 |
-| zhao-yun-preview | 趙雲 | hero | hero_preview | 常山趙子龍，聽候差遣。 | 清亮、堅定 | 趙雲：年輕、清亮、堅定 | 中速 | /audio/voices/zhao-yun/zhao-yun-preview.mp3 | 首頁武將選擇試聽，不同於遊戲內登場台詞 |
+| zhao-yun-preview | 趙雲 | hero | hero_preview | 常山趙子龍，聽候差遣。 | 清亮、堅定 | 趙雲：年輕、清亮、堅定 | 中速 | /audio/voices/zhao-yun/zhao-yun-preview.mp3 | 首頁武將選擇試聽語音，不同於遊戲內登場台詞 |
 | zhao-yun-intro | 趙雲 | hero | hero_intro | 常山趙子龍，願護此路周全。 | 從容 | 趙雲：年輕、清亮、堅定 | 中速 | /audio/voices/zhao-yun/zhao-yun-intro.mp3 | 選擇武將並建立遊戲時播放 |
 | zhao-yun-battle-start | 趙雲 | hero | battle_start | 敵勢雖眾，吾自往來破之。 | 果決 | 趙雲：年輕、清亮、堅定 | 中速 | public/audio/voices/zhao-yun/zhao-yun-battle-start.mp3 | 每場戰鬥開始時播放 |
 | zhao-yun-slash | 趙雲 | hero | use_slash | 銀槍所向，破！ | 攻擊 | 趙雲：年輕、清亮、堅定 | 中速 | public/audio/voices/zhao-yun/zhao-yun-slash.mp3 | 使用斬或攻擊行為時播放 |
 | zhao-yun-dodge | 趙雲 | hero | use_dodge | 進退之間，皆有生路。 | 靈動 | 趙雲：年輕、清亮、堅定 | 中速 | public/audio/voices/zhao-yun/zhao-yun-dodge.mp3 | 使用閃或龍膽防禦時播放 |
 | zhao-yun-damage | 趙雲 | hero | take_damage | 無妨，尚能再戰。 | 堅定 | 趙雲：年輕、清亮、堅定 | 中速 | public/audio/voices/zhao-yun/zhao-yun-damage.mp3 | 玩家受到傷害時播放 |
 | zhao-yun-victory | 趙雲 | hero | victory | 此戰已定，繼續前行。 | 從容 | 趙雲：年輕、清亮、堅定 | 中速 | public/audio/voices/zhao-yun/zhao-yun-victory.mp3 | 擊敗敵人後播放 |
-| zhuge-liang-preview | 諸葛亮 | hero | hero_preview | 既入此局，便當謀定而後動。 | 沉著、智慧 | 諸葛亮：沉著、智慧、溫和 | 中慢速 | /audio/voices/zhuge-liang/zhuge-liang-preview.mp3 | 首頁武將選擇試聽，不同於遊戲內登場台詞 |
+| zhuge-liang-preview | 諸葛亮 | hero | hero_preview | 既入此局，便當謀定而後動。 | 沉著、智慧 | 諸葛亮：沉著、智慧、溫和 | 中慢速 | /audio/voices/zhuge-liang/zhuge-liang-preview.mp3 | 首頁武將選擇試聽語音，不同於遊戲內登場台詞 |
 | zhuge-liang-intro | 諸葛亮 | hero | hero_intro | 觀天時，察地利，方能制勝。 | 睿智 | 諸葛亮：沉著、智慧、溫和 | 中慢速 | /audio/voices/zhuge-liang/zhuge-liang-intro.mp3 | 選擇武將並建立遊戲時播放 |
 | zhuge-liang-battle-start | 諸葛亮 | hero | battle_start | 此局未動，勝機已藏。 | 沉著 | 諸葛亮：沉著、智慧、溫和 | 中慢速 | public/audio/voices/zhuge-liang/zhuge-liang-battle-start.mp3 | 每場戰鬥開始時播放 |
 | zhuge-liang-strategy | 諸葛亮 | hero | use_strategy | 星象已明，勝機在此。 | 策略 | 諸葛亮：沉著、智慧、溫和 | 中慢速 | public/audio/voices/zhuge-liang/zhuge-liang-strategy.mp3 | 觀星或策略行為時播放 |
@@ -88,8 +88,16 @@
 ## 輸出規則
 
 - v0.12.3 已將 `chapter-1-intro`、`guan-yu-intro`、`zhao-yun-intro`、`zhuge-liang-intro`、`lu-bu-intro` 標記為 `ready`；其他素材仍維持 `planned`。
-- v0.18.0 新增 `guan-yu-preview`、`zhao-yun-preview`、`zhuge-liang-preview`，用途為首頁武將選擇試聽，不同於遊戲內登場台詞；目前三筆狀態仍維持 `planned`。
+- v0.18.1 已將 `guan-yu-preview`、`zhao-yun-preview`、`zhuge-liang-preview` 標記為 `ready`，用途為首頁武將選擇試聽語音，不同於遊戲內登場台詞；其他未導入音檔的素材仍維持 `planned`。
 - 生成後音檔建議使用 MP3，放入上表的 `suggestedFilePath`。
 - 不要在音檔中加入背景音樂、Logo 音、水印或額外口白。
 - 角色語音應保留清楚斷句，避免過度戲劇化。
 - 旁白可比角色語音更具電影感，但仍需適合教學展示。
+
+## v0.18.1 首頁 preview 語音狀態
+
+| audioKey | status | filePath | usage |
+|---|---|---|---|
+| guan-yu-preview | ready | /audio/voices/guan-yu/guan-yu-preview.mp3 | 首頁武將選擇試聽語音 |
+| zhao-yun-preview | ready | /audio/voices/zhao-yun/zhao-yun-preview.mp3 | 首頁武將選擇試聽語音 |
+| zhuge-liang-preview | ready | /audio/voices/zhuge-liang/zhuge-liang-preview.mp3 | 首頁武將選擇試聽語音 |

@@ -12,8 +12,11 @@ import {
 
 const firstReadyVoiceAssets = [
   ["chapter-1-intro", "/audio/narration/chapter-1-intro.mp3"],
+  ["guan-yu-preview", "/audio/voices/guan-yu/guan-yu-preview.mp3"],
   ["guan-yu-intro", "/audio/voices/guan-yu/guan-yu-intro.mp3"],
+  ["zhao-yun-preview", "/audio/voices/zhao-yun/zhao-yun-preview.mp3"],
   ["zhao-yun-intro", "/audio/voices/zhao-yun/zhao-yun-intro.mp3"],
+  ["zhuge-liang-preview", "/audio/voices/zhuge-liang/zhuge-liang-preview.mp3"],
   ["zhuge-liang-intro", "/audio/voices/zhuge-liang/zhuge-liang-intro.mp3"],
   ["lu-bu-intro", "/audio/voices/lu-bu/lu-bu-intro.mp3"],
 ] as const;
@@ -35,9 +38,6 @@ describe("voice playback framework", () => {
     });
 
     expect(canPlayVoice("guan-yu-slash")).toBe(false);
-    expect(canPlayVoice("guan-yu-preview")).toBe(false);
-    expect(canPlayVoice("zhao-yun-preview")).toBe(false);
-    expect(canPlayVoice("zhuge-liang-preview")).toBe(false);
     expect(canPlayVoice("missing-audio-key")).toBe(false);
   });
 
@@ -50,6 +50,10 @@ describe("voice playback framework", () => {
       speakerName: "關羽",
       status: "planned",
     });
+    expect(getVoiceAssetByAudioKey("guan-yu-preview")).toMatchObject({
+      speakerName: "關羽",
+      status: "ready",
+    });
   });
 
   it("plays as a safe no-op in SSR and test environments", () => {
@@ -59,7 +63,7 @@ describe("voice playback framework", () => {
 
   it("supports voice lifecycle statuses while keeping non-imported assets planned", () => {
     expect(ttsAssetStatuses).toEqual(["planned", "generated", "ready"]);
-    expect(TTS_DIALOGUE_MANIFEST.filter((asset) => asset.status === "ready")).toHaveLength(5);
+    expect(TTS_DIALOGUE_MANIFEST.filter((asset) => asset.status === "ready")).toHaveLength(8);
     expect(
       TTS_DIALOGUE_MANIFEST.filter((asset) => !firstReadyVoiceAssets.some(([audioKey]) => audioKey === asset.audioKey))
         .every((asset) => asset.status === "planned"),

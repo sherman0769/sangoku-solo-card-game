@@ -1,6 +1,6 @@
 import type { GamePhase } from "./types";
 
-export const currentVersionLabel = "v0.18.0 首頁武將試聽台詞版";
+export const currentVersionLabel = "v0.18.1 首頁武將試聽語音導入版";
 
 export const gameLoadingCopy = {
   title: "戰局準備中……",
@@ -21,7 +21,7 @@ export const homeOpeningVideoEntry = {
 
 export const homeHeroSelectionCopy = "先選擇你的武將，再開始遊戲。";
 
-export const homeHeroPreviewCopy = "點選武將可查看專屬試聽台詞；語音檔將陸續補齊。";
+export const homeHeroPreviewCopy = "開啟角色語音後，點選武將可試聽專屬選角語音。";
 
 export const routeSelectionCopy = {
   title: "選擇路線",
@@ -76,7 +76,7 @@ export const currentFeatureHighlights = [
   "TTS 配音素材規劃：為角色語音與開場旁白做準備",
   "語音播放框架：已建立 audioKey 對應與未來 TTS 音檔播放機制",
   "第一批 TTS 語音：章節開場、三位武將登場與呂布登場",
-  "首頁武將試聽台詞：選角時可看到專屬台詞，與進入遊戲後登場台詞分離。",
+  "首頁武將試聽語音：選角時可聽到專屬語音，與進入遊戲後登場語音分離。",
   "開頭動畫：以 AI 圖像、影片與音樂製作第一章開場",
   "手機遊玩優化：戰鬥 HUD、底部手牌操作區、紀錄與設定收合",
   "首頁互動修正：武將試聽台詞、開場動畫入口上移、教學與特色收合",

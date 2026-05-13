@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "三國單騎傳",
-  description: "v0.18.0 首頁武將試聽台詞版：首頁試聽台詞與遊戲內登場台詞分離。",
+  description: "v0.18.1 首頁武將試聽語音導入版：首頁選角語音與遊戲內登場語音分離。",
 };
 
 export default function RootLayout({
