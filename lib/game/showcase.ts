@@ -1,6 +1,6 @@
 import type { GamePhase } from "./types";
 
-export const currentVersionLabel = "v0.13.2 首頁與戰鬥視覺修正版";
+export const currentVersionLabel = "v0.13.3 開場動畫體驗優化版";
 
 export const howToSteps = [
   {
@@ -47,6 +47,7 @@ export const currentFeatureHighlights = [
   "開頭動畫：以 AI 圖像、影片與音樂製作第一章開場",
   "手機遊玩優化：戰鬥 HUD、底部手牌操作區、紀錄與設定收合",
   "首頁互動修正：武將試聽登場語音、開場動畫入口上移、教學與特色收合",
+  "開場動畫體驗：一次點擊全螢幕播放、可略過、可關閉、可重播",
   "視覺資產 placeholder：角色、敵人、關卡、事件、路線與卡牌",
   "Mini-boss 張梁 / 張寶",
   "隨機事件與路線選擇",

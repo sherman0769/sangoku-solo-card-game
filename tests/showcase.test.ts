@@ -13,7 +13,7 @@ import { canPlayVoice } from "@/lib/game/voice";
 
 describe("showcase and onboarding copy", () => {
   it("includes homepage how-to and current feature copy", () => {
-    expect(currentVersionLabel).toBe("v0.13.2 首頁與戰鬥視覺修正版");
+    expect(currentVersionLabel).toBe("v0.13.3 開場動畫體驗優化版");
     expect(howToSteps.map((step) => step.title)).toEqual([
       "選擇武將",
       "進入戰鬥",
@@ -54,6 +54,9 @@ describe("showcase and onboarding copy", () => {
     );
     expect(currentFeatureHighlights).toContain(
       "首頁互動修正：武將試聽登場語音、開場動畫入口上移、教學與特色收合",
+    );
+    expect(currentFeatureHighlights).toContain(
+      "開場動畫體驗：一次點擊全螢幕播放、可略過、可關閉、可重播",
     );
     expect(currentFeatureHighlights).toContain(
       "視覺資產 placeholder：角色、敵人、關卡、事件、路線與卡牌",
