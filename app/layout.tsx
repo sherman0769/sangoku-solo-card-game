@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "三國單騎傳",
-  description: "v0.18.2 第一章 TTS 缺口清單版：整理八關旁白、敵人登場、擊敗與路線事件語音清單。",
+  description: "v0.18.3-pre 第一章 P0 TTS 生成準備版：匯出第一章優先語音批量生成清單。",
 };
 
 export default function RootLayout({

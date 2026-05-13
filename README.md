@@ -4,7 +4,7 @@
 
 線上遊玩網址：[https://sangoku-solo-card-game.vercel.app](https://sangoku-solo-card-game.vercel.app)
 
-目前版本：`v0.18.2 第一章 TTS 缺口清單版`
+目前版本：`v0.18.3-pre 第一章 P0 TTS 生成準備版`
 
 ## 已完成功能
 
@@ -40,6 +40,7 @@
 - 第一批 TTS 語音：章節開場旁白、三位武將登場與呂布登場
 - 首頁武將試聽語音：首頁選角時可播放專屬 preview 語音，與進入遊戲後的登場語音分離
 - 第一章 TTS 缺口清單：整理八關旁白、敵人登場、擊敗語音、Boss 特性、勝敗與路線事件語音規劃
+- 第一章 P0 TTS 批量生成清單：匯出 20 筆優先語音的 Markdown 文件與 JSON manifest
 - 開頭動畫：首頁可觀看或略過 9:16 第一章開場動畫
 - 手機遊玩 UI / UX 優化：戰鬥 HUD、底部手牌操作區、戰鬥紀錄與狀態設定收合
 - 首頁與戰鬥視覺修正：戰鬥角色圖 / 敵人圖回到主畫面，首頁武將選擇加入音效與專屬試聽台詞
@@ -167,6 +168,7 @@ npm run build
 - v0.18.0：首頁武將試聽台詞版
 - v0.18.1：導入首頁武將試聽語音
 - v0.18.2：建立第一章 TTS 缺口清單
+- v0.18.3-pre：匯出第一章 P0 TTS 批量生成清單
 
 ## 視覺資產系統
 
@@ -371,6 +373,14 @@ v0.18.2 建立第一章 TTS 缺口清單：
 - 清單涵蓋八關開場旁白、敵人登場、敵人被擊敗旁白、呂布 Boss 特性、通關 / 戰敗與 9 個路線事件旁白。
 - 本版不新增真實音檔，也不把尚未存在的音檔標記為 `ready`；下一步可依照缺口清單批量生成 MP3。
 
+v0.18.3-pre 匯出第一章 P0 TTS 批量生成清單：
+
+- 已新增批量生成文件：[`docs/tts-batch-p0-v0.18.3.md`](docs/tts-batch-p0-v0.18.3.md)。
+- 已新增 TTS 工具用 JSON manifest：[`docs/tts-batch-p0-v0.18.3.json`](docs/tts-batch-p0-v0.18.3.json)。
+- 已新增程式端清單 `lib/game/ttsBatchP0Manifest.ts`，匯出 `CHAPTER_1_TTS_P0_BATCH_MANIFEST`。
+- P0 清單共 20 筆，涵蓋八關開場旁白、尚未 ready 的敵人登場、呂布 Boss 特性、通關與戰敗旁白。
+- 本版只做生成準備，不新增真實 MP3，也不把任何 P0 音檔標記為 `ready`。
+
 ## TTS 配音規劃
 
 v0.12.1 建立第一版 TTS 配音素材清單，文件位於 [`docs/tts-dialogue-assets-v1.md`](docs/tts-dialogue-assets-v1.md)，結構化資料位於 `lib/game/ttsManifest.ts` 的 `TTS_DIALOGUE_MANIFEST`。
@@ -388,6 +398,8 @@ v0.18.1 已將三筆 preview 語音導入並標記為 `ready`：
 其他尚未導入真實 MP3 的台詞仍保持 `planned`。
 
 v0.18.2 已新增第一章 TTS 缺口清單，方便後續批量生成 MP3。文件位於 [`docs/tts-gap-chapter-1-v0.18.2.md`](docs/tts-gap-chapter-1-v0.18.2.md)，結構化資料位於 `lib/game/ttsGapManifest.ts`。
+
+v0.18.3-pre 已從缺口清單匯出 P0 批量生成資料。Markdown 清單位於 [`docs/tts-batch-p0-v0.18.3.md`](docs/tts-batch-p0-v0.18.3.md)，JSON manifest 位於 [`docs/tts-batch-p0-v0.18.3.json`](docs/tts-batch-p0-v0.18.3.json)，程式端資料位於 `lib/game/ttsBatchP0Manifest.ts`。本版仍不新增真實音檔，所有 P0 項目保持 `planned`。
 
 已建立音檔資料夾規劃：
 

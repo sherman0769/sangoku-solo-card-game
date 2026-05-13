@@ -250,7 +250,7 @@ export default function Home() {
           <summary className="cursor-pointer text-2xl font-black text-amber-50">
             {homeCollapsibleSections[1].title}
           </summary>
-          <h2 className="sr-only">v0.18.2 目前特色</h2>
+          <h2 className="sr-only">v0.18.3-pre 目前特色</h2>
           <ul className="mt-5 grid gap-3 text-sm leading-6 text-stone-300 md:grid-cols-2">
             {currentFeatureHighlights.map((feature) => (
               <li
@@ -282,6 +282,7 @@ export default function Home() {
             ["第一批 TTS 語音", "章節開場、三位武將登場與呂布登場語音已可在語音開啟後播放。"],
             ["首頁武將試聽語音", "選角時可聽到專屬語音，與進入遊戲後登場語音分離。"],
             ["第一章 TTS 補完規劃", "已整理八關旁白、敵人登場、擊敗語音與路線事件語音清單。"],
+            ["P0 TTS 批量生成清單", "已匯出 20 筆第一章優先語音的 Markdown 與 JSON manifest。"],
             ["開頭動畫", "以 AI 圖像、影片與音樂製作第一章開場，可觀看或略過後開始遊戲。"],
             ["手機遊玩優化", "戰鬥 HUD、底部手牌操作區、紀錄與狀態設定收合，降低直屏滑動負擔。"],
             ["首頁主流程", "首頁改為觀看開場動畫、選擇武將、開始遊戲，避免選角前直接進入遊戲。"],
