@@ -237,7 +237,7 @@ export default function Home() {
           <summary className="cursor-pointer text-2xl font-black text-amber-50">
             {homeCollapsibleSections[1].title}
           </summary>
-          <h2 className="sr-only">v0.15.0 目前特色</h2>
+          <h2 className="sr-only">v0.15.1 目前特色</h2>
           <ul className="mt-5 grid gap-3 text-sm leading-6 text-stone-300 md:grid-cols-2">
             {currentFeatureHighlights.map((feature) => (
               <li
@@ -273,6 +273,7 @@ export default function Home() {
             ["卡牌音效系統", "不同類型卡牌已可對應不同音效，正式音檔尚未導入時會 fallback 到提示音。"],
             ["真實卡牌音效", "斬、連斬、防禦、回復、策略、裝備、火攻 7 類 MP3 已導入。"],
             ["戰鬥平衡分析", "使用模擬工具分析武將勝率、死亡關卡、敵人遭遇與路線選擇。"],
+            ["第一輪平衡微調", "諸葛亮 HP 提升至 4、呂布 HP 提升至 14，且未提高第 2～3 關敵人壓力。"],
             ["Hydration 修正", "/game 隨機敵人與初始手牌改為 client mounted 後生成，避免初始畫面不一致。"],
           ].map(([title, text]) => (
             <section

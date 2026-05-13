@@ -6,10 +6,22 @@ const heroNames: Record<string, string> = {
   "zhuge-liang": "諸葛亮",
 };
 
-export function generateBalanceReport(summary: BalanceSimulationSummary) {
+export interface BalanceReportOptions {
+  title?: string;
+  preAdjustmentSummary?: readonly string[];
+  adjustments?: readonly string[];
+  goalAssessment?: readonly string[];
+}
+
+export function generateBalanceReport(
+  summary: BalanceSimulationSummary,
+  options: BalanceReportOptions = {},
+) {
   const lines = [
-    "# v0.15.0 戰鬥平衡分析報告",
+    options.title ?? "# v0.15.0 戰鬥平衡分析報告",
     "",
+    ...formatOptionalSection("調整前摘要", options.preAdjustmentSummary),
+    ...formatOptionalSection("調整內容", options.adjustments),
     "## 模擬設定",
     "",
     `- 模擬總局數：${summary.totalRuns}`,
@@ -48,9 +60,18 @@ export function generateBalanceReport(summary: BalanceSimulationSummary) {
     "",
     ...createSuggestions(summary),
     "",
+    ...formatOptionalSection("是否達到平衡目標", options.goalAssessment),
   ];
 
   return lines.join("\n");
+}
+
+function formatOptionalSection(title: string, items?: readonly string[]) {
+  if (!items?.length) {
+    return [];
+  }
+
+  return [`## ${title}`, "", ...items.map((item) => `- ${item}`), ""];
 }
 
 function formatHeroRow(stats: HeroBalanceStats) {

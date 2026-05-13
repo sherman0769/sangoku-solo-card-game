@@ -173,7 +173,7 @@ export const enemyPool: Enemy[] = [
     name: "呂布",
     stage: 8,
     type: "boss",
-    maxHp: 12,
+    maxHp: 14,
     description: "虎牢關前的最終考驗，擁有高壓攻勢與蓄力爆發。",
     traits: ["Boss", "無雙", "猛攻", "蓄力爆發"],
     attack: 3,

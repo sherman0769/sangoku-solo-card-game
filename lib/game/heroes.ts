@@ -29,7 +29,7 @@ export const heroes: Hero[] = [
     id: "zhuge-liang",
     name: "諸葛亮",
     title: "臥龍",
-    maxHp: 3,
+    maxHp: 4,
     skillName: "觀星",
     skillDescription: "每回合開始時，查看牌堆頂 3 張，選 1 張加入手牌，其餘放回牌堆底。",
     role: "策略控牌",

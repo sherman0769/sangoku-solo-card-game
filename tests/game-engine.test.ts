@@ -108,7 +108,7 @@ describe("game engine", () => {
     expect(bossEnemy.name).toBe("呂布");
     expect(bossEnemy.stage).toBe(8);
     expect(bossEnemy.type).toBe("boss");
-    expect(bossEnemy.maxHealth).toBe(12);
+    expect(bossEnemy.maxHealth).toBe(14);
   });
 
   it("includes chapter one with eight stages", () => {
@@ -196,6 +196,7 @@ describe("game engine", () => {
           id: "zhuge-liang",
           name: "諸葛亮",
           title: "臥龍",
+          maxHp: 4,
           role: "策略控牌",
         }),
       ]),
@@ -207,7 +208,8 @@ describe("game engine", () => {
 
     expect(state.player.heroId).toBe("zhuge-liang");
     expect(state.player.name).toBe("諸葛亮");
-    expect(state.player.health).toBe(3);
+    expect(state.player.health).toBe(4);
+    expect(state.player.maxHealth).toBe(4);
     expect(state.player.skillName).toBe("觀星");
     expect(state.phase).toBe("observe");
     expect(state.pendingObservation?.cards).toHaveLength(3);
