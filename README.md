@@ -4,7 +4,7 @@
 
 線上遊玩網址：[https://sangoku-solo-card-game.vercel.app](https://sangoku-solo-card-game.vercel.app)
 
-目前版本：`v0.14.2 真實卡牌音效導入版`
+目前版本：`v0.15.0 戰鬥平衡分析版`
 
 ## 已完成功能
 
@@ -46,6 +46,7 @@
 - 卡牌音效導入系統：不同類型卡牌可對應不同音效檔，未導入時 fallback 到 Web Audio 提示音
 - 真實卡牌音效：已導入斬、連斬、防禦、回復、策略、裝備、火攻 7 個 MP3 音效
 - Hydration 修正：`/game` 初始隨機敵人與手牌改為 client mounted 後生成，避免 server / client 首屏不一致
+- 戰鬥平衡分析：新增 seeded random、戰鬥模擬器、basic-safe-strategy 與 Markdown 報告產生器
 - 視覺資產欄位與 placeholder：武將、敵人、關卡、事件、路線與卡牌
 - 第一批 AI 圖像資產規劃：10 張核心圖像、建議路徑與中英文提示詞
 - 第一批 AI 圖像已導入：首頁主視覺、關羽、趙雲、諸葛亮
@@ -146,6 +147,7 @@ npm run build
 - v0.14.0：建立卡牌音效導入系統
 - v0.14.1：修復隨機初始化造成的 hydration mismatch
 - v0.14.2：導入第一批真實卡牌音效
+- v0.15.0：建立戰鬥平衡模擬與報告工具
 
 ## 視覺資產系統
 
@@ -240,6 +242,25 @@ v0.14.2 導入第一批 7 個真實卡牌音效：
 - 火攻：`/audio/sfx/cards/fire-card.mp3`
 
 音效開關仍會控制卡牌音效。斬與連斬已拆成不同 MP3；若瀏覽器阻擋、檔案缺失或播放失敗，仍會 fallback 到既有 Web Audio 提示音。
+
+## 戰鬥平衡分析
+
+v0.15.0 建立第一版開發用戰鬥平衡分析工具，先不大幅調整遊戲數值。本版新增：
+
+- `lib/game/seededRandom.ts`：提供可重現的 seeded random。
+- `lib/game/balanceSimulator.ts`：可用 basic-safe-strategy 模擬單局或多局完整流程。
+- `lib/game/balanceReport.ts`：將模擬 summary 輸出為繁體中文 Markdown 報告。
+- `scripts/run-balance-sim.ts`：使用三位武將各 50 局，總共 150 局產生報告。
+
+執行：
+
+```sh
+npm run balance
+```
+
+報告會輸出到 console，並更新 [`docs/balance-report-v0.15.0.md`](docs/balance-report-v0.15.0.md)。
+
+目前第一版 150 局模擬結果顯示：關羽 100%、趙雲 100%、諸葛亮 78%，整體勝率 92.7%。死亡最多集中於第 2 關與第 3 關，各 5 次。這表示目前 basic-safe-strategy 下整體偏容易，但諸葛亮明顯較不穩，後續應優先觀察諸葛亮前中期手牌節奏與第 2～3 關壓力。
 
 ## TTS 配音規劃
 

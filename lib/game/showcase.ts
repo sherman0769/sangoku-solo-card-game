@@ -1,6 +1,6 @@
 import type { GamePhase } from "./types";
 
-export const currentVersionLabel = "v0.14.2 真實卡牌音效導入版";
+export const currentVersionLabel = "v0.15.0 戰鬥平衡分析版";
 
 export const gameLoadingCopy = {
   title: "戰局準備中……",
@@ -76,6 +76,7 @@ export const currentFeatureHighlights = [
   "首頁主流程：觀看開場動畫 → 選擇武將 → 開始遊戲",
   "卡牌音效系統：不同類型卡牌可對應不同音效",
   "真實卡牌音效：斬、連斬、防禦、回復、策略、裝備、火攻 MP3 已導入",
+  "戰鬥平衡分析：使用模擬工具分析武將勝率與關卡難度",
   "Hydration 修正：/game 隨機戰局初始化改為 client mounted 後執行",
   "視覺資產 placeholder：角色、敵人、關卡、事件、路線與卡牌",
   "Mini-boss 張梁 / 張寶",

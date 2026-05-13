@@ -19,7 +19,7 @@ import { canPlayVoice } from "@/lib/game/voice";
 
 describe("showcase and onboarding copy", () => {
   it("includes homepage how-to and current feature copy", () => {
-    expect(currentVersionLabel).toBe("v0.14.2 真實卡牌音效導入版");
+    expect(currentVersionLabel).toBe("v0.15.0 戰鬥平衡分析版");
     expect(howToSteps.map((step) => step.title)).toEqual([
       "選擇武將",
       "進入戰鬥",
@@ -72,6 +72,9 @@ describe("showcase and onboarding copy", () => {
     );
     expect(currentFeatureHighlights).toContain(
       "真實卡牌音效：斬、連斬、防禦、回復、策略、裝備、火攻 MP3 已導入",
+    );
+    expect(currentFeatureHighlights).toContain(
+      "戰鬥平衡分析：使用模擬工具分析武將勝率與關卡難度",
     );
     expect(currentFeatureHighlights).toContain(
       "Hydration 修正：/game 隨機戰局初始化改為 client mounted 後執行",
