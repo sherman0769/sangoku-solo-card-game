@@ -22,7 +22,7 @@ import { canPlayVoice } from "@/lib/game/voice";
 
 describe("showcase and onboarding copy", () => {
   it("includes homepage how-to and current feature copy", () => {
-    expect(currentVersionLabel).toBe("v0.18.1 首頁武將試聽語音導入版");
+    expect(currentVersionLabel).toBe("v0.18.2 第一章 TTS 缺口清單版");
     expect(howToSteps.map((step) => step.title)).toEqual([
       "選擇武將",
       "進入戰鬥",
@@ -57,6 +57,9 @@ describe("showcase and onboarding copy", () => {
     );
     expect(currentFeatureHighlights).toContain(
       "首頁武將試聽語音：選角時可聽到專屬語音，與進入遊戲後登場語音分離。",
+    );
+    expect(currentFeatureHighlights).toContain(
+      "第一章 TTS 補完規劃：已整理八關旁白、敵人登場、擊敗語音與路線事件語音清單。",
     );
     expect(currentFeatureHighlights).toContain(
       "開頭動畫：以 AI 圖像、影片與音樂製作第一章開場",

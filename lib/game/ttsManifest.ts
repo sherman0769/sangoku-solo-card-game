@@ -132,11 +132,13 @@ function getUsage(line: DialogueLine) {
     low_hp: "每場戰鬥首次低血量時播放",
     victory: "擊敗敵人後播放",
     enemy_intro: "一般敵人登場時播放",
+    enemy_defeated: "敵人被擊敗後播放",
     boss_intro: "Boss 登場時播放",
     boss_trait: "Boss 特性觸發時播放",
     boss_recovery: "Boss 回血特性觸發時播放",
     chapter_intro: "章節開場或開頭動畫旁白",
     stage_intro: "指定關卡開場旁白",
+    route_event: "路線事件旁白",
     game_win: "通關結果頁旁白",
     game_lose: "戰敗結果頁旁白",
   };

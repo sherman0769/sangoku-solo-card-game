@@ -4,7 +4,7 @@
 
 線上遊玩網址：[https://sangoku-solo-card-game.vercel.app](https://sangoku-solo-card-game.vercel.app)
 
-目前版本：`v0.18.1 首頁武將試聽語音導入版`
+目前版本：`v0.18.2 第一章 TTS 缺口清單版`
 
 ## 已完成功能
 
@@ -39,6 +39,7 @@
 - 語音播放框架：根據 `audioKey` 對應 TTS manifest，未來可播放導入後的 MP3
 - 第一批 TTS 語音：章節開場旁白、三位武將登場與呂布登場
 - 首頁武將試聽語音：首頁選角時可播放專屬 preview 語音，與進入遊戲後的登場語音分離
+- 第一章 TTS 缺口清單：整理八關旁白、敵人登場、擊敗語音、Boss 特性、勝敗與路線事件語音規劃
 - 開頭動畫：首頁可觀看或略過 9:16 第一章開場動畫
 - 手機遊玩 UI / UX 優化：戰鬥 HUD、底部手牌操作區、戰鬥紀錄與狀態設定收合
 - 首頁與戰鬥視覺修正：戰鬥角色圖 / 敵人圖回到主畫面，首頁武將選擇加入音效與專屬試聽台詞
@@ -165,6 +166,7 @@ npm run build
 - v0.17.1：Boss 戰體驗強化
 - v0.18.0：首頁武將試聽台詞版
 - v0.18.1：導入首頁武將試聽語音
+- v0.18.2：建立第一章 TTS 缺口清單
 
 ## 視覺資產系統
 
@@ -362,6 +364,13 @@ v0.18.1 導入首頁武將試聽語音：
 - 首頁選角語音與遊戲內登場語音已分離：首頁點選武將使用 preview audioKey，進入遊戲後仍使用 intro audioKey。
 - 只有這三筆 preview audioKey 由 `planned` 改為 `ready`；其他未導入音檔的台詞仍保持 `planned`。
 
+v0.18.2 建立第一章 TTS 缺口清單：
+
+- 已建立第一章 TTS 缺口文件：[`docs/tts-gap-chapter-1-v0.18.2.md`](docs/tts-gap-chapter-1-v0.18.2.md)。
+- 已新增結構化清單 `lib/game/ttsGapManifest.ts`，匯出 `CHAPTER_1_TTS_GAP_MANIFEST`。
+- 清單涵蓋八關開場旁白、敵人登場、敵人被擊敗旁白、呂布 Boss 特性、通關 / 戰敗與 9 個路線事件旁白。
+- 本版不新增真實音檔，也不把尚未存在的音檔標記為 `ready`；下一步可依照缺口清單批量生成 MP3。
+
 ## TTS 配音規劃
 
 v0.12.1 建立第一版 TTS 配音素材清單，文件位於 [`docs/tts-dialogue-assets-v1.md`](docs/tts-dialogue-assets-v1.md)，結構化資料位於 `lib/game/ttsManifest.ts` 的 `TTS_DIALOGUE_MANIFEST`。
@@ -377,6 +386,8 @@ v0.18.1 已將三筆 preview 語音導入並標記為 `ready`：
 - 諸葛亮首頁試聽：`/audio/voices/zhuge-liang/zhuge-liang-preview.mp3`
 
 其他尚未導入真實 MP3 的台詞仍保持 `planned`。
+
+v0.18.2 已新增第一章 TTS 缺口清單，方便後續批量生成 MP3。文件位於 [`docs/tts-gap-chapter-1-v0.18.2.md`](docs/tts-gap-chapter-1-v0.18.2.md)，結構化資料位於 `lib/game/ttsGapManifest.ts`。
 
 已建立音檔資料夾規劃：
 

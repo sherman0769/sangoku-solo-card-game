@@ -44,11 +44,13 @@ export type DialogueTrigger =
   | "low_hp"
   | "victory"
   | "enemy_intro"
+  | "enemy_defeated"
   | "boss_intro"
   | "boss_trait"
   | "boss_recovery"
   | "chapter_intro"
   | "stage_intro"
+  | "route_event"
   | "game_win"
   | "game_lose";
 

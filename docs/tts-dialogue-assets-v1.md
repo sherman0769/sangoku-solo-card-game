@@ -80,10 +80,10 @@
 | xiliang-cavalry-intro | 西涼騎兵 | enemy | enemy_intro | 西涼鐵騎至，誰敢擋路！ | 壓迫 | 敵人：粗獷、緊張、戰場感 | 中慢速 | public/audio/voices/enemies/xiliang-cavalry-intro.mp3 | 一般敵人登場時播放 |
 | lu-bu-intro | 呂布 | enemy | boss_intro | 吾乃呂布，誰敢與我一戰？ | 霸氣 | 呂布：低沉、強勢、壓迫感 | 中慢速 | /audio/voices/lu-bu/lu-bu-intro.mp3 | Boss 登場時播放 |
 | chapter-1-intro | 旁白 | narrator | chapter_intro | 第一章：黃巾亂起。亂世初開，烽煙四起，一名英雄踏上了通往虎牢關的道路。 | 開場 | 旁白：成熟、穩定、史詩敘事 | 中慢速 | /audio/narration/chapter-1-intro.mp3 | 章節開場或開頭動畫旁白 |
-| narrator-stage-1-intro | 旁白 | narrator | stage_intro | 荒村煙塵未散，黃巾餘黨仍在掠奪糧草。 | 敘事 | 旁白：成熟、穩定、史詩敘事 | 中慢速 | public/audio/narration/stage-1-intro.mp3 | 指定關卡開場旁白 |
-| narrator-stage-8-intro | 旁白 | narrator | stage_intro | 虎牢關前，赤兔嘶鳴，真正的考驗終於降臨。 | 決戰 | 旁白：成熟、穩定、史詩敘事 | 中慢速 | public/audio/narration/stage-8-intro.mp3 | 指定關卡開場旁白 |
-| narrator-game-win | 旁白 | narrator | game_win | 你突破虎牢關前的考驗，第一章：黃巾亂起，至此落幕。 | 勝利 | 旁白：成熟、穩定、史詩敘事 | 中慢速 | public/audio/narration/game-win.mp3 | 通關結果頁旁白 |
-| narrator-game-lose | 旁白 | narrator | game_lose | 亂世無情，英雄亦有敗時。重整旗鼓，再入戰場。 | 戰敗 | 旁白：成熟、穩定、史詩敘事 | 中慢速 | public/audio/narration/game-lose.mp3 | 戰敗結果頁旁白 |
+| stage-1-intro | 旁白 | narrator | stage_intro | 荒村煙塵未散，黃巾餘黨仍在掠奪糧草。 | 敘事 | 旁白：成熟、穩定、史詩敘事 | 中慢速 | public/audio/narration/stage-1-intro.mp3 | 指定關卡開場旁白 |
+| stage-8-intro | 旁白 | narrator | stage_intro | 虎牢關前，赤兔嘶鳴，真正的考驗終於降臨。 | 決戰 | 旁白：成熟、穩定、史詩敘事 | 中慢速 | public/audio/narration/stage-8-intro.mp3 | 指定關卡開場旁白 |
+| game-win | 旁白 | narrator | game_win | 你突破虎牢關前的考驗，第一章：黃巾亂起，至此落幕。 | 勝利 | 旁白：成熟、穩定、史詩敘事 | 中慢速 | public/audio/narration/game-win.mp3 | 通關結果頁旁白 |
+| game-lose | 旁白 | narrator | game_lose | 亂世無情，英雄亦有敗時。重整旗鼓，再入戰場。 | 戰敗 | 旁白：成熟、穩定、史詩敘事 | 中慢速 | public/audio/narration/game-lose.mp3 | 戰敗結果頁旁白 |
 
 ## 輸出規則
 
