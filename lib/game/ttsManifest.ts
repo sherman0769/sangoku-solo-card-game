@@ -1,7 +1,9 @@
 import { dialogueLines } from "./dialogues";
 import type { DialogueLine } from "./types";
 
-export type TtsAssetStatus = "planned";
+export type TtsAssetStatus = "planned" | "generated" | "ready";
+
+export const ttsAssetStatuses = ["planned", "generated", "ready"] as const;
 
 export interface TtsDialogueAsset {
   audioKey: string;

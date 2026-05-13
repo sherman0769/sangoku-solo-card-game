@@ -14,6 +14,12 @@ import {
   readSoundEnabledSetting,
   writeSoundEnabledSetting,
 } from "@/lib/game/audio";
+import {
+  isVoiceSupported,
+  playVoice,
+  readVoiceEnabledSetting,
+  writeVoiceEnabledSetting,
+} from "@/lib/game/voice";
 import { getSpeakerTypeLabel } from "@/lib/game/dialogues";
 import { getEventTypeLabel } from "@/lib/game/events";
 import {
@@ -60,9 +66,12 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
   const [stageNotice, setStageNotice] = useState<StageNotice | null>(null);
   const [soundEnabled, setSoundEnabled] = useState(false);
   const [audioSupported, setAudioSupported] = useState(false);
+  const [voiceEnabled, setVoiceEnabled] = useState(false);
+  const [voiceSupported, setVoiceSupported] = useState(false);
   const eventTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const panelTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const stageTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastVoiceKeyRef = useRef<string | null>(null);
   const feedbackIdRef = useRef(0);
   const enemyPercent = useMemo(
     () => Math.max(0, Math.round((state.enemyHealth / state.enemy.maxHealth) * 100)),
@@ -99,10 +108,29 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
     const timer = window.setTimeout(() => {
       setAudioSupported(isAudioSupported());
       setSoundEnabled(readSoundEnabledSetting());
+      setVoiceSupported(isVoiceSupported());
+      setVoiceEnabled(readVoiceEnabledSetting());
     }, 0);
 
     return () => window.clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    const audioKey = state.currentDialogue?.audioKey;
+
+    if (!voiceEnabled || !audioKey) {
+      return;
+    }
+
+    const voiceKey = `${state.currentDialogue?.id}:${audioKey}`;
+
+    if (lastVoiceKeyRef.current === voiceKey) {
+      return;
+    }
+
+    lastVoiceKeyRef.current = voiceKey;
+    playVoice(audioKey);
+  }, [state.currentDialogue, voiceEnabled]);
 
   useEffect(() => {
     if (state.status === "won" || state.status === "lost") {
@@ -161,6 +189,12 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
     if (nextEnabled) {
       playSound("reward");
     }
+  }
+
+  function toggleVoice() {
+    const nextEnabled = !voiceEnabled;
+    setVoiceEnabled(nextEnabled);
+    writeVoiceEnabledSetting(nextEnabled);
   }
 
   useEffect(() => {
@@ -360,6 +394,11 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
               enabled={soundEnabled}
               audioSupported={audioSupported}
               onToggle={toggleSound}
+            />
+            <VoiceToggle
+              enabled={voiceEnabled}
+              voiceSupported={voiceSupported}
+              onToggle={toggleVoice}
             />
             <button
               type="button"
@@ -788,6 +827,37 @@ function SoundToggle({
         {audioSupported
           ? "音效需手動開啟，避免瀏覽器自動播放限制。"
           : "此瀏覽器不支援 Web Audio。"}
+      </p>
+    </div>
+  );
+}
+
+function VoiceToggle({
+  enabled,
+  voiceSupported,
+  onToggle,
+}: {
+  enabled: boolean;
+  voiceSupported: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <div className="min-w-[180px] rounded-md border border-purple-500/50 bg-stone-950/60 px-3 py-2">
+      <button
+        type="button"
+        onClick={onToggle}
+        className={`h-9 w-full rounded-md px-3 text-sm font-black transition ${
+          enabled
+            ? "bg-purple-300 text-stone-950 hover:bg-purple-200"
+            : "border border-stone-600 bg-stone-950/70 text-stone-100 hover:border-purple-300"
+        }`}
+      >
+        語音：{enabled ? "開" : "關"}
+      </button>
+      <p className="mt-1 text-[11px] leading-4 text-stone-400">
+        {voiceSupported
+          ? "角色語音尚未導入音檔，目前僅保留播放框架。"
+          : "此瀏覽器不支援語音播放。"}
       </p>
     </div>
   );
