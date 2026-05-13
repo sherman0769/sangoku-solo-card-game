@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "三國單騎傳",
-  description: "v0.10.3 導入第二批敵人與 Boss 圖像版：支援首頁主視覺、武將立繪、敵人圖像、8 關流程、敵人池、裝備卡、戰術卡、事件關卡與路線選擇的三國卡牌闖關遊戲。",
+  description: "v0.10.4 導入第一批關卡背景圖像版：支援首頁主視覺、武將立繪、敵人圖像、關卡背景、8 關流程、裝備卡、戰術卡、事件關卡與路線選擇的三國卡牌闖關遊戲。",
 };
 
 export default function RootLayout({

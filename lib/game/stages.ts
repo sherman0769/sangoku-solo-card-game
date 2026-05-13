@@ -13,7 +13,7 @@ export const chapterStages: ChapterStageConfig[] = [
     type: "normal",
     enemyIds: ["yellow-turban-soldier", "yellow-turban-archer"],
     flavorText: "荒村煙塵未散，黃巾餘黨正在掠奪糧草。",
-    backgroundImage: "stage-abandoned-village",
+    backgroundImage: "/images/stages/abandoned-village.png",
     visualPrompt: "荒廢村莊，黃昏煙塵，遠處有黃巾軍影子，三國亂世氛圍，電影感背景",
   },
   {
@@ -76,7 +76,7 @@ export const chapterStages: ChapterStageConfig[] = [
     type: "boss",
     enemyIds: ["lu-bu"],
     flavorText: "虎牢關前，赤兔嘶鳴，呂布橫戟而立。",
-    backgroundImage: "stage-hulao-gate",
+    backgroundImage: "/images/stages/hulao-gate.png",
     visualPrompt: "虎牢關前，雄關巨門，赤兔馬與方天畫戟剪影，最終決戰史詩背景",
     isFinalBoss: true,
   },

@@ -128,7 +128,8 @@
 - 圖像名稱：荒村初戰背景
 - 用途：第 1 關背景
 - 建議比例：16:9
-- 建議檔案路徑：`public/images/stages/abandoned-village.webp`
+- 建議檔案路徑：`public/images/stages/abandoned-village.png`
+- 導入狀態：已導入
 - 中文提示詞：荒廢村莊，黃昏煙塵，破屋與糧草車，遠處有黃巾軍影子，三國亂世氛圍，電影感背景，東方史詩卡牌風，半寫實場景概念圖。
 - 英文提示詞：An abandoned village at dusk, smoke and dust, broken houses and grain carts, distant silhouettes of Yellow Turban rebels, Three Kingdoms chaotic era atmosphere, cinematic background, eastern epic card game style, semi-realistic environment concept art.
 - 風格限制：不要文字、水印、Logo；避免血腥與屍體；背景需留出 UI 可讀空間。
@@ -140,7 +141,8 @@
 - 圖像名稱：虎牢關前背景
 - 用途：第 8 關背景
 - 建議比例：16:9
-- 建議檔案路徑：`public/images/stages/hulao-gate.webp`
+- 建議檔案路徑：`public/images/stages/hulao-gate.png`
+- 導入狀態：已導入
 - 中文提示詞：虎牢關前，巨大城關與戰旗，赤兔馬剪影，遠方塵煙與壓迫感天空，最終決戰氛圍，東方史詩卡牌風，半寫實電影感背景。
 - 英文提示詞：Before Hulao Gate, massive fortress gate and battle banners, silhouette of Red Hare horse, distant dust and oppressive sky, final battle atmosphere, eastern epic card game style, semi-realistic cinematic background.
 - 風格限制：不要文字、水印、Logo；不可模仿特定影視構圖；背景需適合放置戰鬥 UI。

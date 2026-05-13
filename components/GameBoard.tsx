@@ -81,6 +81,9 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
   const equippedLabels = getEquippedLabels(state.player.equippedItems);
   const phaseHint = getPhaseHint(state.phase);
   const currentHero = heroes.find((hero) => hero.id === state.player.heroId) ?? heroes[0];
+  const stageBackgroundSrc = state.stageConfig.backgroundImage.startsWith("/")
+    ? state.stageConfig.backgroundImage
+    : undefined;
 
   useEffect(() => {
     if (state.status === "won" || state.status === "lost") {
@@ -308,25 +311,55 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
           <p className="mt-2 text-sm leading-6 text-stone-100">{phaseHint}</p>
         </section>
 
-        <section className="mt-5 grid gap-4 rounded-xl border border-sky-300/30 bg-stone-950/55 p-4 shadow-[0_18px_45px_rgba(0,0,0,0.28)] lg:grid-cols-[360px_minmax(0,1fr)]">
-          <VisualPlaceholder
-            type="stage"
-            label={state.stageConfig.name}
-            prompt={state.stageConfig.visualPrompt}
-            description="關卡背景圖 placeholder"
-          />
-          <div className="self-center">
-            <p className="text-xs font-black uppercase tracking-[0.2em] text-sky-100">
-              {state.chapter.name}
-            </p>
-            <h2 className="mt-2 text-2xl font-black text-amber-50">
-              第 {state.stageConfig.stage} 關｜{state.stageConfig.name}
-            </h2>
-            <p className="mt-3 text-sm leading-6 text-stone-300">
-              {state.stageConfig.flavorText}
-            </p>
-          </div>
-        </section>
+        {stageBackgroundSrc ? (
+          <section className="relative mt-5 overflow-hidden rounded-xl border border-sky-300/30 bg-stone-950/55 shadow-[0_18px_45px_rgba(0,0,0,0.28)]">
+            <GameImage
+              src={stageBackgroundSrc}
+              alt={`${state.stageConfig.name}關卡背景`}
+              className="aspect-[16/9] min-h-56 rounded-xl"
+              imageClassName="object-cover"
+              sizes="(min-width: 1024px) 896px, 100vw"
+              fallbackType="stage"
+              fallbackLabel={state.stageConfig.name}
+              fallbackPrompt={state.stageConfig.visualPrompt}
+              fallbackDescription="關卡背景圖 placeholder"
+            />
+            <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(8,5,4,0.82),rgba(8,5,4,0.48)_52%,rgba(8,5,4,0.18)),linear-gradient(0deg,rgba(8,5,4,0.76),transparent_58%)]" />
+            <div className="absolute inset-0 flex items-end">
+              <div className="p-5 sm:p-6">
+                <p className="text-xs font-black uppercase tracking-[0.2em] text-sky-100">
+                  {state.chapter.name}
+                </p>
+                <h2 className="mt-2 text-2xl font-black text-amber-50">
+                  第 {state.stageConfig.stage} 關｜{state.stageConfig.name}
+                </h2>
+                <p className="mt-3 max-w-2xl text-sm leading-6 text-stone-200">
+                  {state.stageConfig.flavorText}
+                </p>
+              </div>
+            </div>
+          </section>
+        ) : (
+          <section className="mt-5 grid gap-4 rounded-xl border border-sky-300/30 bg-stone-950/55 p-4 shadow-[0_18px_45px_rgba(0,0,0,0.28)] lg:grid-cols-[360px_minmax(0,1fr)]">
+            <VisualPlaceholder
+              type="stage"
+              label={state.stageConfig.name}
+              prompt={state.stageConfig.visualPrompt}
+              description="關卡背景圖 placeholder"
+            />
+            <div className="self-center">
+              <p className="text-xs font-black uppercase tracking-[0.2em] text-sky-100">
+                {state.chapter.name}
+              </p>
+              <h2 className="mt-2 text-2xl font-black text-amber-50">
+                第 {state.stageConfig.stage} 關｜{state.stageConfig.name}
+              </h2>
+              <p className="mt-3 text-sm leading-6 text-stone-300">
+                {state.stageConfig.flavorText}
+              </p>
+            </div>
+          </section>
+        )}
 
         <section className="mt-5 grid gap-5 lg:grid-cols-[1fr_340px]">
           <div className="space-y-5">

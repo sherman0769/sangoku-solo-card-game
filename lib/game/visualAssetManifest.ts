@@ -113,7 +113,7 @@ export const VISUAL_ASSET_MANIFEST: VisualAssetManifestItem[] = [
     type: "stage-background",
     name: "荒村初戰背景",
     aspectRatio: "16:9",
-    path: "public/images/stages/abandoned-village.webp",
+    path: "/images/stages/abandoned-village.png",
     usage: "第 1 關背景",
     promptZh:
       "荒廢村莊，黃昏煙塵，破屋與糧草車，遠處有黃巾軍影子，三國亂世氛圍，電影感背景，東方史詩卡牌風，半寫實場景概念圖。",
@@ -125,7 +125,7 @@ export const VISUAL_ASSET_MANIFEST: VisualAssetManifestItem[] = [
     type: "stage-background",
     name: "虎牢關前背景",
     aspectRatio: "16:9",
-    path: "public/images/stages/hulao-gate.webp",
+    path: "/images/stages/hulao-gate.png",
     usage: "第 8 關背景",
     promptZh:
       "虎牢關前，巨大城關與戰旗，赤兔馬剪影，遠方塵煙與壓迫感天空，最終決戰氛圍，東方史詩卡牌風，半寫實電影感背景。",

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { getGameImageRenderMode } from "@/components/GameImage";
 import { enemyPool } from "@/lib/game/enemies";
 import { heroes } from "@/lib/game/heroes";
+import { getStageConfig } from "@/lib/game/stages";
 import { VISUAL_ASSET_MANIFEST } from "@/lib/game/visualAssetManifest";
 
 describe("visual asset manifest", () => {
@@ -88,6 +89,25 @@ describe("visual asset manifest", () => {
     expect(getEnemyPortrait("black-mountain-general")).toBe("enemy-black-mountain-general");
     expect(getEnemyPortrait("zhang-liang")).toBe("enemy-zhang-liang");
     expect(getEnemyPortrait("zhang-bao")).toBe("enemy-zhang-bao");
+  });
+
+  it("uses imported PNG backgrounds for the first stage background batch", () => {
+    expect(getStageConfig(1).backgroundImage).toBe("/images/stages/abandoned-village.png");
+    expect(getStageConfig(8).backgroundImage).toBe("/images/stages/hulao-gate.png");
+  });
+
+  it("updates imported stage manifest paths to PNG", () => {
+    expect(getAssetPath("stage-abandoned-village")).toBe("/images/stages/abandoned-village.png");
+    expect(getAssetPath("stage-hulao-gate")).toBe("/images/stages/hulao-gate.png");
+  });
+
+  it("keeps non-imported stages on placeholder fallback keys", () => {
+    expect(getStageConfig(2).backgroundImage).toBe("stage-mountain-ambush");
+    expect(getStageConfig(3).backgroundImage).toBe("stage-ruined-temple-night");
+    expect(getStageConfig(4).backgroundImage).toBe("stage-black-mountain-fort");
+    expect(getStageConfig(5).backgroundImage).toBe("stage-xiliang-cavalry");
+    expect(getStageConfig(6).backgroundImage).toBe("stage-ancient-battlefield");
+    expect(getStageConfig(7).backgroundImage).toBe("stage-yellow-turban-altar");
   });
 
   it("uses image paths when available and falls back when missing or failed", () => {
