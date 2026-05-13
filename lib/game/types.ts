@@ -64,8 +64,6 @@ export type EventEffectType = "heal" | "draw" | "ambush-upgrade";
 
 export type StageRouteId = "mountain-path" | "official-road" | "dangerous-pass";
 
-export type RouteRiskLevel = "低" | "中" | "高";
-
 export type RouteEventType =
   | "supply"
   | "strategy"
@@ -184,9 +182,9 @@ export interface StageRoute {
   id: StageRouteId;
   name: string;
   description: string;
-  riskLevel: RouteRiskLevel;
-  enemyHpModifier: number;
-  rewardOptionBonus: number;
+  theme: string;
+  focus: string;
+  playStyle: string;
   flavorText: string;
   image: string;
   visualPrompt: string;
@@ -197,7 +195,6 @@ export interface RouteEventOption {
   label: string;
   description: string;
   effectType: RouteEventEffectType;
-  riskLevel?: RouteRiskLevel;
 }
 
 export interface RouteEvent {

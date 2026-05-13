@@ -194,9 +194,20 @@ describe("game engine", () => {
     expect(stageRoutes.map((route) => route.name)).toEqual(["山道", "官道", "險道"]);
   });
 
-  it("removes fixed route number modifiers from route choices", () => {
-    expect(stageRoutes.map((route) => route.enemyHpModifier)).toEqual([0, 0, 0]);
-    expect(stageRoutes.map((route) => route.rewardOptionBonus)).toEqual([0, 0, 0]);
+  it("defines routes as playstyle choices instead of fixed number modifiers", () => {
+    expect(stageRoutes.map((route) => route.theme)).toEqual(["生存", "主線", "奇遇"]);
+    expect(stageRoutes.map((route) => route.focus)).toEqual([
+      "補給與探索",
+      "情報與穩定",
+      "稀有收益與代價",
+    ]);
+    expect(stageRoutes.map((route) => route.playStyle)).toEqual([
+      "適合血量偏低或想穩定整理資源時選擇。",
+      "適合想穩定推進與取得戰術優勢時選擇。",
+      "適合想賭特殊收益與劇情變化時選擇。",
+    ]);
+    expect(stageRoutes.some((route) => "enemyHpModifier" in route)).toBe(false);
+    expect(stageRoutes.some((route) => "riskLevel" in route)).toBe(false);
   });
 
   it("includes three route events for each route", () => {
@@ -220,13 +231,13 @@ describe("game engine", () => {
 
   it("keeps mountain and official road event text unchanged while raising dangerous pass costs", () => {
     expect(getRouteEventsForRoute("mountain-path").map((event) => event.options[0].description)).toEqual([
-      "回復 2 點體力，不超過最大體力。",
+      "回復 2 點體力，不超過最大體力；若目前 HP <= 2，額外抽 1 張牌。",
       "下一關開始時額外抽 1 張牌。",
-      "下一關敵人 HP -1，但玩家下一關開始少抽 1 張牌。",
+      "你繞開敵軍主路，下一關敵人 HP -1，但玩家下一關開始少抽 1 張牌。",
     ]);
     expect(getRouteEventsForRoute("official-road").map((event) => event.options[0].description)).toEqual([
       "抽 1 張牌並回復 1 點體力。",
-      "下一關敵人 HP 不變，但下一關第一回合玩家額外抽 1 張牌。",
+      "下一關第一回合玩家額外抽 1 張牌。",
       "獲得斬傷害 +1 強化。",
     ]);
     expect(getRouteEventsForRoute("dangerous-pass").map((event) => event.options[0].description)).toEqual([
@@ -1048,7 +1059,7 @@ describe("game engine", () => {
       "險道",
     ]);
     expect(rewarded.playerUpgrades.startingDrawBonus).toBe(1);
-    expect(rewarded.log[0]).toBe("進入路線選擇，決定下一場戰鬥的風險與報酬。");
+    expect(rewarded.log[0]).toBe("進入路線選擇，決定下一段遭遇與資源方向。");
   });
 
   it("moves to the next stage after choosing a route", () => {
@@ -1151,6 +1162,24 @@ describe("game engine", () => {
     expect(next.player.health).toBe(5);
     expect(next.routeEventHistory).toContain("mountain-spring");
     expect(next.log).toContain("事件效果：回復 2 點體力。");
+  });
+
+  it("mountain spring draws an extra card when player health is low", () => {
+    const routeState = {
+      ...selectReward(forceReward(defeatFirstEnemy(), "max-health"), "max-health"),
+      player: { ...createGame().player, health: 2 },
+      hand: [],
+      deck: createGame().deck,
+      discard: [],
+    };
+    const eventState = selectRoute(routeState, "mountain-path", {
+      routeEventId: "mountain-spring",
+    });
+    const next = resolveRouteEventOption(eventState, "rest-at-spring");
+
+    expect(next.player.health).toBe(4);
+    expect(next.hand.length).toBeGreaterThanOrEqual(6);
+    expect(next.log).toContain("山泉療傷穩住局面，額外抽 1 張牌。");
   });
 
   it("hermit guidance adds next battle draw", () => {

@@ -1,6 +1,6 @@
 import type { GamePhase } from "./types";
 
-export const currentVersionLabel = "v0.16.1 險道風險再平衡版";
+export const currentVersionLabel = "v0.16.2 路線風格平衡版";
 
 export const gameLoadingCopy = {
   title: "戰局準備中……",
@@ -20,6 +20,11 @@ export const homeOpeningVideoEntry = {
 } as const;
 
 export const homeHeroSelectionCopy = "先選擇你的武將，再開始遊戲。";
+
+export const routeSelectionCopy = {
+  title: "選擇路線",
+  description: "三條路線代表不同遭遇與資源方向，敵人難度不再直接由路線決定。",
+} as const;
 
 export const openingVideoModalActions = [
   "略過動畫，開始遊戲",
@@ -50,7 +55,7 @@ export const howToSteps = [
   },
   {
     title: "選擇路線",
-    text: "山道較安全，險道更危險但報酬更高。",
+    text: "山道、官道、險道代表不同劇情與資源方向，而不是固定難度倍率。",
   },
 ] as const;
 
@@ -79,8 +84,9 @@ export const currentFeatureHighlights = [
   "戰鬥平衡分析：使用模擬工具分析武將勝率與關卡難度",
   "第一輪平衡微調：諸葛亮 HP 提升至 4、呂布 HP 提升至 14，並保留第 2～3 關敵人數值",
   "後期難度微調：張梁、張寶與呂布猛攻比例小幅提高，未調整第 1～6 關敵人",
-  "路線劇情事件：山道、官道、險道擁有不同遭遇與風險報酬",
+  "路線劇情事件：山道、官道、險道擁有不同遭遇與資源方向",
   "險道風險再平衡：提高絕壁伏擊、古戰場遺物與夜襲敵營代價",
+  "路線風格選擇：山道、官道、險道不再只是難度差異，而是不同劇情與資源方向",
   "Hydration 修正：/game 隨機戰局初始化改為 client mounted 後執行",
   "視覺資產 placeholder：角色、敵人、關卡、事件、路線與卡牌",
   "Mini-boss 張梁 / 張寶",
@@ -145,11 +151,11 @@ export function getPhaseHint(phase: GamePhase) {
   }
 
   if (phase === "route") {
-    return "選擇下一條路線。風險越高，下一戰越難，但可能獲得更好報酬。";
+    return "選擇下一條路線。山道偏生存補給，官道偏情報穩定，險道偏奇遇與代價。";
   }
 
   if (phase === "routeEvent") {
-    return "處理路線事件。不同路線會帶來補給、情報、支援或高風險報酬。";
+    return "處理路線事件。不同路線會帶來補給、情報、支援或稀有奇遇。";
   }
 
   if (phase === "observe") {

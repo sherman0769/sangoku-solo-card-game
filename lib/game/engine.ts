@@ -482,7 +482,7 @@ export function selectReward(state: GameState, rewardId: RewardId): GameState {
     rewardOptions: [],
     availableRoutes: stageRoutes.map((route) => ({ ...route })),
     log: [
-      "進入路線選擇，決定下一場戰鬥的風險與報酬。",
+      "進入路線選擇，決定下一段遭遇與資源方向。",
       `獲得獎勵：${reward.name}。${reward.text}`,
       ...next.log,
     ].slice(0, logLimit),
@@ -524,7 +524,7 @@ export function selectRoute(
       currentRouteEvent: routeEvent,
       log: [
         `遭遇路線事件：${routeEvent.name}。`,
-        `你選擇了${route.name}。`,
+        getRouteStyleLogMessage(route),
         ...state.log,
       ].slice(0, logLimit),
     },
@@ -1015,8 +1015,19 @@ function applyRouteEventEffect(
   random: () => number = Math.random,
 ) {
   if (event.id === "mountain-spring") {
+    const wasLowHealth = state.player.health <= 2;
     state.player.health = Math.min(state.player.maxHealth, state.player.health + 2);
-    return ["事件效果：回復 2 點體力。"];
+    const messages = ["事件效果：回復 2 點體力。"];
+
+    if (wasLowHealth) {
+      const drawn = drawCards(state, 1);
+      state.deck = drawn.deck;
+      state.hand = drawn.hand;
+      state.discard = drawn.discard;
+      messages.push("山泉療傷穩住局面，額外抽 1 張牌。");
+    }
+
+    return messages;
   }
 
   if (event.id === "hermit-guidance" || event.id === "urgent-orders") {
@@ -1334,6 +1345,18 @@ function getRouteLogMessage(
   }
 
   return notes.join(" ");
+}
+
+function getRouteStyleLogMessage(route: StageRoute) {
+  if (route.id === "mountain-path") {
+    return "你選擇山道：偏向生存與探索。";
+  }
+
+  if (route.id === "official-road") {
+    return "你選擇官道：偏向情報與穩定推進。";
+  }
+
+  return "你選擇險道：偏向奇遇與代價。";
 }
 
 function formatSigned(value: number) {

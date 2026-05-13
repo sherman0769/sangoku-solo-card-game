@@ -237,7 +237,7 @@ export default function Home() {
           <summary className="cursor-pointer text-2xl font-black text-amber-50">
             {homeCollapsibleSections[1].title}
           </summary>
-          <h2 className="sr-only">v0.16.1 目前特色</h2>
+          <h2 className="sr-only">v0.16.2 目前特色</h2>
           <ul className="mt-5 grid gap-3 text-sm leading-6 text-stone-300 md:grid-cols-2">
             {currentFeatureHighlights.map((feature) => (
               <li
@@ -257,7 +257,7 @@ export default function Home() {
             ["隨機敵人池", "每局遭遇不同挑戰，前兩關不再固定敵人。"],
             ["戰術卡牌", "連斬、固守、激勵、火攻，讓每回合選擇更豐富。"],
             ["隨機事件考驗", "戰鬥之後可能遇到補給、策略或危險事件。"],
-            ["路線選擇", "風險越高，報酬越好，下一關也會更凶險。"],
+            ["路線選擇", "山道、官道、險道代表不同劇情與資源方向，不再只是難度差異。"],
             ["第一章 8 關流程", "從荒村初戰推進到虎牢關前，逐步累積資源與強化。"],
             ["Mini-boss 張梁 / 張寶", "第 7 關黃巾祭壇將遭遇黃巾殘部的強敵。"],
             ["挑戰最終 Boss 呂布", "前七關累積優勢，第八關迎戰真正的亂世猛將。"],
@@ -275,8 +275,9 @@ export default function Home() {
             ["戰鬥平衡分析", "使用模擬工具分析武將勝率、死亡關卡、敵人遭遇與路線選擇。"],
             ["第一輪平衡微調", "諸葛亮 HP 提升至 4、呂布 HP 提升至 14，且未提高第 2～3 關敵人壓力。"],
             ["後期難度微調", "張梁、張寶與呂布猛攻比例小幅提高，第一章後段更有挑戰。"],
-            ["路線劇情事件", "山道、官道、險道擁有不同遭遇與風險報酬，選路不再只是固定數值。"],
+            ["路線劇情事件", "山道、官道、險道擁有不同遭遇與資源方向，選路不再只是固定數值。"],
             ["險道風險再平衡", "絕壁伏擊、古戰場遺物與夜襲敵營代價提高，保留高報酬但更危險。"],
+            ["路線風格平衡", "山道偏生存補給，官道偏情報穩定，險道偏奇遇代價。"],
             ["Hydration 修正", "/game 隨機敵人與初始手牌改為 client mounted 後生成，避免初始畫面不一致。"],
           ].map(([title, text]) => (
             <section

@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "三國單騎傳",
-  description: "v0.16.1 險道風險再平衡版：提高險道事件代價，保留高風險高報酬路線定位。",
+  description: "v0.16.2 路線風格平衡版：山道、官道、險道改為不同劇情與資源方向，不再只是難度差異。",
 };
 
 export default function RootLayout({

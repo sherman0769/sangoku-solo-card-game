@@ -37,7 +37,13 @@ import {
   selectRoute,
 } from "@/lib/game/engine";
 import { heroes } from "@/lib/game/heroes";
-import { currentVersionLabel, gameLoadingCopy, getPhaseHint, quickRules } from "@/lib/game/showcase";
+import {
+  currentVersionLabel,
+  gameLoadingCopy,
+  getPhaseHint,
+  quickRules,
+  routeSelectionCopy,
+} from "@/lib/game/showcase";
 import { totalStages } from "@/lib/game/stages";
 import type { SoundCue } from "@/lib/game/sounds";
 import type {
@@ -776,11 +782,11 @@ function GameBoardContent({
             {state.phase === "route" ? (
               <section className="rounded-xl border border-amber-400/50 bg-stone-950/70 p-5 text-stone-50 shadow-[0_18px_45px_rgba(0,0,0,0.35)]">
                 <p className="text-xs font-bold uppercase tracking-[0.2em] text-amber-200">
-                  選擇路線
+                  {routeSelectionCopy.title}
                 </p>
-                <h2 className="mt-2 text-2xl font-black">決定下一段劇情遭遇</h2>
+                <h2 className="mt-2 text-2xl font-black">選擇路線風格</h2>
                 <p className="mt-2 text-sm leading-6 text-stone-300">
-                  山道偏向安全補給，官道偏向情報支援，險道則可能用危險換取更大報酬。
+                  {routeSelectionCopy.description}
                 </p>
                 <div className="mt-5 grid gap-4 md:grid-cols-3">
                   {state.availableRoutes.map((route) => (
@@ -803,6 +809,9 @@ function GameBoardContent({
                   <div>
                     <p className="text-sm font-black text-stone-200">
                       目前路線：{state.selectedRoute.name}
+                    </p>
+                    <p className="mt-1 text-sm font-bold text-amber-100">
+                      路線風格：{state.selectedRoute.theme}｜{state.selectedRoute.focus}
                     </p>
                     <h2 className="mt-2 text-2xl font-black text-stone-50">
                       {state.currentRouteEvent.name}
@@ -834,7 +843,6 @@ function GameBoardContent({
                       optionId={option.id}
                       label={option.label}
                       description={option.description}
-                      riskLevel={option.riskLevel}
                       eventType={state.currentRouteEvent!.type}
                       onChoose={handleResolveRouteEvent}
                     />
@@ -1521,11 +1529,14 @@ function RouteCard({ route, onChoose }: { route: StageRoute; onChoose: () => voi
         compact
       />
       <span className="mt-4 inline-flex rounded-full border border-white/25 bg-black/25 px-3 py-1 text-xs font-black text-stone-100">
-        風險：{route.riskLevel}
+        {route.theme}
       </span>
       <span className="mt-4 block text-2xl font-black text-stone-50">{route.name}</span>
       <span className="mt-3 block text-sm leading-6 text-stone-200">
-        {getRoutePositioning(route.id)}
+        主要方向：{route.focus}
+      </span>
+      <span className="mt-1 block text-sm leading-6 text-stone-200">
+        適合情境：{route.playStyle}
       </span>
       <span className="mt-1 block text-sm leading-6 text-stone-200">
         選擇後會觸發專屬路線事件。
@@ -1541,7 +1552,6 @@ function RouteEventOptionCard({
   optionId,
   label,
   description,
-  riskLevel,
   eventType,
   onChoose,
 }: {
@@ -1549,7 +1559,6 @@ function RouteEventOptionCard({
   optionId: string;
   label: string;
   description: string;
-  riskLevel?: string;
   eventType: RouteEvent["type"];
   onChoose: (optionId: string) => void;
 }) {
@@ -1560,8 +1569,7 @@ function RouteEventOptionCard({
       className={`min-h-36 rounded-lg border p-4 text-left shadow-[0_16px_34px_rgba(0,0,0,0.34)] transition hover:-translate-y-1 ${getRouteEventButtonClass(routeId)}`}
     >
       <span className="rounded-full border border-white/25 bg-black/25 px-3 py-1 text-xs font-black text-stone-100">
-        {getRouteEventTypeLabel(eventType)}
-        {riskLevel ? `｜風險 ${riskLevel}` : ""}
+        遭遇事件｜{getRouteEventTypeLabel(eventType)}
       </span>
       <span className="mt-4 block text-xl font-black text-stone-50">{label}</span>
       <span className="mt-3 block text-sm leading-6 text-stone-200">{description}</span>
@@ -1835,16 +1843,4 @@ function getRouteToastTone(routeId?: StageRoute["id"]): EventToast["tone"] {
   }
 
   return "reward";
-}
-
-function getRoutePositioning(routeId: StageRoute["id"]) {
-  if (routeId === "mountain-path") {
-    return "定位：安全、補給、探索、保命。";
-  }
-
-  if (routeId === "official-road") {
-    return "定位：主線、情報、穩定、平均。";
-  }
-
-  return "定位：高風險、稀有獎勵、強敵、賭一把。";
 }

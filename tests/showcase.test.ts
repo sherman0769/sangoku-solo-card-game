@@ -14,12 +14,13 @@ import {
   mobileGameplaySections,
   openingVideoModalActions,
   quickRules,
+  routeSelectionCopy,
 } from "@/lib/game/showcase";
 import { canPlayVoice } from "@/lib/game/voice";
 
 describe("showcase and onboarding copy", () => {
   it("includes homepage how-to and current feature copy", () => {
-    expect(currentVersionLabel).toBe("v0.16.1 險道風險再平衡版");
+    expect(currentVersionLabel).toBe("v0.16.2 路線風格平衡版");
     expect(howToSteps.map((step) => step.title)).toEqual([
       "選擇武將",
       "進入戰鬥",
@@ -83,10 +84,13 @@ describe("showcase and onboarding copy", () => {
       "後期難度微調：張梁、張寶與呂布猛攻比例小幅提高，未調整第 1～6 關敵人",
     );
     expect(currentFeatureHighlights).toContain(
-      "路線劇情事件：山道、官道、險道擁有不同遭遇與風險報酬",
+      "路線劇情事件：山道、官道、險道擁有不同遭遇與資源方向",
     );
     expect(currentFeatureHighlights).toContain(
       "險道風險再平衡：提高絕壁伏擊、古戰場遺物與夜襲敵營代價",
+    );
+    expect(currentFeatureHighlights).toContain(
+      "路線風格選擇：山道、官道、險道不再只是難度差異，而是不同劇情與資源方向",
     );
     expect(currentFeatureHighlights).toContain(
       "Hydration 修正：/game 隨機戰局初始化改為 client mounted 後執行",
@@ -131,14 +135,22 @@ describe("showcase and onboarding copy", () => {
     expect(getPhaseHint("reward")).toBe("選擇一項戰後強化，它會影響後續整局戰鬥。");
     expect(getPhaseHint("event")).toBe("事件會帶來補給、策略或風險，請選擇你的處理方式。");
     expect(getPhaseHint("route")).toBe(
-      "選擇下一條路線。風險越高，下一戰越難，但可能獲得更好報酬。",
+      "選擇下一條路線。山道偏生存補給，官道偏情報穩定，險道偏奇遇與代價。",
     );
     expect(getPhaseHint("routeEvent")).toBe(
-      "處理路線事件。不同路線會帶來補給、情報、支援或高風險報酬。",
+      "處理路線事件。不同路線會帶來補給、情報、支援或稀有奇遇。",
     );
     expect(getPhaseHint("observe")).toBe(
       "諸葛亮發動觀星，選擇一張你最需要的牌加入手牌。",
     );
+  });
+
+  it("describes route selection as a playstyle choice", () => {
+    expect(routeSelectionCopy).toEqual({
+      title: "選擇路線",
+      description: "三條路線代表不同遭遇與資源方向，敵人難度不再直接由路線決定。",
+    });
+    expect(routeSelectionCopy.description).not.toContain("敵人 HP");
   });
 
   it("includes quick rules for the game page", () => {

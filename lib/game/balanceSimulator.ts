@@ -10,6 +10,7 @@ import {
   selectReward,
   selectRoute,
 } from "./engine";
+import { resolveHero } from "./heroes";
 import type {
   Card,
   GameState,
@@ -43,6 +44,7 @@ export interface RunSimulationResult {
   enemiesEncountered: string[];
   rewardsChosen: string[];
   routesChosen: string[];
+  routeDecisionContexts: string[];
   eventsEncountered: string[];
   routeEventsEncountered: string[];
   damageTaken: number;
@@ -68,6 +70,7 @@ export interface BalanceSimulationSummary {
   stageDeathDistribution: Record<string, number>;
   enemyEncounterStats: Record<string, number>;
   routeChoiceStats: Record<string, number>;
+  routeDecisionStats: Record<string, number>;
   routeEventStats: Record<string, number>;
   routeEventDeathStats: Record<string, number>;
   results: RunSimulationResult[];
@@ -90,6 +93,7 @@ export function simulateRun(options: RunSimulationOptions): RunSimulationResult 
     const maxTurns = options.maxTurns ?? defaultMaxTurns;
     const rewardsChosen: string[] = [];
     const routesChosen: string[] = [];
+    const routeDecisionContexts: string[] = [];
     const eventsEncountered: string[] = [];
     const routeEventsEncountered: string[] = [];
     const cardsPlayed: Record<string, number> = {};
@@ -128,9 +132,10 @@ export function simulateRun(options: RunSimulationOptions): RunSimulationResult 
           state = selectReward(state, reward.id);
         }
       } else if (state.phase === "route") {
-        const route = chooseRoute(state.availableRoutes, state);
+        const route = chooseBasicSafeRoute(state.availableRoutes, state);
         if (route) {
           routesChosen.push(route.name);
+          routeDecisionContexts.push(`${getRouteDecisionBand(state)}｜${route.name}`);
           state = selectRoute(state, route.id, { routeEventRandom: random });
         }
       } else if (state.phase === "defense") {
@@ -163,6 +168,7 @@ export function simulateRun(options: RunSimulationOptions): RunSimulationResult 
       enemiesEncountered: state.encounteredEnemyIds,
       rewardsChosen,
       routesChosen,
+      routeDecisionContexts,
       eventsEncountered,
       routeEventsEncountered,
       damageTaken,
@@ -197,6 +203,7 @@ export function summarizeResults(results: RunSimulationResult[]): BalanceSimulat
   const stageDeathDistribution: Record<string, number> = {};
   const enemyEncounterStats: Record<string, number> = {};
   const routeChoiceStats: Record<string, number> = {};
+  const routeDecisionStats: Record<string, number> = {};
   const routeEventStats: Record<string, number> = {};
   const routeEventDeathStats: Record<string, number> = {};
 
@@ -212,6 +219,10 @@ export function summarizeResults(results: RunSimulationResult[]): BalanceSimulat
 
     result.routesChosen.forEach((routeName) => {
       routeChoiceStats[routeName] = (routeChoiceStats[routeName] ?? 0) + 1;
+    });
+
+    result.routeDecisionContexts.forEach((context) => {
+      routeDecisionStats[context] = (routeDecisionStats[context] ?? 0) + 1;
     });
 
     result.routeEventsEncountered.forEach((eventName) => {
@@ -253,6 +264,7 @@ export function summarizeResults(results: RunSimulationResult[]): BalanceSimulat
     stageDeathDistribution,
     enemyEncounterStats,
     routeChoiceStats,
+    routeDecisionStats,
     routeEventStats,
     routeEventDeathStats,
     results,
@@ -277,16 +289,38 @@ function chooseReward(rewards: Reward[]) {
   );
 }
 
-function chooseRoute(routes: StageRoute[], state: GameState) {
-  const healthRatio = state.player.health / state.player.maxHealth;
-  const preferredId =
-    healthRatio > 0.7
-      ? "dangerous-pass"
-      : healthRatio < 0.4
-        ? "mountain-path"
-        : "official-road";
+export function chooseBasicSafeRoute(routes: StageRoute[], state: GameState) {
+  const hasEquipment = state.player.equippedItems.length > 0;
+  const hasSlashBonus = state.playerUpgrades.slashDamageBonus > 0;
+  const hasMaxHealthBonus = state.player.maxHealth > resolveHero(state.player.heroId).maxHp;
+  const isStableEnoughForDangerousRoute =
+    state.player.health >= 5 && (hasEquipment || hasSlashBonus || hasMaxHealthBonus);
 
-  return routes.find((route) => route.id === preferredId) ?? routes[0];
+  if (state.player.health <= 2) {
+    return routes.find((route) => route.id === "mountain-path") ?? routes[0];
+  }
+
+  if (state.player.health <= 4) {
+    return routes.find((route) => route.id === "official-road") ?? routes[0];
+  }
+
+  if (isStableEnoughForDangerousRoute) {
+    return routes.find((route) => route.id === "dangerous-pass") ?? routes[0];
+  }
+
+  return routes.find((route) => route.id === "official-road") ?? routes[0];
+}
+
+function getRouteDecisionBand(state: GameState) {
+  if (state.player.health <= 2) {
+    return "低血量";
+  }
+
+  if (state.player.health <= 4) {
+    return "中等血量";
+  }
+
+  return "高血量";
 }
 
 function shouldUseDefense(state: GameState) {

@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { generateBalanceReport } from "@/lib/game/balanceReport";
-import { simulateManyRuns, simulateRun } from "@/lib/game/balanceSimulator";
+import { chooseBasicSafeRoute, simulateManyRuns, simulateRun } from "@/lib/game/balanceSimulator";
+import { createGame } from "@/lib/game/engine";
+import { stageRoutes } from "@/lib/game/routes";
 import { createSeededRandom } from "@/lib/game/seededRandom";
 
 describe("battle balance simulator", () => {
@@ -45,6 +47,7 @@ describe("battle balance simulator", () => {
     expect(summary.overallWinRate).toBeGreaterThanOrEqual(0);
     expect(summary.averageTurns).toBeGreaterThan(0);
     expect(summary.routeEventStats).toBeDefined();
+    expect(summary.routeDecisionStats).toBeDefined();
   });
 
   it("generates a Traditional Chinese Markdown report", () => {
@@ -62,26 +65,52 @@ describe("battle balance simulator", () => {
     expect(report).toContain("建議調整方向");
   });
 
-  it("generates the v0.16.1 dangerous route balance report sections", () => {
+  it("generates the v0.16.2 route style balance report sections", () => {
     const summary = simulateManyRuns({
       heroIds: ["guan-yu", "zhao-yun", "zhuge-liang"],
       runsPerHero: 2,
-      seed: "report-v0161-test",
+      seed: "report-v0162-test",
       maxTurns: 180,
       strategy: "basic-safe-strategy",
     });
     const report = generateBalanceReport(summary, {
-      title: "# v0.16.1 險道風險再平衡報告",
-      preAdjustmentSummary: ["v0.16.0 整體勝率 100%。"],
-      adjustments: ["提高險道事件代價。"],
-      goalAssessment: ["本輪觀察險道死亡與收益分佈。"],
+      title: "# v0.16.2 路線風格平衡報告",
+      preAdjustmentSummary: ["v0.16.1 整體勝率 99.3%。"],
+      adjustments: ["路線改為玩法風格。"],
+      goalAssessment: ["本輪觀察路線風格分佈。"],
     });
 
-    expect(report).toContain("# v0.16.1 險道風險再平衡報告");
+    expect(report).toContain("# v0.16.2 路線風格平衡報告");
     expect(report).toContain("調整前摘要");
     expect(report).toContain("調整內容");
+    expect(report).toContain("路線風格決策分佈");
     expect(report).toContain("路線事件分佈");
     expect(report).toContain("是否達到平衡目標");
+  });
+
+  it("chooses routes by health and state for basic-safe-strategy", () => {
+    const lowHealthState = {
+      ...createGame("guan-yu"),
+      player: { ...createGame("guan-yu").player, health: 2 },
+    };
+    const mediumHealthState = {
+      ...createGame("guan-yu"),
+      player: { ...createGame("guan-yu").player, health: 4 },
+    };
+    const healthyButPlainState = {
+      ...createGame("guan-yu"),
+      player: { ...createGame("guan-yu").player, health: 5 },
+    };
+    const healthyUpgradedState = {
+      ...createGame("guan-yu"),
+      player: { ...createGame("guan-yu").player, health: 5 },
+      playerUpgrades: { ...createGame("guan-yu").playerUpgrades, slashDamageBonus: 1 },
+    };
+
+    expect(chooseBasicSafeRoute(stageRoutes, lowHealthState).id).toBe("mountain-path");
+    expect(chooseBasicSafeRoute(stageRoutes, mediumHealthState).id).toBe("official-road");
+    expect(chooseBasicSafeRoute(stageRoutes, healthyButPlainState).id).toBe("official-road");
+    expect(chooseBasicSafeRoute(stageRoutes, healthyUpgradedState).id).toBe("dangerous-pass");
   });
 
   it("uses maxTurns to prevent endless simulations", () => {
