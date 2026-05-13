@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { getGameImageRenderMode } from "@/components/GameImage";
+import { heroes } from "@/lib/game/heroes";
 import { VISUAL_ASSET_MANIFEST } from "@/lib/game/visualAssetManifest";
 
 describe("visual asset manifest", () => {
@@ -24,7 +26,7 @@ describe("visual asset manifest", () => {
       expect.objectContaining({
         id: "home-hero",
         type: "cover",
-        path: "public/images/covers/home-hero.webp",
+        path: "/images/covers/home-hero.png",
       }),
     );
   });
@@ -53,8 +55,24 @@ describe("visual asset manifest", () => {
       "stage-hulao-gate",
     ]);
   });
+
+  it("uses imported PNG portraits for the three heroes", () => {
+    expect(getHeroPortrait("guan-yu")).toBe("/images/heroes/guan-yu.png");
+    expect(getHeroPortrait("zhao-yun")).toBe("/images/heroes/zhao-yun.png");
+    expect(getHeroPortrait("zhuge-liang")).toBe("/images/heroes/zhuge-liang.png");
+  });
+
+  it("uses image paths when available and falls back when missing or failed", () => {
+    expect(getGameImageRenderMode("/images/heroes/guan-yu.png")).toBe("image");
+    expect(getGameImageRenderMode(undefined)).toBe("fallback");
+    expect(getGameImageRenderMode("/images/heroes/guan-yu.png", true)).toBe("fallback");
+  });
 });
 
 function getAssetIdsByType(type: (typeof VISUAL_ASSET_MANIFEST)[number]["type"]) {
   return VISUAL_ASSET_MANIFEST.filter((asset) => asset.type === type).map((asset) => asset.id);
+}
+
+function getHeroPortrait(heroId: string) {
+  return heroes.find((hero) => hero.id === heroId)?.portrait;
 }

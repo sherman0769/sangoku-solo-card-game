@@ -28,7 +28,7 @@
 - 圖像名稱：首頁主視覺
 - 用途：首頁主視覺
 - 建議比例：16:9
-- 建議檔案路徑：`public/images/covers/home-hero.webp`
+- 建議檔案路徑：`public/images/covers/home-hero.png`
 - 中文提示詞：三國亂世開場主視覺，一名英雄獨自立於烽煙戰場前，遠方黃巾軍旗影與虎牢關剪影，東方史詩卡牌風，半寫實插畫，電影感光影，精緻遊戲概念美術。
 - 英文提示詞：A Three Kingdoms era opening cover image, a lone hero standing before a smoky battlefield, distant Yellow Turban banners and the silhouette of Hulao Gate, eastern epic card game style, semi-realistic illustration, cinematic lighting, polished game concept art.
 - 風格限制：不可出現文字、水印、Logo；不可模仿既有影視、遊戲或動漫 IP；避免血腥畫面。
@@ -40,7 +40,7 @@
 - 圖像名稱：關羽立繪
 - 用途：武將選擇、遊戲玩家面板
 - 建議比例：3:4
-- 建議檔案路徑：`public/images/heroes/guan-yu.webp`
+- 建議檔案路徑：`public/images/heroes/guan-yu.png`
 - 中文提示詞：三國武將關羽，紅臉長髯，青龍偃月刀，威嚴武聖氣勢，古代戰甲與赤紅披風，東方史詩卡牌風，半寫實角色立繪，電影感光影。
 - 英文提示詞：Guan Yu from the Three Kingdoms, red face, long beard, Green Dragon Crescent Blade, majestic warrior saint presence, ancient armor and crimson cloak, eastern epic card game style, semi-realistic character portrait, cinematic lighting.
 - 風格限制：不可套用任何影視版本造型；不要文字、水印、Logo；避免誇張血腥。
@@ -52,7 +52,7 @@
 - 圖像名稱：趙雲立繪
 - 用途：武將選擇、遊戲玩家面板
 - 建議比例：3:4
-- 建議檔案路徑：`public/images/heroes/zhao-yun.webp`
+- 建議檔案路徑：`public/images/heroes/zhao-yun.png`
 - 中文提示詞：三國武將趙雲，銀甲白袍，手持長槍，英勇靈動，戰場風沙與白色披風，東方史詩卡牌風，半寫實角色立繪，精緻遊戲概念美術。
 - 英文提示詞：Zhao Yun from the Three Kingdoms, silver armor and white robe, holding a spear, agile and heroic, battlefield dust and white cloak, eastern epic card game style, semi-realistic character portrait, polished game concept art.
 - 風格限制：不可模仿既有 IP 角色；不要文字、水印、Logo；保持三國歷史幻想氛圍。
@@ -64,7 +64,7 @@
 - 圖像名稱：諸葛亮立繪
 - 用途：武將選擇、遊戲玩家面板
 - 建議比例：3:4
-- 建議檔案路徑：`public/images/heroes/zhuge-liang.webp`
+- 建議檔案路徑：`public/images/heroes/zhuge-liang.png`
 - 中文提示詞：三國軍師諸葛亮，羽扇綸巾，沉著睿智，身後有星象與軍帳燭光，東方史詩卡牌風，半寫實角色立繪，電影感光影。
 - 英文提示詞：Zhuge Liang from the Three Kingdoms, feather fan and scholar headwear, calm and wise, star patterns and a candlelit war tent behind him, eastern epic card game style, semi-realistic character portrait, cinematic lighting.
 - 風格限制：不可模仿任何動漫或遊戲版本；不要文字、水印、Logo；保持精緻但不過度奇幻。

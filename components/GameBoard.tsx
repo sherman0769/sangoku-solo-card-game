@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import BattleLog from "@/components/BattleLog";
 import CardView from "@/components/CardView";
+import { GameImage } from "@/components/GameImage";
 import { VisualPlaceholder } from "@/components/VisualPlaceholder";
 import { equipmentEffects } from "@/lib/game/cards";
 import { getEventTypeLabel } from "@/lib/game/events";
@@ -337,6 +338,7 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
                 badge={state.player.title}
                 health={`♥ ${state.player.health} / ${state.player.maxHealth}`}
                 percent={playerPercent}
+                visualSrc={currentHero.portrait}
                 visualType="hero"
                 visualLabel={state.player.name}
                 visualPrompt={currentHero.visualPrompt}
@@ -358,6 +360,7 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
                 badge={state.enemy.id === "lu-bu" ? "Boss" : "敵將"}
                 health={`♥ ${state.enemyHealth} / ${state.enemy.maxHealth}`}
                 percent={enemyPercent}
+                visualSrc={state.enemy.portrait.startsWith("/") ? state.enemy.portrait : undefined}
                 visualType="enemy"
                 visualLabel={state.enemy.name}
                 visualPrompt={state.enemy.visualPrompt}
@@ -607,6 +610,7 @@ function CombatantPanel({
   badge,
   health,
   percent,
+  visualSrc,
   visualType,
   visualLabel,
   visualPrompt,
@@ -620,6 +624,7 @@ function CombatantPanel({
   badge: string;
   health: string;
   percent: number;
+  visualSrc?: string;
   visualType: "hero" | "enemy";
   visualLabel: string;
   visualPrompt?: string;
@@ -669,11 +674,16 @@ function CombatantPanel({
         </span>
       </div>
       <div className="mt-5">
-        <VisualPlaceholder
-          type={visualType}
-          label={visualLabel}
-          prompt={visualPrompt}
-          compact
+        <GameImage
+          src={visualSrc}
+          alt={`${visualLabel}立繪`}
+          className="aspect-[3/4] rounded-md border border-white/10"
+          imageClassName="object-cover object-top"
+          sizes="(min-width: 768px) 420px, 100vw"
+          fallbackType={visualType}
+          fallbackLabel={visualLabel}
+          fallbackPrompt={visualPrompt}
+          fallbackCompact
         />
       </div>
       <div className="mt-5 flex items-center justify-between gap-4">

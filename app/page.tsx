@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { VisualPlaceholder } from "@/components/VisualPlaceholder";
+import { GameImage } from "@/components/GameImage";
 import { heroes } from "@/lib/game/heroes";
 import {
   currentFeatureHighlights,
@@ -10,112 +10,119 @@ import {
   howToSteps,
 } from "@/lib/game/showcase";
 import { chapterOne } from "@/lib/game/stages";
+import { VISUAL_ASSET_MANIFEST } from "@/lib/game/visualAssetManifest";
 
 export default function Home() {
   const [selectedHeroId, setSelectedHeroId] = useState("guan-yu");
   const selectedHero = heroes.find((hero) => hero.id === selectedHeroId) ?? heroes[0];
+  const homeHeroImage = VISUAL_ASSET_MANIFEST.find((asset) => asset.id === "home-hero")?.path;
 
   return (
     <main className="min-h-screen bg-[#140c09] bg-[radial-gradient(circle_at_top_left,rgba(127,29,29,0.36),transparent_35%),linear-gradient(135deg,#1b100b_0%,#2a120d_48%,#090605_100%)] px-6 py-10 text-stone-100">
       <section className="mx-auto flex min-h-[calc(100vh-5rem)] max-w-6xl flex-col justify-center">
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_420px] lg:items-center">
-          <div>
-            <p className="text-sm font-black uppercase tracking-[0.24em] text-amber-300">
-              單人卡牌闖關
-            </p>
-            <h1 className="mt-5 text-5xl font-black tracking-normal text-amber-50 sm:text-7xl">
-              《三國單騎傳》
-            </h1>
-            <p className="mt-5 text-2xl font-bold text-red-100">
-              一將入亂世，闖關定天下
-            </p>
-            <p className="mt-3 text-sm font-black tracking-[0.18em] text-amber-200">
-              {chapterOne.name}
-            </p>
-            <p className="mt-6 max-w-2xl text-base leading-8 text-stone-300 sm:text-lg">
-              選擇關羽、趙雲或諸葛亮，以斬、閃、酒、兵書、破甲與戰術卡迎戰第一章 8 關。
-              看穿敵人的攻勢，在隨機敵人池、事件、路線選擇與戰後三選一強化中養成流派，
-              最後於虎牢關前挑戰 Boss 呂布。
-            </p>
-          </div>
-          <VisualPlaceholder
-            type="stage"
-            label="首頁主視覺"
-            description="未來此處將放入 AI 生成開場主視覺"
-            prompt={chapterOne.description}
+        <section className="relative overflow-hidden rounded-2xl border border-amber-700/45 bg-black/35 shadow-[0_24px_70px_rgba(0,0,0,0.42)]">
+          <GameImage
+            src={homeHeroImage}
+            alt="三國單騎傳首頁主視覺"
+            className="aspect-[16/9] min-h-[420px] rounded-2xl sm:min-h-[520px]"
+            imageClassName="object-cover"
+            sizes="(min-width: 1024px) 1152px, 100vw"
+            priority
+            fallbackType="stage"
+            fallbackLabel="首頁主視覺"
+            fallbackDescription="未來此處將放入 AI 生成開場主視覺"
+            fallbackPrompt={chapterOne.description}
           />
-        </div>
-        <div className="max-w-3xl">
-          <section className="mt-8 rounded-xl border border-amber-700/40 bg-black/30 p-5 shadow-[0_18px_45px_rgba(0,0,0,0.28)]">
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-              <div>
-                <p className="text-xs font-black uppercase tracking-[0.2em] text-amber-300">
-                  選擇武將
-                </p>
-                <h2 className="mt-2 text-2xl font-black text-amber-50">
-                  {selectedHero.name}｜{selectedHero.title}
-                </h2>
-              </div>
-              <p className="text-sm font-bold text-stone-300">
-                體力 {selectedHero.maxHp} / 技能：{selectedHero.skillName} / {selectedHero.role}
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(8,5,4,0.86),rgba(8,5,4,0.5)_48%,rgba(8,5,4,0.12)),linear-gradient(0deg,rgba(8,5,4,0.72),transparent_52%)]" />
+          <div className="absolute inset-0 flex items-end">
+            <div className="max-w-3xl p-6 sm:p-9 lg:p-12">
+              <p className="text-sm font-black uppercase tracking-[0.24em] text-amber-300">
+                單人卡牌闖關
               </p>
+              <h1 className="mt-5 text-5xl font-black tracking-normal text-amber-50 sm:text-7xl">
+                《三國單騎傳》
+              </h1>
+              <p className="mt-5 text-2xl font-bold text-red-100">
+                一將入亂世，闖關定天下
+              </p>
+              <p className="mt-3 text-sm font-black tracking-[0.18em] text-amber-200">
+                {chapterOne.name}
+              </p>
+              <p className="mt-6 max-w-2xl text-base leading-8 text-stone-200 sm:text-lg">
+                選擇關羽、趙雲或諸葛亮，以斬、閃、酒、兵書、破甲與戰術卡迎戰第一章 8 關。
+                看穿敵人的攻勢，在隨機敵人池、事件、路線選擇與戰後三選一強化中養成流派，
+                最後於虎牢關前挑戰 Boss 呂布。
+              </p>
+              <Link
+                href={`/game?hero=${selectedHeroId}`}
+                className="mt-7 inline-flex h-12 items-center justify-center rounded-md bg-amber-500 px-6 text-sm font-black text-stone-950 shadow-[0_14px_30px_rgba(245,158,11,0.18)] transition hover:bg-amber-300"
+              >
+                開始遊戲
+              </Link>
             </div>
-            <div className="mt-4 grid gap-3 lg:grid-cols-3">
-              {heroes.map((hero) => {
-                const isSelected = hero.id === selectedHeroId;
-
-                return (
-                  <button
-                    key={hero.id}
-                    type="button"
-                    onClick={() => setSelectedHeroId(hero.id)}
-                    className={`rounded-lg border p-4 text-left transition hover:-translate-y-0.5 ${
-                      isSelected
-                        ? "border-amber-300 bg-amber-500/15 shadow-[0_12px_28px_rgba(245,158,11,0.16)]"
-                        : "border-stone-700 bg-stone-950/50 hover:border-amber-600"
-                    }`}
-                  >
-                    <VisualPlaceholder
-                      type="hero"
-                      label={hero.name}
-                      prompt={hero.visualPrompt}
-                      compact
-                    />
-                    <span className="text-xl font-black text-stone-50">
-                      {hero.name}
-                    </span>
-                    <span className="ml-2 rounded-full border border-amber-300/40 px-2 py-0.5 text-xs font-bold text-amber-100">
-                      {hero.title}
-                    </span>
-                    <span className="mt-3 block text-sm leading-6 text-stone-300">
-                      體力 {hero.maxHp}｜技能：{hero.skillName}
-                    </span>
-                    <span className="mt-2 inline-flex rounded-full border border-purple-300/40 bg-purple-500/15 px-3 py-1 text-xs font-black text-purple-100">
-                      {hero.role}
-                    </span>
-                    <span className="mt-3 block text-sm leading-6 text-stone-300">
-                      {hero.skillDescription}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </section>
-          <div className="mt-9 flex flex-wrap gap-3">
-            <Link
-              href={`/game?hero=${selectedHeroId}`}
-              className="inline-flex h-12 items-center justify-center rounded-md bg-amber-500 px-6 text-sm font-black text-stone-950 shadow-[0_14px_30px_rgba(245,158,11,0.18)] transition hover:bg-amber-300"
-            >
-              開始遊戲
-            </Link>
-            <Link
-              href="/result"
-              className="inline-flex h-12 items-center justify-center rounded-md border border-amber-700/60 bg-stone-950/50 px-6 text-sm font-bold text-amber-100 transition hover:border-amber-300 hover:bg-amber-950/60"
-            >
-              查看戰果
-            </Link>
           </div>
-        </div>
+        </section>
+
+        <section className="mt-8 rounded-xl border border-amber-700/40 bg-black/30 p-5 shadow-[0_18px_45px_rgba(0,0,0,0.28)]">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.2em] text-amber-300">
+                選擇武將
+              </p>
+              <h2 className="mt-2 text-2xl font-black text-amber-50">
+                {selectedHero.name}｜{selectedHero.title}
+              </h2>
+            </div>
+            <p className="text-sm font-bold text-stone-300">
+              體力 {selectedHero.maxHp} / 技能：{selectedHero.skillName} / {selectedHero.role}
+            </p>
+          </div>
+          <div className="mt-4 grid gap-3 lg:grid-cols-3">
+            {heroes.map((hero) => {
+              const isSelected = hero.id === selectedHeroId;
+
+              return (
+                <button
+                  key={hero.id}
+                  type="button"
+                  onClick={() => setSelectedHeroId(hero.id)}
+                  className={`rounded-lg border p-4 text-left transition hover:-translate-y-0.5 ${
+                    isSelected
+                      ? "border-amber-300 bg-amber-500/15 shadow-[0_12px_28px_rgba(245,158,11,0.16)]"
+                      : "border-stone-700 bg-stone-950/50 hover:border-amber-600"
+                  }`}
+                >
+                  <GameImage
+                    src={hero.portrait}
+                    alt={`${hero.name}立繪`}
+                    className="mb-4 aspect-[3/4] rounded-md border border-white/10"
+                    imageClassName="object-cover object-top"
+                    sizes="(min-width: 1024px) 320px, 100vw"
+                    fallbackType="hero"
+                    fallbackLabel={hero.name}
+                    fallbackPrompt={hero.visualPrompt}
+                    fallbackCompact
+                  />
+                  <span className="text-xl font-black text-stone-50">
+                    {hero.name}
+                  </span>
+                  <span className="ml-2 rounded-full border border-amber-300/40 px-2 py-0.5 text-xs font-bold text-amber-100">
+                    {hero.title}
+                  </span>
+                  <span className="mt-3 block text-sm leading-6 text-stone-300">
+                    體力 {hero.maxHp}｜技能：{hero.skillName}
+                  </span>
+                  <span className="mt-2 inline-flex rounded-full border border-purple-300/40 bg-purple-500/15 px-3 py-1 text-xs font-black text-purple-100">
+                    {hero.role}
+                  </span>
+                  <span className="mt-3 block text-sm leading-6 text-stone-300">
+                    {hero.skillDescription}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </section>
 
         <section className="mt-14">
           <h2 className="text-3xl font-black text-amber-50">怎麼玩？</h2>
@@ -136,7 +143,7 @@ export default function Home() {
         </section>
 
         <section className="mt-10 rounded-xl border border-amber-700/40 bg-black/30 p-5 shadow-[0_18px_45px_rgba(0,0,0,0.28)]">
-          <h2 className="text-3xl font-black text-amber-50">v0.10.0 目前特色</h2>
+          <h2 className="text-3xl font-black text-amber-50">v0.10.2 目前特色</h2>
           <ul className="mt-5 grid gap-3 text-sm leading-6 text-stone-300 md:grid-cols-2">
             {currentFeatureHighlights.map((feature) => (
               <li

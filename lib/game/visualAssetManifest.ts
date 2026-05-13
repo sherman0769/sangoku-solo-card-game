@@ -17,7 +17,7 @@ export const VISUAL_ASSET_MANIFEST: VisualAssetManifestItem[] = [
     type: "cover",
     name: "首頁主視覺",
     aspectRatio: "16:9",
-    path: "public/images/covers/home-hero.webp",
+    path: "/images/covers/home-hero.png",
     usage: "首頁主視覺",
     promptZh:
       "三國亂世開場主視覺，一名英雄獨自立於烽煙戰場前，遠方黃巾軍旗影與虎牢關剪影，東方史詩卡牌風，半寫實插畫，電影感光影，精緻遊戲概念美術。",
@@ -29,7 +29,7 @@ export const VISUAL_ASSET_MANIFEST: VisualAssetManifestItem[] = [
     type: "hero",
     name: "關羽立繪",
     aspectRatio: "3:4",
-    path: "public/images/heroes/guan-yu.webp",
+    path: "/images/heroes/guan-yu.png",
     usage: "武將選擇、遊戲玩家面板",
     promptZh:
       "三國武將關羽，紅臉長髯，青龍偃月刀，威嚴武聖氣勢，古代戰甲與赤紅披風，東方史詩卡牌風，半寫實角色立繪，電影感光影。",
@@ -41,7 +41,7 @@ export const VISUAL_ASSET_MANIFEST: VisualAssetManifestItem[] = [
     type: "hero",
     name: "趙雲立繪",
     aspectRatio: "3:4",
-    path: "public/images/heroes/zhao-yun.webp",
+    path: "/images/heroes/zhao-yun.png",
     usage: "武將選擇、遊戲玩家面板",
     promptZh:
       "三國武將趙雲，銀甲白袍，手持長槍，英勇靈動，戰場風沙與白色披風，東方史詩卡牌風，半寫實角色立繪，精緻遊戲概念美術。",
@@ -53,7 +53,7 @@ export const VISUAL_ASSET_MANIFEST: VisualAssetManifestItem[] = [
     type: "hero",
     name: "諸葛亮立繪",
     aspectRatio: "3:4",
-    path: "public/images/heroes/zhuge-liang.webp",
+    path: "/images/heroes/zhuge-liang.png",
     usage: "武將選擇、遊戲玩家面板",
     promptZh:
       "三國軍師諸葛亮，羽扇綸巾，沉著睿智，身後有星象與軍帳燭光，東方史詩卡牌風，半寫實角色立繪，電影感光影。",
