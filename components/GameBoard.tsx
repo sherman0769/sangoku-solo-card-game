@@ -856,7 +856,7 @@ function VoiceToggle({
       </button>
       <p className="mt-1 text-[11px] leading-4 text-stone-400">
         {voiceSupported
-          ? "角色語音尚未導入音檔，目前僅保留播放框架。"
+          ? "已導入部分角色語音；開啟語音後，部分登場台詞會播放。"
           : "此瀏覽器不支援語音播放。"}
       </p>
     </div>

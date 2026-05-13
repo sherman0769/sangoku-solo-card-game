@@ -6,7 +6,7 @@ import {
 } from "@/lib/game/ttsManifest";
 
 describe("TTS dialogue manifest", () => {
-  it("contains planned TTS assets with required fields", () => {
+  it("contains TTS assets with required fields", () => {
     expect(TTS_DIALOGUE_MANIFEST.length).toBeGreaterThan(0);
 
     TTS_DIALOGUE_MANIFEST.forEach((asset) => {
@@ -16,7 +16,7 @@ describe("TTS dialogue manifest", () => {
       expect(asset.trigger.length).toBeGreaterThan(0);
       expect(asset.text.length).toBeGreaterThan(0);
       expect(asset.filePath.length).toBeGreaterThan(0);
-      expect(asset.status).toBe("planned");
+      expect(["planned", "generated", "ready"]).toContain(asset.status);
     });
   });
 
@@ -24,25 +24,30 @@ describe("TTS dialogue manifest", () => {
     expect(getTtsAssetByAudioKey("guan-yu-intro")).toMatchObject({
       speakerName: "關羽",
       trigger: "hero_intro",
-      filePath: "public/audio/voices/guan-yu/guan-yu-intro.mp3",
+      filePath: "/audio/voices/guan-yu/guan-yu-intro.mp3",
+      status: "ready",
     });
     expect(getTtsAssetByAudioKey("zhao-yun-dodge")).toMatchObject({
       speakerName: "趙雲",
       trigger: "use_dodge",
+      status: "planned",
     });
     expect(getTtsAssetByAudioKey("zhuge-liang-strategy")).toMatchObject({
       speakerName: "諸葛亮",
       trigger: "use_strategy",
+      status: "planned",
     });
     expect(getTtsAssetByAudioKey("lu-bu-intro")).toMatchObject({
       speakerName: "呂布",
       trigger: "boss_intro",
-      filePath: "public/audio/voices/lu-bu/lu-bu-intro.mp3",
+      filePath: "/audio/voices/lu-bu/lu-bu-intro.mp3",
+      status: "ready",
     });
-    expect(getTtsAssetByAudioKey("narrator-chapter-1-intro")).toMatchObject({
+    expect(getTtsAssetByAudioKey("chapter-1-intro")).toMatchObject({
       speakerName: "旁白",
       trigger: "chapter_intro",
-      filePath: "public/audio/narration/chapter-1-intro.mp3",
+      filePath: "/audio/narration/chapter-1-intro.mp3",
+      status: "ready",
     });
   });
 
@@ -59,7 +64,6 @@ describe("TTS dialogue manifest", () => {
         audioKey,
         text: line.text,
         trigger: line.trigger,
-        status: "planned",
       });
     });
   });

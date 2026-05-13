@@ -1,6 +1,6 @@
 import type { GamePhase } from "./types";
 
-export const currentVersionLabel = "v0.12.2 語音播放框架版";
+export const currentVersionLabel = "v0.12.3 第一批 TTS 語音導入版";
 
 export const howToSteps = [
   {
@@ -43,6 +43,7 @@ export const currentFeatureHighlights = [
   "第一版音效系統：Web Audio API 提示音、手動開關與本機設定保存",
   "TTS 配音素材規劃：為角色語音與開場旁白做準備",
   "語音播放框架：已建立 audioKey 對應與未來 TTS 音檔播放機制",
+  "第一批 TTS 語音：章節開場、三位武將登場與呂布登場",
   "視覺資產 placeholder：角色、敵人、關卡、事件、路線與卡牌",
   "Mini-boss 張梁 / 張寶",
   "隨機事件與路線選擇",

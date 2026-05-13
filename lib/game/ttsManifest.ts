@@ -5,6 +5,14 @@ export type TtsAssetStatus = "planned" | "generated" | "ready";
 
 export const ttsAssetStatuses = ["planned", "generated", "ready"] as const;
 
+const readyVoiceFilePaths: Record<string, string> = {
+  "chapter-1-intro": "/audio/narration/chapter-1-intro.mp3",
+  "guan-yu-intro": "/audio/voices/guan-yu/guan-yu-intro.mp3",
+  "zhao-yun-intro": "/audio/voices/zhao-yun/zhao-yun-intro.mp3",
+  "zhuge-liang-intro": "/audio/voices/zhuge-liang/zhuge-liang-intro.mp3",
+  "lu-bu-intro": "/audio/voices/lu-bu/lu-bu-intro.mp3",
+};
+
 export interface TtsDialogueAsset {
   audioKey: string;
   speakerId: string;
@@ -35,7 +43,7 @@ export const TTS_DIALOGUE_MANIFEST: TtsDialogueAsset[] = dialogueLines.map((line
     suggestedSpeed: getSuggestedSpeed(line),
     filePath: getSuggestedFilePath(line, audioKey),
     usage: getUsage(line),
-    status: "planned",
+    status: getTtsAssetStatus(audioKey),
   };
 });
 
@@ -76,6 +84,12 @@ function getSuggestedSpeed(line: DialogueLine) {
 }
 
 function getSuggestedFilePath(line: DialogueLine, audioKey: string) {
+  const readyFilePath = readyVoiceFilePaths[audioKey];
+
+  if (readyFilePath) {
+    return readyFilePath;
+  }
+
   if (line.speakerId === "guan-yu") {
     return `public/audio/voices/guan-yu/${audioKey}.mp3`;
   }
@@ -97,6 +111,10 @@ function getSuggestedFilePath(line: DialogueLine, audioKey: string) {
   }
 
   return `public/audio/voices/enemies/${audioKey}.mp3`;
+}
+
+function getTtsAssetStatus(audioKey: string): TtsAssetStatus {
+  return readyVoiceFilePaths[audioKey] ? "ready" : "planned";
 }
 
 function getUsage(line: DialogueLine) {

@@ -136,7 +136,7 @@ export const dialogueLines: DialogueLine[] = [
     "chapter_intro",
     "第一章：黃巾亂起。亂世初開，烽煙四起，一名英雄踏上了通往虎牢關的道路。",
     "開場",
-    "narrator-chapter-1-intro",
+    "chapter-1-intro",
   ),
   createNarratorDialogue(
     "stage-1-intro",

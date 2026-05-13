@@ -4,7 +4,7 @@
 
 線上遊玩網址：[https://sangoku-solo-card-game.vercel.app](https://sangoku-solo-card-game.vercel.app)
 
-目前版本：`v0.12.2 語音播放框架版`
+目前版本：`v0.12.3 第一批 TTS 語音導入版`
 
 ## 已完成功能
 
@@ -37,6 +37,7 @@
 - 第一版音效系統：使用 Web Audio API 生成提示音，預設關閉，玩家可手動開啟
 - TTS 配音素材清單：整理角色語音、旁白語音與開頭動畫旁白規劃
 - 語音播放框架：根據 `audioKey` 對應 TTS manifest，未來可播放導入後的 MP3
+- 第一批 TTS 語音：章節開場旁白、三位武將登場與呂布登場
 - 視覺資產欄位與 placeholder：武將、敵人、關卡、事件、路線與卡牌
 - 第一批 AI 圖像資產規劃：10 張核心圖像、建議路徑與中英文提示詞
 - 第一批 AI 圖像已導入：首頁主視覺、關羽、趙雲、諸葛亮
@@ -128,6 +129,7 @@ npm run build
 - v0.12.0：第一版音效系統
 - v0.12.1：建立 TTS 配音素材清單與 manifest
 - v0.12.2：建立語音播放框架
+- v0.12.3：導入第一批 TTS 語音檔
 
 ## 視覺資產系統
 
@@ -226,7 +228,15 @@ v0.12.1 建立第一版 TTS 配音素材清單，文件位於 [`docs/tts-dialogu
 
 v0.12.2 建立第一版角色語音 / 旁白語音播放框架。遊戲頁新增「語音：關 / 語音：開」設定，預設關閉並可用 localStorage 保存。台詞框更新時，若 `DialogueLine.audioKey` 存在且語音開關已開啟，會透過 `lib/game/voice.ts` 查詢 `TTS_DIALOGUE_MANIFEST` 並嘗試播放對應音檔。
 
-目前尚未加入真實語音檔，也不串接外部 TTS API。所有 manifest 狀態仍為 `planned`，因此即使開啟語音也會安全 no-op，不會中斷遊戲或影響既有 Web Audio 音效系統。
+v0.12.3 已導入第一批 5 筆 MP3 語音：
+
+- 章節開場旁白：`/audio/narration/chapter-1-intro.mp3`
+- 關羽登場：`/audio/voices/guan-yu/guan-yu-intro.mp3`
+- 趙雲登場：`/audio/voices/zhao-yun/zhao-yun-intro.mp3`
+- 諸葛亮登場：`/audio/voices/zhuge-liang/zhuge-liang-intro.mp3`
+- 呂布登場：`/audio/voices/lu-bu/lu-bu-intro.mp3`
+
+語音預設仍為關閉，玩家可在遊戲頁手動開啟。其他台詞仍為 `planned`，尚未有音檔，不會播放。若音檔缺失、瀏覽器阻擋或播放失敗，語音框架會安全 no-op，不會中斷遊戲或影響既有 Web Audio 音效系統。
 
 TTS manifest 狀態定義：
 
@@ -234,7 +244,7 @@ TTS manifest 狀態定義：
 - `generated`：已生成但尚未導入專案。
 - `ready`：音檔已放入 `public/audio` 且可播放。
 
-未來把 MP3 放入 `public/audio` 對應路徑，並將 manifest status 改為 `ready` 後，語音播放框架即可根據 `audioKey` 播放角色語音或旁白語音。
+未來把其他 MP3 放入 `public/audio` 對應路徑，並將 manifest status 改為 `ready` 後，語音播放框架即可根據 `audioKey` 播放更多角色語音或旁白語音。
 
 ## 第一章：黃巾亂起
 
