@@ -368,7 +368,7 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
   }
 
   return (
-    <main className="min-h-screen overflow-x-hidden bg-[#140c09] bg-[radial-gradient(circle_at_top_left,rgba(127,29,29,0.34),transparent_34%),linear-gradient(135deg,#1b100b_0%,#2a120d_45%,#090605_100%)] px-4 py-5 text-stone-100 sm:px-6 lg:px-8">
+    <main className="min-h-screen overflow-x-hidden bg-[#140c09] bg-[radial-gradient(circle_at_top_left,rgba(127,29,29,0.34),transparent_34%),linear-gradient(135deg,#1b100b_0%,#2a120d_45%,#090605_100%)] px-4 pb-[330px] pt-4 text-stone-100 sm:px-6 sm:py-5 lg:px-8">
       {eventToast ? <EventToastView key={eventToast.id} toast={eventToast} /> : null}
       <div className="mx-auto min-w-0 max-w-[calc(100vw-2rem)] sm:max-w-[calc(100vw-3rem)] lg:max-w-7xl">
         <header className="rounded-xl border border-amber-700/40 bg-black/30 p-4 shadow-[0_18px_45px_rgba(0,0,0,0.35)] backdrop-blur sm:flex sm:items-end sm:justify-between">
@@ -390,16 +390,20 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
             </p>
           </div>
           <div className="mt-4 flex flex-wrap gap-3 sm:mt-0">
-            <SoundToggle
-              enabled={soundEnabled}
-              audioSupported={audioSupported}
-              onToggle={toggleSound}
-            />
-            <VoiceToggle
-              enabled={voiceEnabled}
-              voiceSupported={voiceSupported}
-              onToggle={toggleVoice}
-            />
+            <div className="hidden md:block">
+              <SoundToggle
+                enabled={soundEnabled}
+                audioSupported={audioSupported}
+                onToggle={toggleSound}
+              />
+            </div>
+            <div className="hidden md:block">
+              <VoiceToggle
+                enabled={voiceEnabled}
+                voiceSupported={voiceSupported}
+                onToggle={toggleVoice}
+              />
+            </div>
             <button
               type="button"
               onClick={() => setState(createGame(initialHeroId))}
@@ -441,8 +445,18 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
 
         <DialoguePanel dialogue={state.currentDialogue} />
 
+        <MobileBattleHud
+          enemyName={state.enemy.name}
+          enemyType={getEnemyTypeLabel(state.enemy.type)}
+          enemyHealth={`${state.enemyHealth}/${state.enemy.maxHealth}`}
+          enemyStatuses={enemyStatuses}
+          playerName={state.player.name}
+          playerHealth={`${state.player.health}/${state.player.maxHealth}`}
+          playerStatuses={playerStatuses}
+        />
+
         {stageBackgroundSrc ? (
-          <section className="relative mt-5 overflow-hidden rounded-xl border border-sky-300/30 bg-stone-950/55 shadow-[0_18px_45px_rgba(0,0,0,0.28)]">
+          <section className="relative mt-5 hidden overflow-hidden rounded-xl border border-sky-300/30 bg-stone-950/55 shadow-[0_18px_45px_rgba(0,0,0,0.28)] sm:block">
             <GameImage
               src={stageBackgroundSrc}
               alt={`${state.stageConfig.name}關卡背景`}
@@ -472,7 +486,7 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
             </div>
           </section>
         ) : (
-          <section className="mt-5 grid gap-4 rounded-xl border border-sky-300/30 bg-stone-950/55 p-4 shadow-[0_18px_45px_rgba(0,0,0,0.28)] lg:grid-cols-[360px_minmax(0,1fr)]">
+          <section className="mt-5 hidden gap-4 rounded-xl border border-sky-300/30 bg-stone-950/55 p-4 shadow-[0_18px_45px_rgba(0,0,0,0.28)] sm:grid lg:grid-cols-[360px_minmax(0,1fr)]">
             <VisualPlaceholder
               type="stage"
               label={state.stageConfig.name}
@@ -495,7 +509,7 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
 
         <section className="mt-5 grid gap-5 lg:grid-cols-[1fr_340px]">
           <div className="space-y-5">
-            <div className="grid gap-5 md:grid-cols-2">
+            <div className="hidden gap-5 md:grid md:grid-cols-2">
               <CombatantPanel
                 tone="player"
                 eyebrow="武將"
@@ -610,7 +624,7 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
             ) : null}
 
             {state.phase === "defense" && state.pendingDefense ? (
-              <section className="rounded-xl border border-red-500/60 bg-red-950/70 p-5 text-red-50 shadow-[0_18px_45px_rgba(0,0,0,0.35)]">
+              <section className="hidden rounded-xl border border-red-500/60 bg-red-950/70 p-5 text-red-50 shadow-[0_18px_45px_rgba(0,0,0,0.35)] md:block">
                 <h2 className="text-lg font-black">危險：敵人攻擊中</h2>
                 <p className="mt-2 text-sm leading-6 text-red-100">
                   {state.pendingDefense.enemyName} 使用
@@ -679,39 +693,95 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
               </section>
             ) : null}
 
-            <section className="rounded-xl border border-amber-700/40 bg-black/25 p-4 shadow-[0_18px_45px_rgba(0,0,0,0.3)]">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <h2 className="text-xl font-black text-amber-50">手牌</h2>
-                <button
-                  type="button"
-                  disabled={state.status !== "playing" || state.phase !== "player"}
-                  onClick={handleEndTurn}
-                  className="h-11 rounded-md bg-amber-500 px-5 text-sm font-black text-stone-950 transition hover:bg-amber-300 disabled:cursor-not-allowed disabled:bg-stone-700 disabled:text-stone-400"
-                >
-                  結束回合
-                </button>
-              </div>
-              <div className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                {state.hand.map((card) => (
-                  <CardView
-                    key={card.id}
-                    card={card}
-                    disabled={
-                      state.status !== "playing" ||
-                      state.phase !== "player" ||
-                      (card.kind === "dodge" && state.player.heroId !== "zhao-yun") ||
-                      (card.kind === "equipment" &&
-                        state.player.equippedItems.some((item) => item.name === card.name)) ||
-                      card.cost > state.player.morale
-                    }
-                    onPlay={handlePlayCard}
-                  />
-                ))}
+            <section className="fixed inset-x-0 bottom-0 z-40 border-t border-amber-700/50 bg-stone-950/95 p-3 shadow-[0_-18px_45px_rgba(0,0,0,0.45)] backdrop-blur md:static md:rounded-xl md:border md:border-amber-700/40 md:bg-black/25 md:p-4 md:shadow-[0_18px_45px_rgba(0,0,0,0.3)] md:backdrop-blur-none">
+              <div className="mx-auto max-w-7xl md:mx-0 md:max-w-none">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <h2 className="text-base font-black text-amber-50 sm:text-xl">手牌</h2>
+                    <p className="text-xs font-bold text-stone-400 md:hidden">
+                      {state.phase === "defense" ? "敵人攻擊中" : `士氣 ${state.player.morale}/${state.player.maxMorale}`}
+                    </p>
+                  </div>
+                  {state.phase === "defense" && state.pendingDefense ? (
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleResolveDefense(true)}
+                        className="h-10 rounded-md bg-sky-600 px-4 text-sm font-black text-white transition hover:bg-sky-500 disabled:cursor-not-allowed disabled:opacity-45"
+                      >
+                        {getDefenseButtonLabel(state)}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleResolveDefense(false)}
+                        className="h-10 rounded-md border border-red-300/70 px-4 text-sm font-black text-red-50 transition hover:bg-red-800"
+                      >
+                        承受
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      disabled={state.status !== "playing" || state.phase !== "player"}
+                      onClick={handleEndTurn}
+                      className="h-10 rounded-md bg-amber-500 px-5 text-sm font-black text-stone-950 transition hover:bg-amber-300 disabled:cursor-not-allowed disabled:bg-stone-700 disabled:text-stone-400 sm:h-11"
+                    >
+                      結束回合
+                    </button>
+                  )}
+                </div>
+                {state.phase !== "player" && state.phase !== "defense" ? (
+                  <p className="mt-3 rounded-md border border-stone-700 bg-black/25 px-3 py-2 text-xs font-bold text-stone-300 md:hidden">
+                    目前請在上方完成階段選擇。
+                  </p>
+                ) : null}
+                <div className={`${state.phase === "player" ? "mt-3 flex" : "hidden md:grid"} -mx-3 gap-3 overflow-x-auto px-3 pb-2 md:mx-0 md:mt-4 md:grid md:grid-cols-2 md:gap-4 md:overflow-visible md:px-0 md:pb-0 xl:grid-cols-3`}>
+                  {state.hand.map((card) => (
+                    <div key={card.id} className="w-40 shrink-0 md:w-auto">
+                      <CardView
+                        card={card}
+                        disabled={
+                          state.status !== "playing" ||
+                          state.phase !== "player" ||
+                          (card.kind === "dodge" && state.player.heroId !== "zhao-yun") ||
+                          (card.kind === "equipment" &&
+                            state.player.equippedItems.some((item) => item.name === card.name)) ||
+                          card.cost > state.player.morale
+                        }
+                        onPlay={handlePlayCard}
+                      />
+                    </div>
+                  ))}
+                </div>
               </div>
             </section>
+
+            <div className="space-y-5 lg:hidden">
+              <BattleLog entries={state.log} />
+              <MobileStatusSettings
+                audioSupported={audioSupported}
+                battleLines={[
+                  `章節：${state.chapter.name}`,
+                  `關卡：${state.stageConfig.name}`,
+                  `牌庫 ${state.deck.length} 張 / 棄牌 ${state.discard.length} 張`,
+                  state.selectedRoute ? `目前路線：${state.selectedRoute.name}` : null,
+                  state.rewardOptionBonus > 0
+                    ? `下一次戰後獎勵 +${state.rewardOptionBonus} 個選項`
+                    : null,
+                ]}
+                equippedLabels={equippedLabels}
+                onToggleSound={toggleSound}
+                onToggleVoice={toggleVoice}
+                quickRulesList={quickRules}
+                soundEnabled={soundEnabled}
+                upgradeLabels={upgradeLabels}
+                voiceEnabled={voiceEnabled}
+                voiceSupported={voiceSupported}
+              />
+            </div>
           </div>
 
-          <div className="space-y-5">
+          <div className="hidden space-y-5 lg:block">
             <BattleLog entries={state.log} />
             <InfoPanel title="快速規則">
               <ul className="space-y-2 text-sm leading-6 text-stone-200">
@@ -797,6 +867,178 @@ function DialoguePanel({ dialogue }: { dialogue?: DialogueLine }) {
           </p>
         </div>
       </div>
+    </section>
+  );
+}
+
+function MobileBattleHud({
+  enemyName,
+  enemyType,
+  enemyHealth,
+  enemyStatuses,
+  playerName,
+  playerHealth,
+  playerStatuses,
+}: {
+  enemyName: string;
+  enemyType: string;
+  enemyHealth: string;
+  enemyStatuses: string[];
+  playerName: string;
+  playerHealth: string;
+  playerStatuses: string[];
+}) {
+  return (
+    <section className="mt-5 grid gap-3 md:hidden">
+      <MobileHudRow
+        tone="enemy"
+        eyebrow={`敵人｜${enemyType}`}
+        title={enemyName}
+        health={enemyHealth}
+        statuses={enemyStatuses}
+      />
+      <MobileHudRow
+        tone="player"
+        eyebrow="武將"
+        title={playerName}
+        health={playerHealth}
+        statuses={playerStatuses}
+      />
+    </section>
+  );
+}
+
+function MobileHudRow({
+  tone,
+  eyebrow,
+  title,
+  health,
+  statuses,
+}: {
+  tone: "enemy" | "player";
+  eyebrow: string;
+  title: string;
+  health: string;
+  statuses: string[];
+}) {
+  const toneClass =
+    tone === "enemy"
+      ? "border-red-400/45 bg-red-950/40"
+      : "border-emerald-400/45 bg-emerald-950/35";
+  const hpClass = tone === "enemy" ? "text-red-100" : "text-emerald-100";
+
+  return (
+    <div className={`rounded-xl border p-3 shadow-[0_14px_34px_rgba(0,0,0,0.28)] ${toneClass}`}>
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-[11px] font-black uppercase tracking-[0.16em] text-amber-200">
+            {eyebrow}
+          </p>
+          <h2 className="mt-1 truncate text-xl font-black text-stone-50">{title}</h2>
+        </div>
+        <p className={`shrink-0 text-lg font-black ${hpClass}`}>♥ {health}</p>
+      </div>
+      <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
+        {statuses.map((status) => (
+          <span
+            key={status}
+            className="shrink-0 rounded-full border border-amber-300/30 bg-black/25 px-3 py-1 text-xs font-bold text-amber-100"
+          >
+            {status}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function MobileStatusSettings({
+  audioSupported,
+  battleLines,
+  equippedLabels,
+  onToggleSound,
+  onToggleVoice,
+  quickRulesList,
+  soundEnabled,
+  upgradeLabels,
+  voiceEnabled,
+  voiceSupported,
+}: {
+  audioSupported: boolean;
+  battleLines: Array<string | null>;
+  equippedLabels: string[];
+  onToggleSound: () => void;
+  onToggleVoice: () => void;
+  quickRulesList: readonly string[];
+  soundEnabled: boolean;
+  upgradeLabels: string[];
+  voiceEnabled: boolean;
+  voiceSupported: boolean;
+}) {
+  return (
+    <details className="rounded-lg border border-amber-700/40 bg-stone-950/80 p-4 text-stone-100 shadow-[0_18px_45px_rgba(0,0,0,0.35)]">
+      <summary className="cursor-pointer text-sm font-black uppercase tracking-[0.16em] text-amber-200">
+        狀態與設定
+      </summary>
+      <div className="mt-4 space-y-4">
+        <div className="grid gap-3 sm:grid-cols-2">
+          <SoundToggle
+            enabled={soundEnabled}
+            audioSupported={audioSupported}
+            onToggle={onToggleSound}
+          />
+          <VoiceToggle
+            enabled={voiceEnabled}
+            voiceSupported={voiceSupported}
+            onToggle={onToggleVoice}
+          />
+        </div>
+        <MobileInfoBlock title="目前強化">
+          {upgradeLabels.length > 0 ? (
+            <ul className="space-y-2">
+              {upgradeLabels.map((label) => (
+                <li key={label}>{label}</li>
+              ))}
+            </ul>
+          ) : (
+            <p>尚未獲得強化</p>
+          )}
+        </MobileInfoBlock>
+        <MobileInfoBlock title="已裝備">
+          {equippedLabels.length > 0 ? (
+            <ul className="space-y-2">
+              {equippedLabels.map((label) => (
+                <li key={label}>{label}</li>
+              ))}
+            </ul>
+          ) : (
+            <p>尚未裝備</p>
+          )}
+        </MobileInfoBlock>
+        <MobileInfoBlock title="快速規則">
+          <ul className="space-y-2">
+            {quickRulesList.map((rule) => (
+              <li key={rule}>{rule}</li>
+            ))}
+          </ul>
+        </MobileInfoBlock>
+        <MobileInfoBlock title="戰局">
+          <ul className="space-y-2">
+            {battleLines.filter((line): line is string => Boolean(line)).map((line) => (
+              <li key={line}>{line}</li>
+            ))}
+          </ul>
+        </MobileInfoBlock>
+      </div>
+    </details>
+  );
+}
+
+function MobileInfoBlock({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <section className="rounded-md border border-stone-700/70 bg-black/25 p-3 text-sm leading-6 text-stone-200">
+      <h3 className="text-xs font-black uppercase tracking-[0.14em] text-amber-100">{title}</h3>
+      <div className="mt-2">{children}</div>
     </section>
   );
 }

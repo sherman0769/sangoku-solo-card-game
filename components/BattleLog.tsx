@@ -1,20 +1,48 @@
+"use client";
+
+import { useState } from "react";
+
 interface BattleLogProps {
   entries: string[];
 }
 
 export default function BattleLog({ entries }: BattleLogProps) {
-  const recentEntries = entries.slice(0, 8);
+  const [expanded, setExpanded] = useState(false);
+  const desktopEntries = entries.slice(0, 8);
+  const mobileEntries = entries.slice(0, expanded ? 8 : 3);
 
   return (
     <aside className="rounded-lg border border-amber-700/40 bg-stone-950/80 p-4 text-stone-100 shadow-[0_18px_45px_rgba(0,0,0,0.35)]">
-      <h2 className="text-sm font-bold uppercase tracking-[0.16em] text-amber-200">
-        戰鬥紀錄
-      </h2>
-      <ol className="mt-4 space-y-3 text-sm leading-6">
-        {recentEntries.map((entry, index) => (
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="text-sm font-bold uppercase tracking-[0.16em] text-amber-200">
+          戰鬥紀錄
+        </h2>
+        <button
+          type="button"
+          onClick={() => setExpanded((next) => !next)}
+          className="rounded-full border border-amber-300/40 px-3 py-1 text-xs font-black text-amber-100 lg:hidden"
+        >
+          {expanded ? "收合紀錄" : "展開完整紀錄"}
+        </button>
+      </div>
+      <ol className="mt-4 hidden space-y-3 text-sm leading-6 lg:block">
+        {desktopEntries.map((entry, index) => (
           <li
             key={`${entry}-${index}`}
             className="flex gap-3 border-t border-amber-900/50 pt-3 first:border-t-0 first:pt-0"
+          >
+            <span className="shrink-0 text-base" aria-hidden="true">
+              {getLogMarker(entry)}
+            </span>
+            <span>{entry}</span>
+          </li>
+        ))}
+      </ol>
+      <ol className="mt-4 space-y-2 text-sm leading-6 lg:hidden">
+        {mobileEntries.map((entry, index) => (
+          <li
+            key={`${entry}-${index}`}
+            className="flex gap-3 border-t border-amber-900/50 pt-2 first:border-t-0 first:pt-0"
           >
             <span className="shrink-0 text-base" aria-hidden="true">
               {getLogMarker(entry)}

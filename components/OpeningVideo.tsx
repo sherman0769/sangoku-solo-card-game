@@ -43,7 +43,7 @@ export function OpeningVideo({ config, startHref }: OpeningVideoProps) {
   }
 
   return (
-    <section className="mt-8 rounded-xl border border-purple-500/35 bg-black/35 p-5 shadow-[0_18px_45px_rgba(0,0,0,0.3)]">
+    <section id="opening-video" className="mt-8 scroll-mt-6 rounded-xl border border-purple-500/35 bg-black/35 p-5 shadow-[0_18px_45px_rgba(0,0,0,0.3)]">
       <div className="grid gap-5 lg:grid-cols-[minmax(260px,360px)_1fr] lg:items-center">
         <div className="mx-auto w-full max-w-[280px] sm:max-w-[320px] lg:max-w-[360px]">
           {canShowVideo ? (

@@ -1,6 +1,6 @@
 import type { GamePhase } from "./types";
 
-export const currentVersionLabel = "v0.13.0 開頭動畫導入版";
+export const currentVersionLabel = "v0.13.1 手機遊玩 UI / UX 優化版";
 
 export const howToSteps = [
   {
@@ -45,11 +45,20 @@ export const currentFeatureHighlights = [
   "語音播放框架：已建立 audioKey 對應與未來 TTS 音檔播放機制",
   "第一批 TTS 語音：章節開場、三位武將登場與呂布登場",
   "開頭動畫：以 AI 圖像、影片與音樂製作第一章開場",
+  "手機遊玩優化：戰鬥 HUD、底部手牌操作區、紀錄與設定收合",
   "視覺資產 placeholder：角色、敵人、關卡、事件、路線與卡牌",
   "Mini-boss 張梁 / 張寶",
   "隨機事件與路線選擇",
   "第 1～7 關依關卡敵人池隨機，第 8 關挑戰呂布",
   "可完整通關、失敗重來",
+] as const;
+
+export const mobileGameplaySections = [
+  "手機戰鬥 HUD",
+  "底部手牌操作區",
+  "戰鬥紀錄收合",
+  "狀態與設定收合",
+  "事件 / 獎勵 / 路線選擇優化",
 ] as const;
 
 export const quickRules = [

@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "三國單騎傳",
-  description: "v0.13.0 開頭動畫導入版：支援 9:16 第一章開場動畫、章節開場語音、武將登場與呂布登場語音、audioKey 語音播放框架、Web Audio API 提示音、首頁主視覺、武將立繪、敵人圖像、關卡背景、人物台詞、8 關流程、裝備卡、戰術卡、事件關卡與路線選擇的三國卡牌闖關遊戲。",
+  description: "v0.13.1 手機遊玩 UI / UX 優化版：支援手機戰鬥 HUD、底部手牌操作區、戰鬥紀錄與狀態設定收合、9:16 第一章開場動畫、章節開場語音、武將登場與呂布登場語音、audioKey 語音播放框架、Web Audio API 提示音、首頁主視覺、武將立繪、敵人圖像、關卡背景、人物台詞、8 關流程、裝備卡、戰術卡、事件關卡與路線選擇的三國卡牌闖關遊戲。",
 };
 
 export default function RootLayout({

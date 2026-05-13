@@ -30,7 +30,7 @@ export default function Home() {
             alt="三國單騎傳首頁主視覺"
             variant="cover"
             objectPosition="50% 46%"
-            className="min-h-[350px] max-h-[560px] rounded-2xl sm:min-h-[430px] lg:min-h-[500px]"
+            className="min-h-[260px] max-h-[560px] rounded-2xl sm:min-h-[430px] lg:min-h-[500px]"
             imageClassName="object-cover"
             sizes="(min-width: 1024px) 1152px, 100vw"
             priority
@@ -72,8 +72,6 @@ export default function Home() {
           </div>
         </section>
 
-        <OpeningVideo config={openingVideo} startHref={selectedHeroStartHref} />
-
         <section className="mt-8 rounded-xl border border-amber-700/40 bg-black/30 p-5 shadow-[0_18px_45px_rgba(0,0,0,0.28)]">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
             <div>
@@ -109,7 +107,7 @@ export default function Home() {
                     alt={`${hero.name}立繪`}
                     variant="portrait"
                     objectPosition={heroImagePosition}
-                    className="mx-auto mb-4 max-h-[340px] w-full rounded-md border border-white/10"
+                    className="mx-auto mb-4 max-h-[220px] w-full rounded-md border border-white/10 sm:max-h-[340px]"
                     imageClassName="object-cover"
                     sizes="(min-width: 1024px) 320px, 100vw"
                     fallbackType="hero"
@@ -136,7 +134,23 @@ export default function Home() {
               );
             })}
           </div>
+          <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+            <Link
+              href={selectedHeroStartHref}
+              className="inline-flex h-12 items-center justify-center rounded-md border border-amber-100/70 bg-amber-500 px-6 text-sm font-black text-stone-950 shadow-[0_14px_34px_rgba(245,158,11,0.22)] transition hover:bg-amber-300"
+            >
+              開始遊戲
+            </Link>
+            <a
+              href="#opening-video"
+              className="inline-flex h-12 items-center justify-center rounded-md border border-purple-300/60 bg-purple-950/55 px-6 text-sm font-black text-purple-50 transition hover:border-purple-100 hover:bg-purple-900"
+            >
+              觀看開場動畫
+            </a>
+          </div>
         </section>
+
+        <OpeningVideo config={openingVideo} startHref={selectedHeroStartHref} />
 
         <section className="mt-14">
           <h2 className="text-3xl font-black text-amber-50">怎麼玩？</h2>
@@ -157,7 +171,7 @@ export default function Home() {
         </section>
 
         <section className="mt-10 rounded-xl border border-amber-700/40 bg-black/30 p-5 shadow-[0_18px_45px_rgba(0,0,0,0.28)]">
-          <h2 className="text-3xl font-black text-amber-50">v0.13.0 目前特色</h2>
+          <h2 className="text-3xl font-black text-amber-50">v0.13.1 目前特色</h2>
           <ul className="mt-5 grid gap-3 text-sm leading-6 text-stone-300 md:grid-cols-2">
             {currentFeatureHighlights.map((feature) => (
               <li
@@ -188,6 +202,7 @@ export default function Home() {
             ["語音播放框架", "已建立 audioKey 對應與未來 TTS 音檔播放機制。"],
             ["第一批 TTS 語音", "章節開場、三位武將登場與呂布登場語音已可在語音開啟後播放。"],
             ["開頭動畫", "以 AI 圖像、影片與音樂製作第一章開場，可觀看或略過後開始遊戲。"],
+            ["手機遊玩優化", "戰鬥 HUD、底部手牌操作區、紀錄與狀態設定收合，降低直屏滑動負擔。"],
           ].map(([title, text]) => (
             <section
               key={title}
