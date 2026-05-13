@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "三國單騎傳",
-  description: "v0.15.1 第一輪平衡微調版：諸葛亮 HP 提升至 4，呂布 HP 提升至 14，並保留第 2～3 關敵人數值以避免早期壓力過高。",
+  description: "v0.15.2 後期難度微調版：小幅提高第 7～8 關壓力，張梁、張寶體力提升，呂布猛攻比例提高，並保留第 1～6 關數值。",
 };
 
 export default function RootLayout({

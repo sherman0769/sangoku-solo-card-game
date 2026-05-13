@@ -60,22 +60,22 @@ describe("battle balance simulator", () => {
     expect(report).toContain("建議調整方向");
   });
 
-  it("generates the v0.15.1 tuning report sections", () => {
+  it("generates the v0.15.2 tuning report sections", () => {
     const summary = simulateManyRuns({
       heroIds: ["guan-yu", "zhao-yun", "zhuge-liang"],
       runsPerHero: 2,
-      seed: "report-v0151-test",
+      seed: "report-v0152-test",
       maxTurns: 180,
       strategy: "basic-safe-strategy",
     });
     const report = generateBalanceReport(summary, {
-      title: "# v0.15.1 第一輪平衡微調報告",
-      preAdjustmentSummary: ["v0.15.0 整體勝率 92.7%。"],
-      adjustments: ["諸葛亮最大體力 3 → 4。", "呂布最大體力 12 → 14。"],
-      goalAssessment: ["本輪為小幅微調。"],
+      title: "# v0.15.2 後期難度微調報告",
+      preAdjustmentSummary: ["v0.15.1 整體勝率 98%。"],
+      adjustments: ["張梁最大體力 9 → 10。", "張寶最大體力 8 → 9。"],
+      goalAssessment: ["本輪提高後期壓力。"],
     });
 
-    expect(report).toContain("# v0.15.1 第一輪平衡微調報告");
+    expect(report).toContain("# v0.15.2 後期難度微調報告");
     expect(report).toContain("調整前摘要");
     expect(report).toContain("調整內容");
     expect(report).toContain("是否達到平衡目標");

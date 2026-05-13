@@ -109,6 +109,7 @@ describe("game engine", () => {
     expect(bossEnemy.stage).toBe(8);
     expect(bossEnemy.type).toBe("boss");
     expect(bossEnemy.maxHealth).toBe(14);
+    expect(bossEnemy.actions.filter((action) => action.kind === "fierce")).toHaveLength(2);
   });
 
   it("includes chapter one with eight stages", () => {
@@ -125,10 +126,53 @@ describe("game engine", () => {
   it("includes Zhang Liang and Zhang Bao mini-boss enemies", () => {
     expect(enemyPool).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ id: "zhang-liang", name: "張梁", stage: 7 }),
-        expect.objectContaining({ id: "zhang-bao", name: "張寶", stage: 7 }),
+        expect.objectContaining({ id: "zhang-liang", name: "張梁", stage: 7, maxHealth: 10 }),
+        expect.objectContaining({ id: "zhang-bao", name: "張寶", stage: 7, maxHealth: 9 }),
       ]),
     );
+  });
+
+  it("keeps stage one to six enemy tuning unchanged", () => {
+    expect(
+      enemyPool
+        .filter((enemy) => enemy.stage <= 6)
+        .map((enemy) => ({
+          id: enemy.id,
+          maxHealth: enemy.maxHealth,
+          actions: enemy.actions.map((action) => action.kind),
+        })),
+    ).toEqual([
+      {
+        id: "yellow-turban-soldier",
+        maxHealth: 4,
+        actions: ["attack", "guard", "attack", "attack"],
+      },
+      {
+        id: "yellow-turban-archer",
+        maxHealth: 3,
+        actions: ["attack", "attack", "fierce", "charge"],
+      },
+      {
+        id: "yellow-turban-brute",
+        maxHealth: 5,
+        actions: ["attack", "guard", "guard", "charge"],
+      },
+      {
+        id: "bandit-leader",
+        maxHealth: 6,
+        actions: ["attack", "guard", "charge", "attack"],
+      },
+      {
+        id: "black-mountain-general",
+        maxHealth: 7,
+        actions: ["guard", "guard", "attack", "charge"],
+      },
+      {
+        id: "xiliang-cavalry",
+        maxHealth: 5,
+        actions: ["attack", "fierce", "fierce", "charge"],
+      },
+    ]);
   });
 
   it("selects enemies from each configured stage pool", () => {

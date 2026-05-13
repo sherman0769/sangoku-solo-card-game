@@ -19,7 +19,7 @@ import { canPlayVoice } from "@/lib/game/voice";
 
 describe("showcase and onboarding copy", () => {
   it("includes homepage how-to and current feature copy", () => {
-    expect(currentVersionLabel).toBe("v0.15.1 第一輪平衡微調版");
+    expect(currentVersionLabel).toBe("v0.15.2 後期難度微調版");
     expect(howToSteps.map((step) => step.title)).toEqual([
       "選擇武將",
       "進入戰鬥",
@@ -78,6 +78,9 @@ describe("showcase and onboarding copy", () => {
     );
     expect(currentFeatureHighlights).toContain(
       "第一輪平衡微調：諸葛亮 HP 提升至 4、呂布 HP 提升至 14，並保留第 2～3 關敵人數值",
+    );
+    expect(currentFeatureHighlights).toContain(
+      "後期難度微調：張梁、張寶與呂布猛攻比例小幅提高，未調整第 1～6 關敵人",
     );
     expect(currentFeatureHighlights).toContain(
       "Hydration 修正：/game 隨機戰局初始化改為 client mounted 後執行",
