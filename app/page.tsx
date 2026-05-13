@@ -3,7 +3,9 @@
 import Link from "next/link";
 import { useState } from "react";
 import { GameImage } from "@/components/GameImage";
+import { OpeningVideo } from "@/components/OpeningVideo";
 import { heroes } from "@/lib/game/heroes";
+import { getOpeningVideoConfig } from "@/lib/game/openingVideo";
 import {
   currentFeatureHighlights,
   currentVersionLabel,
@@ -16,6 +18,8 @@ export default function Home() {
   const [selectedHeroId, setSelectedHeroId] = useState("guan-yu");
   const selectedHero = heroes.find((hero) => hero.id === selectedHeroId) ?? heroes[0];
   const homeHeroImage = VISUAL_ASSET_MANIFEST.find((asset) => asset.id === "home-hero")?.path;
+  const openingVideo = getOpeningVideoConfig();
+  const selectedHeroStartHref = `/game?hero=${selectedHeroId}`;
 
   return (
     <main className="min-h-screen bg-[#140c09] bg-[radial-gradient(circle_at_top_left,rgba(127,29,29,0.36),transparent_35%),linear-gradient(135deg,#1b100b_0%,#2a120d_48%,#090605_100%)] px-4 py-6 text-stone-100 sm:px-6 sm:py-10">
@@ -59,7 +63,7 @@ export default function Home() {
                 最後於虎牢關前挑戰 Boss 呂布。
               </p>
               <Link
-                href={`/game?hero=${selectedHeroId}`}
+                href={selectedHeroStartHref}
                 className="mt-6 inline-flex h-12 items-center justify-center rounded-md border border-amber-100/70 bg-amber-500 px-6 text-sm font-black text-stone-950 shadow-[0_14px_34px_rgba(245,158,11,0.28)] ring-2 ring-amber-400/20 transition hover:bg-amber-300"
               >
                 開始遊戲
@@ -67,6 +71,8 @@ export default function Home() {
             </div>
           </div>
         </section>
+
+        <OpeningVideo config={openingVideo} startHref={selectedHeroStartHref} />
 
         <section className="mt-8 rounded-xl border border-amber-700/40 bg-black/30 p-5 shadow-[0_18px_45px_rgba(0,0,0,0.28)]">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
@@ -151,7 +157,7 @@ export default function Home() {
         </section>
 
         <section className="mt-10 rounded-xl border border-amber-700/40 bg-black/30 p-5 shadow-[0_18px_45px_rgba(0,0,0,0.28)]">
-          <h2 className="text-3xl font-black text-amber-50">v0.12.3 目前特色</h2>
+          <h2 className="text-3xl font-black text-amber-50">v0.13.0 目前特色</h2>
           <ul className="mt-5 grid gap-3 text-sm leading-6 text-stone-300 md:grid-cols-2">
             {currentFeatureHighlights.map((feature) => (
               <li
@@ -181,6 +187,7 @@ export default function Home() {
             ["TTS 配音規劃", "已建立配音素材清單，為角色語音與開場旁白做準備。"],
             ["語音播放框架", "已建立 audioKey 對應與未來 TTS 音檔播放機制。"],
             ["第一批 TTS 語音", "章節開場、三位武將登場與呂布登場語音已可在語音開啟後播放。"],
+            ["開頭動畫", "以 AI 圖像、影片與音樂製作第一章開場，可觀看或略過後開始遊戲。"],
           ].map(([title, text]) => (
             <section
               key={title}

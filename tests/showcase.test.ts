@@ -9,7 +9,7 @@ import {
 
 describe("showcase and onboarding copy", () => {
   it("includes homepage how-to and current feature copy", () => {
-    expect(currentVersionLabel).toBe("v0.12.3 第一批 TTS 語音導入版");
+    expect(currentVersionLabel).toBe("v0.13.0 開頭動畫導入版");
     expect(howToSteps.map((step) => step.title)).toEqual([
       "選擇武將",
       "進入戰鬥",
@@ -41,6 +41,9 @@ describe("showcase and onboarding copy", () => {
     );
     expect(currentFeatureHighlights).toContain(
       "第一批 TTS 語音：章節開場、三位武將登場與呂布登場",
+    );
+    expect(currentFeatureHighlights).toContain(
+      "開頭動畫：以 AI 圖像、影片與音樂製作第一章開場",
     );
     expect(currentFeatureHighlights).toContain(
       "視覺資產 placeholder：角色、敵人、關卡、事件、路線與卡牌",
