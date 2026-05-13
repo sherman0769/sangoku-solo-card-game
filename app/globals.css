@@ -97,6 +97,52 @@ body {
   }
 }
 
+@keyframes boss-alert-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.82) translateY(18px);
+  }
+  16% {
+    opacity: 1;
+    transform: scale(1.06) translateY(0);
+  }
+  72% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.96) translateY(-14px);
+  }
+}
+
+@keyframes boss-alert-pulse {
+  0%,
+  100% {
+    text-shadow:
+      0 0 12px rgba(251, 191, 36, 0.55),
+      0 0 24px rgba(127, 29, 29, 0.62);
+  }
+  45% {
+    text-shadow:
+      0 0 20px rgba(254, 240, 138, 0.85),
+      0 0 38px rgba(248, 113, 113, 0.72);
+  }
+}
+
+@keyframes boss-panel-flash {
+  0%,
+  100% {
+    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.35);
+  }
+  30% {
+    box-shadow:
+      0 0 0 2px rgba(251, 191, 36, 0.85),
+      0 0 34px rgba(248, 113, 113, 0.5),
+      0 18px 45px rgba(127, 29, 29, 0.48);
+  }
+}
+
 .animate-shake-hit {
   animation: shake-hit 420ms ease-in-out;
 }
@@ -115,4 +161,16 @@ body {
 
 .animate-fade-in {
   animation: fade-in 420ms ease-out;
+}
+
+.animate-boss-alert-pop {
+  animation: boss-alert-pop 1.5s ease-out forwards;
+}
+
+.animate-boss-alert-pulse {
+  animation: boss-alert-pulse 620ms ease-in-out infinite;
+}
+
+.animate-boss-panel-flash {
+  animation: boss-panel-flash 980ms ease-out;
 }

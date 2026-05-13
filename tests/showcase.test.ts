@@ -20,7 +20,7 @@ import { canPlayVoice } from "@/lib/game/voice";
 
 describe("showcase and onboarding copy", () => {
   it("includes homepage how-to and current feature copy", () => {
-    expect(currentVersionLabel).toBe("v0.17.0 Boss 特性系統版");
+    expect(currentVersionLabel).toBe("v0.17.1 Boss 戰體驗強化版");
     expect(howToSteps.map((step) => step.title)).toEqual([
       "選擇武將",
       "進入戰鬥",
@@ -94,6 +94,9 @@ describe("showcase and onboarding copy", () => {
     );
     expect(currentFeatureHighlights).toContain(
       "Boss 特性系統：呂布具備無雙壓迫與戰神回血，最終戰更具壓迫感",
+    );
+    expect(currentFeatureHighlights).toContain(
+      "Boss 戰演出強化：呂布發動無雙壓迫與戰神回血時，會有更明顯的畫面提示",
     );
     expect(currentFeatureHighlights).toContain(
       "Hydration 修正：/game 隨機戰局初始化改為 client mounted 後執行",

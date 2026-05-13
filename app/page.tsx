@@ -237,7 +237,7 @@ export default function Home() {
           <summary className="cursor-pointer text-2xl font-black text-amber-50">
             {homeCollapsibleSections[1].title}
           </summary>
-          <h2 className="sr-only">v0.17.0 目前特色</h2>
+          <h2 className="sr-only">v0.17.1 目前特色</h2>
           <ul className="mt-5 grid gap-3 text-sm leading-6 text-stone-300 md:grid-cols-2">
             {currentFeatureHighlights.map((feature) => (
               <li
@@ -279,6 +279,7 @@ export default function Home() {
             ["險道風險再平衡", "絕壁伏擊、古戰場遺物與夜襲敵營代價提高，保留高報酬但更危險。"],
             ["路線風格平衡", "山道偏生存補給，官道偏情報穩定，險道偏奇遇代價。"],
             ["Boss 特性系統", "呂布具備無雙壓迫與戰神回血，最終戰更具壓迫感。"],
+            ["Boss 戰演出強化", "呂布發動無雙壓迫與戰神回血時，會有更明顯的畫面提示。"],
             ["Hydration 修正", "/game 隨機敵人與初始手牌改為 client mounted 後生成，避免初始畫面不一致。"],
           ].map(([title, text]) => (
             <section

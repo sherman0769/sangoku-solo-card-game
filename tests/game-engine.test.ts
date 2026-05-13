@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { getVisualPlaceholderStyle } from "@/components/VisualPlaceholder";
+import {
+  getBossTraitAlert,
+  getBossTraitHudLabels,
+  getBossTraitLogMessage,
+} from "@/lib/game/bossTraits";
 import { starterDeck } from "@/lib/game/cards";
 import {
   dialogueLines,
@@ -115,6 +120,27 @@ describe("game engine", () => {
     expect(bossEnemy.maxHealth).toBe(14);
     expect(bossEnemy.actions.filter((action) => action.kind === "fierce")).toHaveLength(2);
     expect(bossEnemy.bossTraits).toEqual(["unmatched-pressure", "warlord-recovery"]);
+  });
+
+  it("provides Boss trait presentation copy and mobile HUD labels", () => {
+    expect(getBossTraitAlert("unmatched-pressure")).toMatchObject({
+      title: "無雙壓迫！",
+      subtitle: "呂布猛攻第二段傷害 +1",
+      feedbackText: "無雙！",
+      soundCue: "boss",
+    });
+    expect(getBossTraitAlert("warlord-recovery")).toMatchObject({
+      title: "戰神回血！",
+      subtitle: "呂布回復 3 點體力",
+      feedbackText: "+3",
+      soundCue: "boss",
+    });
+    expect(getBossTraitLogMessage("unmatched-pressure", "呂布")).toBe(
+      "👹 呂布發動無雙壓迫，猛攻第二段傷害 +1！",
+    );
+    expect(getBossTraitHudLabels(["unmatched-pressure", "warlord-recovery"], {
+      "unmatched-pressure": true,
+    })).toEqual(["Boss 特性：無雙、回血", "無雙已觸發"]);
   });
 
   it("includes chapter one with eight stages", () => {
@@ -1436,7 +1462,7 @@ describe("game engine", () => {
     expect(first.player.health).toBe(5);
     expect(first.bossTraitUsage["unmatched-pressure"]).toBe(true);
     expect(first.bossTraitHistory).toContain("unmatched-pressure");
-    expect(first.log.join("\n")).toContain("呂布發動無雙壓迫，猛攻第二段傷害 +1！");
+    expect(first.log.join("\n")).toContain("👹 呂布發動無雙壓迫，猛攻第二段傷害 +1！");
     expect(first.currentDialogue?.trigger).toBe("boss_trait");
     expect(second.player.health).toBe(6);
     expect(second.log.join("\n")).not.toContain("呂布發動無雙壓迫");
@@ -1453,7 +1479,7 @@ describe("game engine", () => {
     expect(recovered.enemyHealth).toBeLessThanOrEqual(recovered.enemy.maxHealth);
     expect(recovered.bossTraitUsage["warlord-recovery"]).toBe(true);
     expect(recovered.bossTraitHistory).toContain("warlord-recovery");
-    expect(recovered.log.join("\n")).toContain("呂布發動戰神回血，回復 3 點體力！");
+    expect(recovered.log.join("\n")).toContain("🩸 呂布發動戰神回血，回復 3 點體力！");
     expect(recovered.currentDialogue?.trigger).toBe("boss_recovery");
     expect(afterSecondAttack.bossTraitHistory.filter((trait) => trait === "warlord-recovery")).toHaveLength(1);
   });
@@ -1466,7 +1492,7 @@ describe("game engine", () => {
     expect(next.status).toBe("playing");
     expect(next.enemyHealth).toBe(3);
     expect(next.bossTraitUsage["warlord-recovery"]).toBe(true);
-    expect(next.log.join("\n")).toContain("呂布發動戰神回血，回復 3 點體力！");
+    expect(next.log.join("\n")).toContain("🩸 呂布發動戰神回血，回復 3 點體力！");
   });
 
   it("wins after the eighth enemy is defeated", () => {

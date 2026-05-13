@@ -67,22 +67,22 @@ describe("battle balance simulator", () => {
     expect(report).toContain("建議調整方向");
   });
 
-  it("generates the v0.17.0 boss trait balance report sections", () => {
+  it("generates the v0.17.1 boss presentation balance report sections", () => {
     const summary = simulateManyRuns({
       heroIds: ["guan-yu", "zhao-yun", "zhuge-liang"],
       runsPerHero: 2,
-      seed: "report-v0170-test",
+      seed: "report-v0171-test",
       maxTurns: 180,
       strategy: "basic-safe-strategy",
     });
     const report = generateBalanceReport(summary, {
-      title: "# v0.17.0 Boss 特性系統平衡報告",
-      preAdjustmentSummary: ["v0.16.2 整體勝率 100%。"],
-      adjustments: ["呂布新增無雙壓迫與戰神回血。"],
+      title: "# v0.17.1 Boss 戰體驗強化平衡報告",
+      preAdjustmentSummary: ["v0.17.0 整體勝率 96.7%。"],
+      adjustments: ["Boss 特性觸發呈現強化。"],
       goalAssessment: ["本輪觀察 Boss 特性觸發分佈。"],
     });
 
-    expect(report).toContain("# v0.17.0 Boss 特性系統平衡報告");
+    expect(report).toContain("# v0.17.1 Boss 戰體驗強化平衡報告");
     expect(report).toContain("調整前摘要");
     expect(report).toContain("調整內容");
     expect(report).toContain("路線風格決策分佈");

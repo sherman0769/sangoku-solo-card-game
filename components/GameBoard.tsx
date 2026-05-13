@@ -10,9 +10,10 @@ import { VisualPlaceholder } from "@/components/VisualPlaceholder";
 import { playCardSound } from "@/lib/game/cardSoundManifest";
 import { equipmentEffects } from "@/lib/game/cards";
 import {
+  getBossTraitAlert,
   getBossTraitDescription,
+  getBossTraitHudLabels,
   getBossTraitName,
-  getBossTraitShortName,
 } from "@/lib/game/bossTraits";
 import {
   isAudioSupported,
@@ -70,8 +71,15 @@ interface EventToast {
 interface PanelFeedback {
   id: number;
   target: "player" | "enemy";
-  tone: "hit" | "heal";
+  tone: "hit" | "heal" | "boss";
   text: string;
+}
+
+interface BossTraitAlertState {
+  id: number;
+  title: string;
+  subtitle: string;
+  tone: "pressure" | "recovery";
 }
 
 interface StageNotice {
@@ -134,6 +142,7 @@ function GameBoardContent({
   const [state, setState] = useState(initialState);
   const [eventToast, setEventToast] = useState<EventToast | null>(null);
   const [panelFeedback, setPanelFeedback] = useState<PanelFeedback | null>(null);
+  const [bossTraitAlert, setBossTraitAlert] = useState<BossTraitAlertState | null>(null);
   const [stageNotice, setStageNotice] = useState<StageNotice | null>(null);
   const [soundEnabled, setSoundEnabled] = useState(false);
   const [audioSupported, setAudioSupported] = useState(false);
@@ -141,6 +150,7 @@ function GameBoardContent({
   const [voiceSupported, setVoiceSupported] = useState(false);
   const eventTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const panelTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const bossTraitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const stageTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastVoiceKeyRef = useRef<string | null>(null);
   const feedbackIdRef = useRef(0);
@@ -161,12 +171,16 @@ function GameBoardContent({
     enemyArmorBroken: state.enemyArmorBroken,
     phase: state.phase,
   });
+  const bossTraitHudLabels = getBossTraitHudLabels(
+    state.enemy.bossTraits,
+    state.bossTraitUsage,
+  );
   const enemyStatuses = getEnemyStatuses({
     guarding: state.enemyGuarding,
     charged: state.enemyCharged,
     phase: state.phase,
     nextAction: nextEnemyAction.label,
-    bossTraitNames: state.enemy.bossTraits.map(getBossTraitShortName),
+    bossTraitLabels: bossTraitHudLabels,
   });
   const enemyBossTraitDetails = state.enemy.bossTraits.map(
     (traitId) => `Boss 特性｜${getBossTraitName(traitId)}：${getBossTraitDescription(traitId)}`,
@@ -237,7 +251,16 @@ function GameBoardContent({
     }
 
     setPanelFeedback({ id: nextFeedbackId(), target, tone, text });
-    panelTimerRef.current = setTimeout(() => setPanelFeedback(null), 760);
+    panelTimerRef.current = setTimeout(() => setPanelFeedback(null), tone === "boss" ? 980 : 760);
+  }
+
+  function showBossTraitAlert(alert: BossTraitAlertState) {
+    if (bossTraitTimerRef.current) {
+      clearTimeout(bossTraitTimerRef.current);
+    }
+
+    setBossTraitAlert(alert);
+    bossTraitTimerRef.current = setTimeout(() => setBossTraitAlert(null), 1500);
   }
 
   function emitSound(cue: SoundCue) {
@@ -254,6 +277,29 @@ function GameBoardContent({
     if (next.status === "lost") {
       emitSound("defeat");
     }
+  }
+
+  function emitBossTraitPresentation(
+    previous: ReturnType<typeof createGame>,
+    next: ReturnType<typeof createGame>,
+  ) {
+    const newTraitIds = next.bossTraitHistory.slice(previous.bossTraitHistory.length);
+
+    newTraitIds.forEach((traitId) => {
+      const alert = getBossTraitAlert(traitId);
+      showBossTraitAlert({
+        id: nextFeedbackId(),
+        title: alert.title,
+        subtitle: alert.subtitle,
+        tone: traitId === "warlord-recovery" ? "recovery" : "pressure",
+      });
+      showPanelFeedback(
+        "enemy",
+        traitId === "warlord-recovery" ? "heal" : "boss",
+        alert.feedbackText,
+      );
+      emitSound(alert.soundCue);
+    });
   }
 
   function toggleSound() {
@@ -294,6 +340,9 @@ function GameBoardContent({
       if (panelTimerRef.current) {
         clearTimeout(panelTimerRef.current);
       }
+      if (bossTraitTimerRef.current) {
+        clearTimeout(bossTraitTimerRef.current);
+      }
       if (stageTimerRef.current) {
         clearTimeout(stageTimerRef.current);
       }
@@ -326,6 +375,7 @@ function GameBoardContent({
       }
     }
 
+    emitBossTraitPresentation(state, next);
     emitOutcomeSound(next);
     setState(next);
   }
@@ -344,6 +394,7 @@ function GameBoardContent({
       emitSound("event");
     }
 
+    emitBossTraitPresentation(state, next);
     emitOutcomeSound(next);
     setState(next);
   }
@@ -363,6 +414,7 @@ function GameBoardContent({
       emitSound("hit");
     }
 
+    emitBossTraitPresentation(state, next);
     emitOutcomeSound(next);
     setState(next);
   }
@@ -556,6 +608,7 @@ function GameBoardContent({
         </section>
 
         <DialoguePanel dialogue={state.currentDialogue} />
+        <BossTraitAlertOverlay alert={bossTraitAlert} />
 
         <MobileBattleHud
           enemyName={state.enemy.name}
@@ -1090,6 +1143,34 @@ function MobileBattleHud({
   );
 }
 
+function BossTraitAlertOverlay({ alert }: { alert: BossTraitAlertState | null }) {
+  if (!alert) {
+    return null;
+  }
+
+  const toneClass =
+    alert.tone === "recovery"
+      ? "border-amber-200/75 bg-[radial-gradient(circle_at_center,rgba(251,191,36,0.34),rgba(127,29,29,0.72)_52%,rgba(8,5,4,0.92))] text-amber-50 shadow-[0_0_60px_rgba(251,191,36,0.28)]"
+      : "border-red-200/75 bg-[radial-gradient(circle_at_center,rgba(248,113,113,0.32),rgba(127,29,29,0.76)_52%,rgba(8,5,4,0.94))] text-red-50 shadow-[0_0_60px_rgba(248,113,113,0.3)]";
+
+  return (
+    <div
+      key={alert.id}
+      className="pointer-events-none fixed inset-x-4 top-[31vh] z-40 flex justify-center sm:top-[38vh]"
+      aria-live="polite"
+    >
+      <div className={`animate-boss-alert-pop min-w-[250px] max-w-[90vw] rounded-xl border px-6 py-5 text-center ${toneClass}`}>
+        <p className="animate-boss-alert-pulse text-3xl font-black tracking-[0.08em] sm:text-5xl">
+          {alert.title}
+        </p>
+        <p className="mt-3 text-sm font-black text-stone-100 sm:text-base">
+          {alert.subtitle}
+        </p>
+      </div>
+    </div>
+  );
+}
+
 function MobileHudRow({
   tone,
   eyebrow,
@@ -1354,9 +1435,11 @@ function CombatantPanel({
   const feedbackClass =
     feedback?.tone === "heal"
       ? "animate-pulse-heal"
-      : feedback
-        ? "animate-shake-hit animate-pulse-hit"
-        : "";
+      : feedback?.tone === "boss"
+        ? "animate-boss-panel-flash animate-shake-hit"
+        : feedback
+          ? "animate-shake-hit animate-pulse-hit"
+          : "";
 
   return (
     <section className={`relative rounded-xl border p-5 shadow-[0_18px_45px_rgba(0,0,0,0.35)] ${frameClass} ${feedbackClass}`}>
@@ -1366,6 +1449,8 @@ function CombatantPanel({
           className={`pointer-events-none absolute right-4 top-4 rounded-full border px-3 py-1 text-xs font-black ${
             feedback.tone === "heal"
               ? "border-emerald-200/70 bg-emerald-500/25 text-emerald-50"
+              : feedback.tone === "boss"
+                ? "border-amber-200/80 bg-red-500/35 text-amber-50"
               : "border-red-200/70 bg-red-500/25 text-red-50"
           }`}
         >
@@ -1639,31 +1724,36 @@ function getEnemyStatuses({
   charged,
   phase,
   nextAction,
-  bossTraitNames = [],
+  bossTraitLabels = [],
 }: {
   guarding: boolean;
   charged: boolean;
   phase: string;
   nextAction: string;
-  bossTraitNames?: string[];
+  bossTraitLabels?: string[];
 }) {
-  const bossTraitStatus =
-    bossTraitNames.length > 0 ? `Boss 特性：${bossTraitNames.join("、")}` : null;
+  const [bossTraitStatus, ...triggeredBossTraits] = bossTraitLabels;
 
   if (phase === "reward") {
-    return ["戰後整備", bossTraitStatus].filter((status): status is string => Boolean(status));
+    return ["戰後整備", bossTraitStatus, ...triggeredBossTraits].filter(
+      (status): status is string => Boolean(status),
+    );
   }
 
   if (phase === "route") {
-    return ["等待選路", bossTraitStatus].filter((status): status is string => Boolean(status));
+    return ["等待選路", bossTraitStatus, ...triggeredBossTraits].filter(
+      (status): status is string => Boolean(status),
+    );
   }
 
   if (phase === "event") {
-    return ["事件中", bossTraitStatus].filter((status): status is string => Boolean(status));
+    return ["事件中", bossTraitStatus, ...triggeredBossTraits].filter(
+      (status): status is string => Boolean(status),
+    );
   }
 
   if (phase === "observe") {
-    return ["等待觀星", bossTraitStatus, `預告：${nextAction}`].filter(
+    return ["等待觀星", bossTraitStatus, ...triggeredBossTraits, `預告：${nextAction}`].filter(
       (status): status is string => Boolean(status),
     );
   }
@@ -1674,6 +1764,7 @@ function getEnemyStatuses({
     phase === "defense" ? "攻擊中" : null,
     !guarding && !charged && phase === "player" ? "普通" : null,
     bossTraitStatus,
+    ...triggeredBossTraits,
     `預告：${nextAction}`,
   ].filter((status): status is string => Boolean(status));
 }

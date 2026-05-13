@@ -1,4 +1,5 @@
 import { starterDeck } from "./cards";
+import { getBossTraitLogMessage } from "./bossTraits";
 import {
   getChapterIntroDialogue,
   getBossRecoveryDialogue,
@@ -269,8 +270,13 @@ export function playCard(
   next.hand.splice(cardIndex, 1);
   next.player.morale -= card.cost;
 
+  const previousDialogueId = next.currentDialogue?.id;
   applyCardEffect(next, card);
-  if (!["boss_trait", "boss_recovery"].includes(next.currentDialogue?.trigger ?? "")) {
+  const bossDialogueJustTriggered =
+    ["boss_trait", "boss_recovery"].includes(next.currentDialogue?.trigger ?? "") &&
+    next.currentDialogue?.id !== previousDialogueId;
+
+  if (!bossDialogueJustTriggered) {
     applyCardDialogue(next, card);
   }
 
@@ -1217,7 +1223,7 @@ function applyWarlordRecovery(state: GameState) {
   state.enemyHealth = Math.min(state.enemy.maxHealth, state.enemyHealth + 3);
   setDialogue(state, getBossRecoveryDialogue(state.enemy.id));
 
-  return [`${state.enemy.name}發動戰神回血，回復 3 點體力！`];
+  return [getBossTraitLogMessage("warlord-recovery", state.enemy.name)];
 }
 
 function applyUnmatchedPressure(
@@ -1241,7 +1247,7 @@ function applyUnmatchedPressure(
   state.bossTraitHistory.push("unmatched-pressure");
   setDialogue(state, getBossTraitDialogue(state.enemy.id));
 
-  return [`${state.enemy.name}發動無雙壓迫，猛攻第二段傷害 +1！`];
+  return [getBossTraitLogMessage("unmatched-pressure", state.enemy.name)];
 }
 
 function hasBossTrait(enemy: Enemy, traitId: BossTraitId) {

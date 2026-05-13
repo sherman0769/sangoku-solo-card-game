@@ -3,27 +3,27 @@ import { dirname, resolve } from "node:path";
 import { generateBalanceReport } from "../lib/game/balanceReport";
 import { simulateManyRuns } from "../lib/game/balanceSimulator";
 
-const reportPath = resolve("docs/balance-report-v0.17.0.md");
+const reportPath = resolve("docs/balance-report-v0.17.1.md");
 
 async function main() {
   const summary = simulateManyRuns({
     heroIds: ["guan-yu", "zhao-yun", "zhuge-liang"],
     runsPerHero: 50,
-    seed: "v0.17.0-balance",
+    seed: "v0.17.1-balance",
     maxTurns: 360,
     strategy: "basic-safe-strategy",
   });
 
   const report = generateBalanceReport(summary, {
-    title: "# v0.17.0 Boss 特性系統平衡報告",
+    title: "# v0.17.1 Boss 戰體驗強化平衡報告",
     preAdjustmentSummary: [
-      "v0.16.2 共模擬 150 局：關羽 100%、趙雲 100%、諸葛亮 100%，整體勝率 100%。",
-      "路線已改為風格選擇，但第一章尾王壓力仍不足。",
+      "v0.17.0 共模擬 150 局：關羽 92%、趙雲 100%、諸葛亮 98%，整體勝率 96.7%。",
+      "呂布已具備無雙壓迫與戰神回血，但實際遊玩時需要更明顯的觸發提示。",
     ],
     adjustments: [
-      "呂布新增 Boss 特性：無雙壓迫，第一次猛攻第二段傷害 +1。",
-      "呂布新增 Boss 特性：戰神回血，首次降到半血以下時回復 3 點體力。",
-      "本次不調整第 1～7 關敵人、三位武將、玩家牌組、路線事件與獎勵系統。",
+      "不調整 Boss 數值，保留 v0.17.0 的無雙壓迫與戰神回血效果。",
+      "新增 Boss 特性觸發 overlay、Boss 面板短暫特效、戰鬥紀錄醒目標記與手機 HUD 已觸發狀態。",
+      "本次不調整第 1～7 關敵人、三位武將、玩家牌組、路線事件、獎勵系統與模擬策略。",
     ],
     goalAssessment: createGoalAssessment(summary),
   });
