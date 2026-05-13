@@ -4,7 +4,7 @@
 
 線上遊玩網址：[https://sangoku-solo-card-game.vercel.app](https://sangoku-solo-card-game.vercel.app)
 
-目前版本：`v0.12.0 音效系統測試版`
+目前版本：`v0.12.1 TTS 配音規劃版`
 
 ## 已完成功能
 
@@ -35,6 +35,7 @@
 - 首頁教學、目前版本特色、遊戲內提示與快速規則
 - 人物台詞系統：武將台詞、敵人登場台詞、章節旁白、關卡旁白與勝敗旁白
 - 第一版音效系統：使用 Web Audio API 生成提示音，預設關閉，玩家可手動開啟
+- TTS 配音素材清單：整理角色語音、旁白語音與開頭動畫旁白規劃
 - 視覺資產欄位與 placeholder：武將、敵人、關卡、事件、路線與卡牌
 - 第一批 AI 圖像資產規劃：10 張核心圖像、建議路徑與中英文提示詞
 - 第一批 AI 圖像已導入：首頁主視覺、關羽、趙雲、諸葛亮
@@ -95,7 +96,7 @@ npm run build
 - 補齊其他敵人圖像
 - 補齊真實音效或接入角色語音
 - 擴充更多敵人、事件與戰鬥行為台詞
-- 未來可用台詞 `audioKey` 串接 TTS 或配音音檔
+- 使用 TTS 工具生成語音，放入 `public/audio` 對應資料夾
 - 依照 `docs/visual-assets-v1.md` 生成圖片並導入 `public/images`
 - 增加更多敵人與卡牌
 - 增加更多戰後獎勵與流派組合
@@ -124,6 +125,7 @@ npm run build
 - v0.10.5：視覺呈現優化版
 - v0.11.0：人物台詞系統版
 - v0.12.0：第一版音效系統
+- v0.12.1：建立 TTS 配音素材清單與 manifest
 
 ## 視覺資產系統
 
@@ -200,6 +202,23 @@ v0.12.0 新增第一版音效系統，先不加入真實音檔、不使用外部
 音效預設關閉，避免瀏覽器自動播放限制與干擾展示環境。玩家可在遊戲頁手動切換「音效：關 / 音效：開」，設定會以 localStorage 儲存在本機；若瀏覽器或 SSR / 測試環境沒有 `window`、`AudioContext` 或 localStorage，音效工具會安全 no-op，不影響遊戲流程。
 
 下一步可接入真實音效素材，或搭配既有台詞 `audioKey` 延伸到 TTS / 角色語音。
+
+## TTS 配音規劃
+
+v0.12.1 建立第一版 TTS 配音素材清單，文件位於 [`docs/tts-dialogue-assets-v1.md`](docs/tts-dialogue-assets-v1.md)，結構化資料位於 `lib/game/ttsManifest.ts` 的 `TTS_DIALOGUE_MANIFEST`。
+
+目前只整理配音規劃，不加入真實語音檔、不播放語音，也不串接外部 TTS API。`audioKey` 是 `DialogueLine` 與 TTS manifest 的對應索引，用來把台詞、角色聲線、建議語速、用途與未來音檔路徑連在一起。
+
+已建立音檔資料夾規劃：
+
+- `public/audio/voices/guan-yu`
+- `public/audio/voices/zhao-yun`
+- `public/audio/voices/zhuge-liang`
+- `public/audio/voices/lu-bu`
+- `public/audio/voices/enemies`
+- `public/audio/narration`
+
+下一步可使用 TTS 工具依照 manifest 生成語音，輸出 MP3 後放入 `public/audio` 對應資料夾，再由遊戲根據 `audioKey` 載入。
 
 ## 第一章：黃巾亂起
 

@@ -9,7 +9,7 @@ import {
 
 describe("showcase and onboarding copy", () => {
   it("includes homepage how-to and current feature copy", () => {
-    expect(currentVersionLabel).toBe("v0.12.0 音效系統測試版");
+    expect(currentVersionLabel).toBe("v0.12.1 TTS 配音規劃版");
     expect(howToSteps.map((step) => step.title)).toEqual([
       "選擇武將",
       "進入戰鬥",
@@ -32,6 +32,9 @@ describe("showcase and onboarding copy", () => {
     );
     expect(currentFeatureHighlights).toContain(
       "第一版音效系統：Web Audio API 提示音、手動開關與本機設定保存",
+    );
+    expect(currentFeatureHighlights).toContain(
+      "TTS 配音素材規劃：為角色語音與開場旁白做準備",
     );
     expect(currentFeatureHighlights).toContain(
       "視覺資產 placeholder：角色、敵人、關卡、事件、路線與卡牌",

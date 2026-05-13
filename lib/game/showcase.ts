@@ -1,6 +1,6 @@
 import type { GamePhase } from "./types";
 
-export const currentVersionLabel = "v0.12.0 音效系統測試版";
+export const currentVersionLabel = "v0.12.1 TTS 配音規劃版";
 
 export const howToSteps = [
   {
@@ -41,6 +41,7 @@ export const currentFeatureHighlights = [
   "視覺呈現優化：首頁、武將、敵人、Boss 與關卡背景手機版顯示",
   "人物台詞系統：武將台詞、敵人登場、章節旁白與勝敗旁白",
   "第一版音效系統：Web Audio API 提示音、手動開關與本機設定保存",
+  "TTS 配音素材規劃：為角色語音與開場旁白做準備",
   "視覺資產 placeholder：角色、敵人、關卡、事件、路線與卡牌",
   "Mini-boss 張梁 / 張寶",
   "隨機事件與路線選擇",
