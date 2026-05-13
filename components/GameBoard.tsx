@@ -8,6 +8,7 @@ import CardView from "@/components/CardView";
 import { GameImage } from "@/components/GameImage";
 import { VisualPlaceholder } from "@/components/VisualPlaceholder";
 import { equipmentEffects } from "@/lib/game/cards";
+import { getSpeakerTypeLabel } from "@/lib/game/dialogues";
 import { getEventTypeLabel } from "@/lib/game/events";
 import {
   createGame,
@@ -23,7 +24,7 @@ import {
 import { heroes } from "@/lib/game/heroes";
 import { currentVersionLabel, getPhaseHint, quickRules } from "@/lib/game/showcase";
 import { totalStages } from "@/lib/game/stages";
-import type { GameEvent, PlayerUpgrades, Reward, StageRoute } from "@/lib/game/types";
+import type { DialogueLine, GameEvent, PlayerUpgrades, Reward, StageRoute } from "@/lib/game/types";
 
 interface EventToast {
   id: number;
@@ -317,6 +318,8 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
             {phaseHint}
           </p>
         </section>
+
+        <DialoguePanel dialogue={state.currentDialogue} />
 
         {stageBackgroundSrc ? (
           <section className="relative mt-5 overflow-hidden rounded-xl border border-sky-300/30 bg-stone-950/55 shadow-[0_18px_45px_rgba(0,0,0,0.28)]">
@@ -645,6 +648,36 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
         </footer>
       </div>
     </main>
+  );
+}
+
+function DialoguePanel({ dialogue }: { dialogue?: DialogueLine }) {
+  const speakerTypeLabel = dialogue ? getSpeakerTypeLabel(dialogue.speakerType) : "旁白";
+
+  return (
+    <section className="mt-5 rounded-xl border border-amber-300/45 bg-stone-950/70 p-4 shadow-[0_18px_45px_rgba(0,0,0,0.28)]">
+      <div className="flex items-start gap-4">
+        <div className="hidden h-12 w-12 shrink-0 items-center justify-center rounded-full border border-amber-300/50 bg-amber-500/15 text-lg font-black text-amber-100 sm:flex">
+          {dialogue?.speakerName.slice(0, 1) ?? "旁"}
+        </div>
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full border border-amber-300/45 bg-black/30 px-3 py-1 text-xs font-black text-amber-100">
+              {speakerTypeLabel}
+            </span>
+            <h2 className="text-sm font-black text-amber-50">
+              {dialogue?.speakerName ?? "戰場旁白"}
+            </h2>
+            {dialogue?.tone ? (
+              <span className="text-xs font-bold text-stone-400">{dialogue.tone}</span>
+            ) : null}
+          </div>
+          <p className="mt-3 break-words text-base font-bold leading-7 text-stone-100">
+            {dialogue?.text ?? "戰場寂靜，等待下一步行動。"}
+          </p>
+        </div>
+      </div>
+    </section>
   );
 }
 

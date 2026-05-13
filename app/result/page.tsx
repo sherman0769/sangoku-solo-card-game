@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getGameResultDialogue } from "@/lib/game/dialogues";
 
 export default async function ResultPage({
   searchParams,
@@ -8,25 +9,28 @@ export default async function ResultPage({
   const { outcome } = await searchParams;
   const isWon = outcome === "won";
   const isLost = outcome === "lost";
+  const resultDialogue = isWon ? getGameResultDialogue("won") : isLost ? getGameResultDialogue("lost") : undefined;
   const title = isWon ? "通關成功" : isLost ? "戰敗" : "戰役結果";
   const message = isWon
-    ? "你突破虎牢關前的考驗，第一章：黃巾亂起 已完成。"
+    ? (resultDialogue?.text ?? "你突破虎牢關前的考驗，第一章：黃巾亂起 已完成。")
     : isLost
-      ? "亂世無情，重整旗鼓，再試一次。"
+      ? (resultDialogue?.text ?? "亂世無情，重整旗鼓，再試一次。")
       : "完成一局遊戲後，這裡會顯示勝利或失敗結果。";
   const cta = isLost ? "重新挑戰" : "再戰一局";
 
   return (
-    <main className="min-h-screen bg-[#140c09] bg-[radial-gradient(circle_at_top_left,rgba(127,29,29,0.34),transparent_35%),linear-gradient(135deg,#1b100b_0%,#2a120d_48%,#090605_100%)] px-6 py-12 text-stone-100">
-      <section className="mx-auto flex min-h-[80vh] max-w-3xl flex-col justify-center">
-        <div className="rounded-xl border border-amber-700/40 bg-black/35 p-6 shadow-[0_22px_60px_rgba(0,0,0,0.38)] sm:p-8">
+    <main className="min-h-screen overflow-x-hidden bg-[#140c09] bg-[radial-gradient(circle_at_top_left,rgba(127,29,29,0.34),transparent_35%),linear-gradient(135deg,#1b100b_0%,#2a120d_48%,#090605_100%)] px-4 py-10 text-stone-100 sm:px-6 sm:py-12">
+      <section className="mx-auto flex min-h-[80vh] max-w-[calc(100vw-2rem)] flex-col justify-center sm:max-w-3xl">
+        <div className="rounded-xl border border-amber-700/40 bg-black/35 p-5 shadow-[0_22px_60px_rgba(0,0,0,0.38)] sm:p-8">
           <p className="text-sm font-black uppercase tracking-[0.22em] text-amber-300">
             戰役結果
           </p>
-          <h1 className="mt-4 text-5xl font-black text-amber-50 sm:text-7xl">
+          <h1 className="mt-4 text-4xl font-black text-amber-50 sm:text-7xl">
             {title}
           </h1>
-          <p className="mt-6 text-lg leading-8 text-stone-300">{message}</p>
+          <p className="mt-6 max-w-[300px] break-words text-base leading-8 text-stone-300 [overflow-wrap:anywhere] sm:max-w-none sm:text-lg">
+            {message}
+          </p>
           <div className="mt-10 flex flex-wrap gap-3">
             <Link
               href="/game"

@@ -22,6 +22,24 @@ export type GamePhase = "player" | "defense" | "reward" | "observe" | "event" | 
 
 export type GameStatus = "playing" | "won" | "lost";
 
+export type DialogueSpeakerType = "hero" | "enemy" | "narrator" | "system";
+
+export type DialogueTrigger =
+  | "hero_intro"
+  | "battle_start"
+  | "use_slash"
+  | "use_dodge"
+  | "use_strategy"
+  | "take_damage"
+  | "low_hp"
+  | "victory"
+  | "enemy_intro"
+  | "boss_intro"
+  | "chapter_intro"
+  | "stage_intro"
+  | "game_win"
+  | "game_lose";
+
 export type RewardId =
   | "max-health"
   | "starting-draw"
@@ -147,6 +165,18 @@ export interface StageRoute {
   visualPrompt: string;
 }
 
+export interface DialogueLine {
+  id: string;
+  speakerId: string;
+  speakerName: string;
+  speakerType: DialogueSpeakerType;
+  trigger: DialogueTrigger;
+  text: string;
+  tone: string;
+  audioKey?: string;
+  portrait?: string;
+}
+
 export interface PlayerState {
   heroId: HeroId;
   name: string;
@@ -211,4 +241,7 @@ export interface GameState {
   rewardOptions: Reward[];
   status: GameStatus;
   log: string[];
+  currentDialogue?: DialogueLine;
+  dialogueHistory: DialogueLine[];
+  lowHpDialogueUsed: boolean;
 }

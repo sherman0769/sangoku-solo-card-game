@@ -1,6 +1,6 @@
 import type { GamePhase } from "./types";
 
-export const currentVersionLabel = "v0.10.5 視覺呈現優化版";
+export const currentVersionLabel = "v0.11.0 人物台詞系統版";
 
 export const howToSteps = [
   {
@@ -39,6 +39,7 @@ export const currentFeatureHighlights = [
   "第二批敵人圖像：黃巾兵、山賊頭目、西涼騎兵、呂布",
   "第一批關卡背景：荒村初戰、虎牢關前",
   "視覺呈現優化：首頁、武將、敵人、Boss 與關卡背景手機版顯示",
+  "人物台詞系統：武將台詞、敵人登場、章節旁白與勝敗旁白",
   "視覺資產 placeholder：角色、敵人、關卡、事件、路線與卡牌",
   "Mini-boss 張梁 / 張寶",
   "隨機事件與路線選擇",

@@ -2,6 +2,12 @@ import { describe, expect, it } from "vitest";
 import { getVisualPlaceholderStyle } from "@/components/VisualPlaceholder";
 import { starterDeck } from "@/lib/game/cards";
 import {
+  dialogueLines,
+  getChapterIntroDialogue,
+  getEnemyIntroDialogue,
+  getHeroDialogue,
+} from "@/lib/game/dialogues";
+import {
   createGame,
   endTurn,
   enterEventPhase,
@@ -49,6 +55,11 @@ describe("game engine", () => {
     expect(state.chapter).toEqual(chapterOne);
     expect(state.stageConfig.name).toBe("荒村初戰");
     expect(state.log[0]).toBe("第 1 關｜荒村初戰｜黃巾兵登場：基礎敵人，行動單純，適合熱身。");
+    expect(state.currentDialogue).toMatchObject({
+      speakerId: "guan-yu",
+      trigger: "hero_intro",
+      text: "關某在此，何人敢擋？",
+    });
   });
 
   it("includes three equipment cards and eight tactical cards in the starter deck", () => {
@@ -144,6 +155,19 @@ describe("game engine", () => {
     expect(starterDeck.every((card) => card.visualPrompt && card.illustration)).toBe(true);
   });
 
+  it("includes the first character dialogue set", () => {
+    expect(dialogueLines).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ speakerId: "guan-yu", trigger: "hero_intro" }),
+        expect.objectContaining({ speakerId: "zhao-yun", trigger: "hero_intro" }),
+        expect.objectContaining({ speakerId: "zhuge-liang", trigger: "hero_intro" }),
+      ]),
+    );
+    expect(getEnemyIntroDialogue("lu-bu", true)?.text).toBe("吾乃呂布，誰敢與我一戰？");
+    expect(getChapterIntroDialogue()?.text).toContain("第一章：黃巾亂起");
+    expect(dialogueLines.every((line) => "audioKey" in line)).toBe(true);
+  });
+
   it("provides placeholder styles for visual asset types", () => {
     expect(getVisualPlaceholderStyle("hero").label).toBe("角色立繪");
     expect(getVisualPlaceholderStyle("enemy").label).toBe("敵人圖");
@@ -205,6 +229,7 @@ describe("game engine", () => {
     expect(next.discard).toContainEqual(slash);
     expect(next.log[0]).toBe("你使用了斬，造成 3 點傷害。");
     expect(next.log[1]).toBe("關羽發動武聖，第一次斬傷害 +1。");
+    expect(next.currentDialogue).toMatchObject(getHeroDialogue("guan-yu", "use_slash")!);
   });
 
   it("uses wine, manual, and armor break cards", () => {
@@ -259,6 +284,28 @@ describe("game engine", () => {
     expect(next.player.health).toBe(3);
     expect(next.turn).toBe(2);
     expect(next.log[0]).toBe("你選擇承受攻擊，受到 2 點傷害。");
+  });
+
+  it("triggers low health dialogue at most once per battle", () => {
+    const wounded = {
+      ...createGame(),
+      hand: [],
+      player: { ...createGame().player, health: 4 },
+    };
+    const firstHit = endTurn(wounded);
+    const secondHit = endTurn({
+      ...firstHit,
+      hand: [],
+      player: { ...firstHit.player, health: 4 },
+      enemyActionIndex: 0,
+    });
+
+    expect(firstHit.player.health).toBe(2);
+    expect(firstHit.lowHpDialogueUsed).toBe(true);
+    expect(firstHit.currentDialogue).toMatchObject(getHeroDialogue("guan-yu", "low_hp")!);
+    expect(secondHit.player.health).toBe(2);
+    expect(secondHit.lowHpDialogueUsed).toBe(true);
+    expect(secondHit.currentDialogue).not.toMatchObject(getHeroDialogue("guan-yu", "low_hp")!);
   });
 
   it("runs enemy guard and charge actions", () => {
@@ -509,6 +556,7 @@ describe("game engine", () => {
     expect(next.player.health).toBe(4);
     expect(next.discard.some((card) => card.name === "斬")).toBe(true);
     expect(next.log[0]).toBe("趙雲發動龍膽，將斬當作閃使用，抵消 2 點傷害。");
+    expect(next.currentDialogue).toMatchObject(getHeroDialogue("zhao-yun", "use_dodge")!);
   });
 
   it("equips Green Dragon Crescent Blade", () => {
@@ -844,6 +892,7 @@ describe("game engine", () => {
     expect(next.hand).toHaveLength(3);
     expect(next.deck.slice(-2)).toEqual(unselected);
     expect(next.log[0]).toBe("諸葛亮發動觀星，選擇了一張牌加入手牌。");
+    expect(next.currentDialogue).toMatchObject(getHeroDialogue("zhuge-liang", "use_strategy")!);
   });
 
   it("handles Zhuge Liang observation with fewer than three deck cards", () => {
@@ -978,6 +1027,7 @@ describe("game engine", () => {
     expect(next.phase).toBe("player");
     expect(next.stageConfig.name).toBe("虎牢關前");
     expect(next.enemy.name).toBe("呂布");
+    expect(next.currentDialogue).toMatchObject(getEnemyIntroDialogue("lu-bu", true)!);
   });
 
   it("uses a higher event trigger chance on event-heavy stages", () => {
@@ -1050,6 +1100,7 @@ describe("game engine", () => {
     expect(next.phase).toBe("player");
     expect(next.currentEvent).toBeUndefined();
     expect(next.log[0]).toBe("你突破虎牢關前的考驗，第一章：黃巾亂起 已完成。");
+    expect(next.currentDialogue?.trigger).toBe("game_win");
   });
 
   it("loses when Guan Yu takes lethal enemy damage", () => {
@@ -1062,6 +1113,7 @@ describe("game engine", () => {
 
     expect(next.status).toBe("lost");
     expect(next.log[0]).toBe("關羽體力歸零，戰敗。");
+    expect(next.currentDialogue?.trigger).toBe("game_lose");
   });
 });
 

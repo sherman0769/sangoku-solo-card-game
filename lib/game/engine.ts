@@ -1,4 +1,11 @@
 import { starterDeck } from "./cards";
+import {
+  getChapterIntroDialogue,
+  getEnemyIntroDialogue,
+  getGameResultDialogue,
+  getHeroDialogue,
+  getStageIntroDialogue,
+} from "./dialogues";
 import { cloneEnemy, selectEnemyForStage } from "./enemies";
 import { gameEvents, resolveEvent } from "./events";
 import { resolveHero } from "./heroes";
@@ -12,6 +19,7 @@ import {
 } from "./stages";
 import type {
   Card,
+  DialogueLine,
   Enemy,
   EnemyStage,
   EnemyAction,
@@ -26,6 +34,7 @@ import type {
 } from "./types";
 
 const logLimit = 12;
+const dialogueHistoryLimit = 8;
 const zhugeLiangTurnDraw = 2;
 
 interface EventRollOptions {
@@ -153,6 +162,9 @@ export function createGame(heroId?: string, enemyOptions?: EnemySelectionOptions
     rewardOptions: [],
     status: "playing",
     log: [firstEnemy.intro, firstStage.flavorText],
+    currentDialogue: getHeroDialogue(hero.id, "hero_intro"),
+    dialogueHistory: createOpeningDialogueHistory(hero.id, firstStage.stage, firstEnemy),
+    lowHpDialogueUsed: false,
   };
 
   if (hero.id === "zhuge-liang") {
@@ -233,6 +245,7 @@ export function playCard(
   next.player.morale -= card.cost;
 
   applyCardEffect(next, card);
+  applyCardDialogue(next, card);
 
   if (card.kind !== "equipment") {
     next.discard.push(card);
@@ -363,12 +376,18 @@ export function resolveDefense(state: GameState, useDodge: boolean): GameState {
 
     if (defenseCard.kind === "attack") {
       return startNextTurn(
-        appendLog(next, `趙雲發動龍膽，將斬當作閃使用，抵消 ${damage} 點傷害。`),
+        appendLog(
+          setDialogue(next, getHeroDialogue(next.player.heroId, "use_dodge")),
+          `趙雲發動龍膽，將斬當作閃使用，抵消 ${damage} 點傷害。`,
+        ),
       );
     }
 
     return startNextTurn(
-      appendLog(next, `你使用了閃，抵消 ${damage} 點傷害。`),
+      appendLog(
+        setDialogue(next, getHeroDialogue(next.player.heroId, "use_dodge")),
+        `你使用了閃，抵消 ${damage} 點傷害。`,
+      ),
     );
   }
 
@@ -413,6 +432,7 @@ export function selectObservation(state: GameState, cardId: string): GameState {
     "諸葛亮發動觀星，選擇了一張牌加入手牌。",
     ...next.log,
   ].slice(0, logLimit);
+  setDialogue(next, getHeroDialogue(next.player.heroId, "use_strategy"));
 
   return drawCards(next, drawCount);
 }
@@ -528,7 +548,7 @@ export function resolveEventOption(state: GameState, optionId: string): GameStat
 
     if (next.player.health <= 0) {
       return {
-        ...next,
+        ...setDialogue(next, getGameResultDialogue("lost")),
         status: "lost",
         phase: "player",
         currentEvent: undefined,
@@ -685,7 +705,13 @@ function advanceEnemy(state: GameState, eventOptions?: EventRollOptions): GameSt
 
   if (nextEnemyIndex >= totalStages) {
     return appendLog(
-      { ...state, status: "won", enemyHealth: 0, phase: "player", availableRoutes: [] },
+      {
+        ...setDialogue(state, getGameResultDialogue("won")),
+        status: "won",
+        enemyHealth: 0,
+        phase: "player",
+        availableRoutes: [],
+      },
       "你突破虎牢關前的考驗，第一章：黃巾亂起 已完成。",
     );
   }
@@ -699,7 +725,7 @@ function advanceEnemy(state: GameState, eventOptions?: EventRollOptions): GameSt
       : gameEvents[Math.floor(Math.random() * gameEvents.length)];
 
     return enterEventPhase(
-      {
+      setDialogue({
         ...state,
         enemyActionIndex: 0,
         enemyGuarding: false,
@@ -715,13 +741,13 @@ function advanceEnemy(state: GameState, eventOptions?: EventRollOptions): GameSt
           wineBonus: 0,
           equipmentUsageThisTurn: createTurnEquipmentUsage(),
         },
-      },
+      }, getHeroDialogue(state.player.heroId, "victory")),
       event.id,
     );
   }
 
   return {
-    ...state,
+    ...setDialogue(state, getHeroDialogue(state.player.heroId, "victory")),
     enemyActionIndex: 0,
     enemyGuarding: false,
     enemyCharged: false,
@@ -777,7 +803,19 @@ function finishEnemyDamage(
   ].slice(0, logLimit);
 
   if (next.player.health <= 0) {
-    return appendLog({ ...next, status: "lost" }, `${next.player.name}體力歸零，戰敗。`);
+    return appendLog(
+      { ...setDialogue(next, getGameResultDialogue("lost")), status: "lost" },
+      `${next.player.name}體力歸零，戰敗。`,
+    );
+  }
+
+  if (finalDamage > 0) {
+    if (next.player.health <= 2 && !next.lowHpDialogueUsed) {
+      next.lowHpDialogueUsed = true;
+      setDialogue(next, getHeroDialogue(next.player.heroId, "low_hp"));
+    } else {
+      setDialogue(next, getHeroDialogue(next.player.heroId, "take_damage"));
+    }
   }
 
   return startNextTurn(next);
@@ -836,6 +874,7 @@ function startNextStage(
   next.player.wineBonus = 0;
   next.player.equipmentUsageThisTurn = createTurnEquipmentUsage();
   next.player.equipmentUsageThisBattle = createBattleEquipmentUsage();
+  next.lowHpDialogueUsed = false;
 
   const stagedState = {
     ...next,
@@ -846,6 +885,7 @@ function startNextStage(
       ...next.log,
     ].slice(0, logLimit),
   };
+  setStageStartDialogue(stagedState);
 
   if (next.player.heroId === "zhuge-liang") {
     return startObservation(
@@ -855,6 +895,23 @@ function startNextStage(
   }
 
   return drawCards(stagedState, 5 + next.playerUpgrades.startingDrawBonus);
+}
+
+function applyCardDialogue(state: GameState, card: Card) {
+  if (
+    card.kind === "attack" ||
+    (card.kind === "dodge" && state.player.heroId === "zhao-yun")
+  ) {
+    setDialogue(state, getHeroDialogue(state.player.heroId, "use_slash"));
+    return;
+  }
+
+  if (
+    state.player.heroId === "zhuge-liang" &&
+    ["draw", "pierce", "rally", "fire"].includes(card.kind)
+  ) {
+    setDialogue(state, getHeroDialogue(state.player.heroId, "use_strategy"));
+  }
 }
 
 function applyReward(state: GameState, reward: Reward): GameState {
@@ -1043,6 +1100,9 @@ function cloneState(state: GameState): GameState {
     rewardOptionBonus: state.rewardOptionBonus ?? 0,
     rewardOptions: state.rewardOptions.map((reward) => ({ ...reward })),
     log: [...state.log],
+    currentDialogue: state.currentDialogue ? cloneDialogue(state.currentDialogue) : undefined,
+    dialogueHistory: (state.dialogueHistory ?? []).map((line) => cloneDialogue(line)),
+    lowHpDialogueUsed: state.lowHpDialogueUsed ?? false,
   };
 }
 
@@ -1091,4 +1151,52 @@ function getRouteLogMessage(route: StageRoute) {
   }
 
   return "你選擇險道，下一關敵人體力 +2，但戰後獎勵多 1 個選項。";
+}
+
+function createOpeningDialogueHistory(heroId: string, stage: EnemyStage, enemy: Enemy) {
+  return [
+    getHeroDialogue(heroId, "hero_intro"),
+    getHeroDialogue(heroId, "battle_start"),
+    getEnemyIntroDialogue(enemy.id, enemy.type === "boss"),
+    getStageIntroDialogue(stage),
+    getChapterIntroDialogue(),
+  ].filter((line): line is DialogueLine => Boolean(line));
+}
+
+function setStageStartDialogue(state: GameState) {
+  const lines = [
+    getStageIntroDialogue(state.stageConfig.stage),
+    getHeroDialogue(state.player.heroId, "battle_start"),
+    getEnemyIntroDialogue(state.enemy.id, state.enemy.type === "boss"),
+  ].filter((line): line is DialogueLine => Boolean(line));
+
+  if (lines.length === 0) {
+    return state;
+  }
+
+  state.dialogueHistory = [
+    ...lines.map((line) => cloneDialogue(line)).reverse(),
+    ...state.dialogueHistory,
+  ].slice(0, dialogueHistoryLimit);
+  state.currentDialogue = cloneDialogue(lines.at(-1)!);
+
+  return state;
+}
+
+function setDialogue(state: GameState, dialogue?: DialogueLine) {
+  if (!dialogue) {
+    return state;
+  }
+
+  state.currentDialogue = cloneDialogue(dialogue);
+  state.dialogueHistory = [
+    cloneDialogue(dialogue),
+    ...(state.dialogueHistory ?? []),
+  ].slice(0, dialogueHistoryLimit);
+
+  return state;
+}
+
+function cloneDialogue(dialogue: DialogueLine): DialogueLine {
+  return { ...dialogue };
 }
