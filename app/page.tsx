@@ -237,7 +237,7 @@ export default function Home() {
           <summary className="cursor-pointer text-2xl font-black text-amber-50">
             {homeCollapsibleSections[1].title}
           </summary>
-          <h2 className="sr-only">v0.15.2 目前特色</h2>
+          <h2 className="sr-only">v0.16.0 目前特色</h2>
           <ul className="mt-5 grid gap-3 text-sm leading-6 text-stone-300 md:grid-cols-2">
             {currentFeatureHighlights.map((feature) => (
               <li
@@ -275,6 +275,7 @@ export default function Home() {
             ["戰鬥平衡分析", "使用模擬工具分析武將勝率、死亡關卡、敵人遭遇與路線選擇。"],
             ["第一輪平衡微調", "諸葛亮 HP 提升至 4、呂布 HP 提升至 14，且未提高第 2～3 關敵人壓力。"],
             ["後期難度微調", "張梁、張寶與呂布猛攻比例小幅提高，第一章後段更有挑戰。"],
+            ["路線劇情事件", "山道、官道、險道擁有不同遭遇與風險報酬，選路不再只是固定數值。"],
             ["Hydration 修正", "/game 隨機敵人與初始手牌改為 client mounted 後生成，避免初始畫面不一致。"],
           ].map(([title, text]) => (
             <section

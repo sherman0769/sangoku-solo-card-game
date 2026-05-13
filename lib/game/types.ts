@@ -18,7 +18,14 @@ export type EnemyType = "soldier" | "elite" | "boss";
 
 export type ChapterStageType = "normal" | "event-heavy" | "elite" | "mini-boss" | "boss";
 
-export type GamePhase = "player" | "defense" | "reward" | "observe" | "event" | "route";
+export type GamePhase =
+  | "player"
+  | "defense"
+  | "reward"
+  | "observe"
+  | "event"
+  | "route"
+  | "routeEvent";
 
 export type GameStatus = "playing" | "won" | "lost";
 
@@ -58,6 +65,26 @@ export type EventEffectType = "heal" | "draw" | "ambush-upgrade";
 export type StageRouteId = "mountain-path" | "official-road" | "dangerous-pass";
 
 export type RouteRiskLevel = "低" | "中" | "高";
+
+export type RouteEventType =
+  | "supply"
+  | "strategy"
+  | "risk"
+  | "intel"
+  | "support"
+  | "danger"
+  | "rare"
+  | "gamble";
+
+export type RouteEventEffectType =
+  | "heal"
+  | "next-draw-bonus"
+  | "mist-path"
+  | "draw-heal"
+  | "slash-upgrade"
+  | "reward-bonus-damage"
+  | "equipment-or-draw"
+  | "night-raid";
 
 export interface Hero {
   id: HeroId;
@@ -165,6 +192,25 @@ export interface StageRoute {
   visualPrompt: string;
 }
 
+export interface RouteEventOption {
+  id: string;
+  label: string;
+  description: string;
+  effectType: RouteEventEffectType;
+  riskLevel?: RouteRiskLevel;
+}
+
+export interface RouteEvent {
+  id: string;
+  routeId: StageRouteId;
+  name: string;
+  description: string;
+  type: RouteEventType;
+  options: RouteEventOption[];
+  flavorText: string;
+  weight?: number;
+}
+
 export interface DialogueLine {
   id: string;
   speakerId: string;
@@ -235,10 +281,16 @@ export interface GameState {
   pendingDefense?: PendingDefense;
   pendingObservation?: PendingObservation;
   currentEvent?: GameEvent;
+  currentRouteEvent?: RouteEvent;
   availableRoutes: StageRoute[];
   selectedRoute?: StageRoute;
+  pendingNextBattleModifiers: {
+    enemyHpModifier: number;
+    drawModifier: number;
+  };
   rewardOptionBonus: number;
   rewardOptions: Reward[];
+  routeEventHistory: string[];
   status: GameStatus;
   log: string[];
   currentDialogue?: DialogueLine;

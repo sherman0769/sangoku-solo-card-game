@@ -24,6 +24,7 @@ describe("battle balance simulator", () => {
     expect(result.finalStage).toBeGreaterThanOrEqual(1);
     expect(result.turnsTaken).toBeGreaterThan(0);
     expect(result.enemiesEncountered.length).toBeGreaterThan(0);
+    expect(Array.isArray(result.routeEventsEncountered)).toBe(true);
   });
 
   it("summarizes multiple runs for all heroes", () => {
@@ -43,6 +44,7 @@ describe("battle balance simulator", () => {
     ]);
     expect(summary.overallWinRate).toBeGreaterThanOrEqual(0);
     expect(summary.averageTurns).toBeGreaterThan(0);
+    expect(summary.routeEventStats).toBeDefined();
   });
 
   it("generates a Traditional Chinese Markdown report", () => {
@@ -60,24 +62,25 @@ describe("battle balance simulator", () => {
     expect(report).toContain("建議調整方向");
   });
 
-  it("generates the v0.15.2 tuning report sections", () => {
+  it("generates the v0.16.0 route event report sections", () => {
     const summary = simulateManyRuns({
       heroIds: ["guan-yu", "zhao-yun", "zhuge-liang"],
       runsPerHero: 2,
-      seed: "report-v0152-test",
+      seed: "report-v0160-test",
       maxTurns: 180,
       strategy: "basic-safe-strategy",
     });
     const report = generateBalanceReport(summary, {
-      title: "# v0.15.2 後期難度微調報告",
-      preAdjustmentSummary: ["v0.15.1 整體勝率 98%。"],
-      adjustments: ["張梁最大體力 9 → 10。", "張寶最大體力 8 → 9。"],
-      goalAssessment: ["本輪提高後期壓力。"],
+      title: "# v0.16.0 路線劇情事件平衡報告",
+      preAdjustmentSummary: ["v0.15.2 整體勝率 99.3%。"],
+      adjustments: ["新增 9 個路線事件。"],
+      goalAssessment: ["本輪觀察路線事件分佈。"],
     });
 
-    expect(report).toContain("# v0.15.2 後期難度微調報告");
+    expect(report).toContain("# v0.16.0 路線劇情事件平衡報告");
     expect(report).toContain("調整前摘要");
     expect(report).toContain("調整內容");
+    expect(report).toContain("路線事件分佈");
     expect(report).toContain("是否達到平衡目標");
   });
 

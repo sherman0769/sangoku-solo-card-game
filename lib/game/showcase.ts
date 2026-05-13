@@ -1,6 +1,6 @@
 import type { GamePhase } from "./types";
 
-export const currentVersionLabel = "v0.15.2 後期難度微調版";
+export const currentVersionLabel = "v0.16.0 路線劇情事件版";
 
 export const gameLoadingCopy = {
   title: "戰局準備中……",
@@ -79,6 +79,7 @@ export const currentFeatureHighlights = [
   "戰鬥平衡分析：使用模擬工具分析武將勝率與關卡難度",
   "第一輪平衡微調：諸葛亮 HP 提升至 4、呂布 HP 提升至 14，並保留第 2～3 關敵人數值",
   "後期難度微調：張梁、張寶與呂布猛攻比例小幅提高，未調整第 1～6 關敵人",
+  "路線劇情事件：山道、官道、險道擁有不同遭遇與風險報酬",
   "Hydration 修正：/game 隨機戰局初始化改為 client mounted 後執行",
   "視覺資產 placeholder：角色、敵人、關卡、事件、路線與卡牌",
   "Mini-boss 張梁 / 張寶",
@@ -144,6 +145,10 @@ export function getPhaseHint(phase: GamePhase) {
 
   if (phase === "route") {
     return "選擇下一條路線。風險越高，下一戰越難，但可能獲得更好報酬。";
+  }
+
+  if (phase === "routeEvent") {
+    return "處理路線事件。不同路線會帶來補給、情報、支援或高風險報酬。";
   }
 
   if (phase === "observe") {

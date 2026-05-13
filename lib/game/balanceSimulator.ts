@@ -5,6 +5,7 @@ import {
   playCard,
   resolveDefense,
   resolveEventOption,
+  resolveRouteEventOption,
   selectObservation,
   selectReward,
   selectRoute,
@@ -43,6 +44,7 @@ export interface RunSimulationResult {
   rewardsChosen: string[];
   routesChosen: string[];
   eventsEncountered: string[];
+  routeEventsEncountered: string[];
   damageTaken: number;
   cardsPlayed: Record<string, number>;
   defeatReason?: string;
@@ -66,6 +68,8 @@ export interface BalanceSimulationSummary {
   stageDeathDistribution: Record<string, number>;
   enemyEncounterStats: Record<string, number>;
   routeChoiceStats: Record<string, number>;
+  routeEventStats: Record<string, number>;
+  routeEventDeathStats: Record<string, number>;
   results: RunSimulationResult[];
 }
 
@@ -87,6 +91,7 @@ export function simulateRun(options: RunSimulationOptions): RunSimulationResult 
     const rewardsChosen: string[] = [];
     const routesChosen: string[] = [];
     const eventsEncountered: string[] = [];
+    const routeEventsEncountered: string[] = [];
     const cardsPlayed: Record<string, number> = {};
     let damageTaken = 0;
     let steps = 0;
@@ -104,6 +109,18 @@ export function simulateRun(options: RunSimulationOptions): RunSimulationResult 
           eventsEncountered.push(state.currentEvent.name);
           state = resolveEventOption(state, state.currentEvent.options[0]?.id ?? "");
         }
+      } else if (state.phase === "routeEvent") {
+        if (state.currentRouteEvent) {
+          routeEventsEncountered.push(state.currentRouteEvent.name);
+          state = resolveRouteEventOption(
+            state,
+            state.currentRouteEvent.options[0]?.id ?? "",
+            {
+              enemyRandom: random,
+              equipmentRandom: random,
+            },
+          );
+        }
       } else if (state.phase === "reward") {
         const reward = chooseReward(state.rewardOptions);
         if (reward) {
@@ -114,7 +131,7 @@ export function simulateRun(options: RunSimulationOptions): RunSimulationResult 
         const route = chooseRoute(state.availableRoutes, state);
         if (route) {
           routesChosen.push(route.name);
-          state = selectRoute(state, route.id, { enemyRandom: random });
+          state = selectRoute(state, route.id, { routeEventRandom: random });
         }
       } else if (state.phase === "defense") {
         state = resolveDefense(state, shouldUseDefense(state));
@@ -122,10 +139,7 @@ export function simulateRun(options: RunSimulationOptions): RunSimulationResult 
         const card = chooseCardToPlay(state);
 
         if (card) {
-          state = playCard(state, card.id, {
-            eventRoll: random,
-            eventId: chooseEventId(random),
-          });
+          state = playCard(state, card.id);
           cardsPlayed[card.name] = (cardsPlayed[card.name] ?? 0) + 1;
         } else {
           state = endTurn(state);
@@ -150,6 +164,7 @@ export function simulateRun(options: RunSimulationOptions): RunSimulationResult 
       rewardsChosen,
       routesChosen,
       eventsEncountered,
+      routeEventsEncountered,
       damageTaken,
       cardsPlayed,
       defeatReason: timedOut ? `超過 ${maxTurns} 步仍未結束` : getDefeatReason(state),
@@ -182,6 +197,8 @@ export function summarizeResults(results: RunSimulationResult[]): BalanceSimulat
   const stageDeathDistribution: Record<string, number> = {};
   const enemyEncounterStats: Record<string, number> = {};
   const routeChoiceStats: Record<string, number> = {};
+  const routeEventStats: Record<string, number> = {};
+  const routeEventDeathStats: Record<string, number> = {};
 
   results.forEach((result) => {
     if (!result.won) {
@@ -196,6 +213,18 @@ export function summarizeResults(results: RunSimulationResult[]): BalanceSimulat
     result.routesChosen.forEach((routeName) => {
       routeChoiceStats[routeName] = (routeChoiceStats[routeName] ?? 0) + 1;
     });
+
+    result.routeEventsEncountered.forEach((eventName) => {
+      routeEventStats[eventName] = (routeEventStats[eventName] ?? 0) + 1;
+    });
+
+    if (!result.won) {
+      const lastRouteEvent = result.routeEventsEncountered.at(-1);
+
+      if (lastRouteEvent) {
+        routeEventDeathStats[lastRouteEvent] = (routeEventDeathStats[lastRouteEvent] ?? 0) + 1;
+      }
+    }
   });
 
   const heroIds = [...new Set(results.map((result) => result.heroId))] as HeroId[];
@@ -224,6 +253,8 @@ export function summarizeResults(results: RunSimulationResult[]): BalanceSimulat
     stageDeathDistribution,
     enemyEncounterStats,
     routeChoiceStats,
+    routeEventStats,
+    routeEventDeathStats,
     results,
   };
 }
@@ -299,11 +330,6 @@ function canPlayCard(state: GameState, card: Card) {
 
 function hasEquipment(state: GameState, equipmentName: string) {
   return state.player.equippedItems.some((item) => item.name === equipmentName);
-}
-
-function chooseEventId(random: () => number) {
-  const eventIds = ["village-supply", "strategist-advice", "ambush"] as const;
-  return eventIds[Math.floor(random() * eventIds.length)];
 }
 
 function getDefeatReason(state: GameState) {

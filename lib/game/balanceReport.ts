@@ -52,6 +52,14 @@ export function generateBalanceReport(
     "",
     formatDistribution(summary.routeChoiceStats, "目前沒有路線選擇紀錄。"),
     "",
+    "## 路線事件分佈",
+    "",
+    formatDistribution(summary.routeEventStats, "目前沒有路線事件紀錄。"),
+    "",
+    "## 路線事件死亡關聯",
+    "",
+    formatDistribution(summary.routeEventDeathStats, "目前沒有路線事件後死亡紀錄。"),
+    "",
     "## 初步觀察",
     "",
     ...createObservations(summary),
@@ -102,6 +110,8 @@ function createObservations(summary: BalanceSimulationSummary) {
     .sort((a, b) => b[1] - a[1])[0];
   const mostCommonRoute = Object.entries(summary.routeChoiceStats)
     .sort((a, b) => b[1] - a[1])[0];
+  const mostCommonRouteEvent = Object.entries(summary.routeEventStats)
+    .sort((a, b) => b[1] - a[1])[0];
 
   return [
     `- 目前整體勝率為 ${formatPercent(summary.overallWinRate)}，可作為後續數值調整基準。`,
@@ -114,6 +124,9 @@ function createObservations(summary: BalanceSimulationSummary) {
     mostCommonRoute
       ? `- basic-safe-strategy 最常選擇 ${mostCommonRoute[0]}（${mostCommonRoute[1]} 次）。`
       : "- 本次模擬沒有路線選擇資料。",
+    mostCommonRouteEvent
+      ? `- 最常遭遇的路線事件為 ${mostCommonRouteEvent[0]}（${mostCommonRouteEvent[1]} 次）。`
+      : "- 本次模擬沒有路線事件資料。",
   ];
 }
 

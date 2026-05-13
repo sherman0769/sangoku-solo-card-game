@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "三國單騎傳",
-  description: "v0.15.2 後期難度微調版：小幅提高第 7～8 關壓力，張梁、張寶體力提升，呂布猛攻比例提高，並保留第 1～6 關數值。",
+  description: "v0.16.0 路線劇情事件版：山道、官道、險道新增專屬劇情事件池，路線從固定數值修正升級為劇情分支與風險報酬。",
 };
 
 export default function RootLayout({

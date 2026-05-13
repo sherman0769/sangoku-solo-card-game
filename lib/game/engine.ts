@@ -7,12 +7,12 @@ import {
   getStageIntroDialogue,
 } from "./dialogues";
 import { cloneEnemy, selectEnemyForStage } from "./enemies";
-import { gameEvents, resolveEvent } from "./events";
+import { resolveEvent } from "./events";
 import { resolveHero } from "./heroes";
+import { selectRouteEventForRoute } from "./routeEvents";
 import { resolveStageRoute, stageRoutes } from "./routes";
 import {
   chapterOne,
-  getEventChanceForStage,
   getStageConfig,
   getStageConfigByIndex,
   totalStages,
@@ -29,6 +29,7 @@ import type {
   PlayerUpgrades,
   Reward,
   RewardId,
+  RouteEvent,
   StageRoute,
   StageRouteId,
 } from "./types";
@@ -45,7 +46,18 @@ interface EventRollOptions {
 interface EnemySelectionOptions {
   enemyIds?: Partial<Record<EnemyStage, string>>;
   enemyRandom?: () => number;
+  equipmentRandom?: () => number;
 }
+
+interface RouteEventSelectionOptions {
+  routeEventId?: string;
+  routeEventRandom?: () => number;
+}
+
+const emptyNextBattleModifiers = {
+  enemyHpModifier: 0,
+  drawModifier: 0,
+};
 
 function createStartingPlayer(hero: Hero) {
   return {
@@ -158,8 +170,10 @@ export function createGame(heroId?: string, enemyOptions?: EnemySelectionOptions
     turn: 1,
     phase: "player",
     availableRoutes: [],
+    pendingNextBattleModifiers: { ...emptyNextBattleModifiers },
     rewardOptionBonus: 0,
     rewardOptions: [],
+    routeEventHistory: [],
     status: "playing",
     log: [firstEnemy.intro, firstStage.flavorText],
     currentDialogue: getHeroDialogue(hero.id, "hero_intro"),
@@ -196,8 +210,10 @@ export function drawCards(state: GameState, count: number): GameState {
 export function playCard(
   state: GameState,
   cardId: string,
-  eventOptions?: EventRollOptions,
+  _eventOptions?: EventRollOptions,
 ): GameState {
+  void _eventOptions;
+
   if (state.status !== "playing") {
     return state;
   }
@@ -220,6 +236,10 @@ export function playCard(
 
   if (state.phase === "route") {
     return appendLog(state, "請先選擇下一關路線。");
+  }
+
+  if (state.phase === "routeEvent") {
+    return appendLog(state, "請先處理路線事件，再進入下一關。");
   }
 
   const next = cloneState(state);
@@ -252,7 +272,7 @@ export function playCard(
   }
 
   if (next.enemyHealth <= 0) {
-    return advanceEnemy(next, eventOptions);
+    return advanceEnemy(next);
   }
 
   return next;
@@ -281,6 +301,10 @@ export function endTurn(state: GameState): GameState {
 
   if (state.phase === "route") {
     return appendLog(state, "請先選擇下一關路線。");
+  }
+
+  if (state.phase === "routeEvent") {
+    return appendLog(state, "請先處理路線事件，再進入下一關。");
   }
 
   const next = cloneState(state);
@@ -454,6 +478,7 @@ export function selectReward(state: GameState, rewardId: RewardId): GameState {
     phase: "route",
     pendingDefense: undefined,
     currentEvent: undefined,
+    currentRouteEvent: undefined,
     rewardOptions: [],
     availableRoutes: stageRoutes.map((route) => ({ ...route })),
     log: [
@@ -467,7 +492,7 @@ export function selectReward(state: GameState, rewardId: RewardId): GameState {
 export function selectRoute(
   state: GameState,
   routeId: StageRouteId,
-  enemyOptions?: EnemySelectionOptions,
+  routeEventOptions?: RouteEventSelectionOptions,
 ): GameState {
   if (state.status !== "playing" || state.phase !== "route") {
     return state;
@@ -480,18 +505,86 @@ export function selectRoute(
     return appendLog(state, "已無下一關可選擇路線。");
   }
 
-  return startNextStage(
+  const routeEvent = selectRouteEventForRoute(
+    route.id,
+    routeEventOptions?.routeEventId,
+    routeEventOptions?.routeEventRandom,
+  );
+
+  return setDialogue(
     {
       ...cloneState(state),
-      enemyIndex: nextEnemyIndex,
+      discard: [...state.discard, ...state.hand],
+      hand: [],
       availableRoutes: [],
       selectedRoute: route,
-      rewardOptionBonus: route.rewardOptionBonus,
-      phase: "player",
+      phase: "routeEvent",
       pendingDefense: undefined,
       currentEvent: undefined,
+      currentRouteEvent: routeEvent,
+      log: [
+        `遭遇路線事件：${routeEvent.name}。`,
+        `你選擇了${route.name}。`,
+        ...state.log,
+      ].slice(0, logLimit),
     },
-    route,
+    createRouteNarratorDialogue(routeEvent),
+  );
+}
+
+export function resolveRouteEventOption(
+  state: GameState,
+  optionId: string,
+  enemyOptions?: EnemySelectionOptions,
+): GameState {
+  if (
+    state.status !== "playing" ||
+    state.phase !== "routeEvent" ||
+    !state.currentRouteEvent ||
+    !state.selectedRoute
+  ) {
+    return state;
+  }
+
+  const event = state.currentRouteEvent;
+  const option = event.options.find((item) => item.id === optionId);
+
+  if (!option) {
+    return appendLog(state, "這個路線事件選項目前不能選擇。");
+  }
+
+  const next = cloneState(state);
+  const effectMessages = applyRouteEventEffect(next, event, enemyOptions?.equipmentRandom);
+
+  if (next.player.health <= 0) {
+    return {
+      ...setDialogue(next, getGameResultDialogue("lost")),
+      status: "lost",
+      phase: "player",
+      currentRouteEvent: undefined,
+      routeEventHistory: [...next.routeEventHistory, event.id],
+      log: [
+        `${next.player.name}體力歸零，戰敗。`,
+        ...effectMessages,
+        `你選擇了「${option.label}」。`,
+        ...next.log,
+      ].slice(0, logLimit),
+    };
+  }
+
+  return startNextStage(
+    {
+      ...next,
+      enemyIndex: next.enemyIndex + 1,
+      currentRouteEvent: undefined,
+      routeEventHistory: [...next.routeEventHistory, event.id],
+      log: [
+        ...effectMessages,
+        `你選擇了「${option.label}」。`,
+        `路線事件：${event.name}。${event.flavorText}`,
+        ...next.log,
+      ].slice(0, logLimit),
+    },
     enemyOptions,
   );
 }
@@ -509,6 +602,7 @@ export function enterEventPhase(
       pendingDefense: undefined,
       pendingObservation: undefined,
       currentEvent: event,
+      currentRouteEvent: undefined,
       rewardOptions: [],
     },
     `事件出現：${event.name}。`,
@@ -568,6 +662,7 @@ export function resolveEventOption(state: GameState, optionId: string): GameStat
   return {
     ...next,
     currentEvent: undefined,
+    currentRouteEvent: undefined,
     ...createRewardPhaseFields(next.rewardOptionBonus),
     log: createRewardLog(next.rewardOptionBonus, [
       "事件結束，進入戰後獎勵。",
@@ -700,7 +795,7 @@ function applyCardEffect(state: GameState, card: Card) {
   }
 }
 
-function advanceEnemy(state: GameState, eventOptions?: EventRollOptions): GameState {
+function advanceEnemy(state: GameState): GameState {
   const nextEnemyIndex = state.enemyIndex + 1;
 
   if (nextEnemyIndex >= totalStages) {
@@ -716,36 +811,6 @@ function advanceEnemy(state: GameState, eventOptions?: EventRollOptions): GameSt
     );
   }
 
-  const shouldEnterEvent =
-    (eventOptions?.eventRoll ?? Math.random)() < getEventChanceForStage(state.stageConfig);
-
-  if (shouldEnterEvent) {
-    const event = eventOptions?.eventId
-      ? resolveEvent(eventOptions.eventId)
-      : gameEvents[Math.floor(Math.random() * gameEvents.length)];
-
-    return enterEventPhase(
-      setDialogue({
-        ...state,
-        enemyActionIndex: 0,
-        enemyGuarding: false,
-        enemyCharged: false,
-        enemyArmorBroken: false,
-        pendingDefense: undefined,
-        availableRoutes: [],
-        player: {
-          ...state.player,
-          morale: state.player.maxMorale,
-          guardActive: false,
-          slashUsedThisTurn: false,
-          wineBonus: 0,
-          equipmentUsageThisTurn: createTurnEquipmentUsage(),
-        },
-      }, getHeroDialogue(state.player.heroId, "victory")),
-      event.id,
-    );
-  }
-
   return {
     ...setDialogue(state, getHeroDialogue(state.player.heroId, "victory")),
     enemyActionIndex: 0,
@@ -754,6 +819,7 @@ function advanceEnemy(state: GameState, eventOptions?: EventRollOptions): GameSt
     enemyArmorBroken: false,
     pendingDefense: undefined,
     currentEvent: undefined,
+    currentRouteEvent: undefined,
     availableRoutes: [],
     ...createRewardPhaseFields(state.rewardOptionBonus),
     player: {
@@ -844,7 +910,6 @@ function startNextTurn(state: GameState): GameState {
 
 function startNextStage(
   state: GameState,
-  route: StageRoute,
   enemyOptions?: EnemySelectionOptions,
 ): GameState {
   const next = cloneState(state);
@@ -855,7 +920,11 @@ function startNextStage(
     enemyOptions?.enemyIds?.[stage],
     enemyOptions?.enemyRandom,
   );
-  const nextEnemy = applyRouteToEnemy(baseEnemy, route);
+  const nextEnemy = applyNextBattleModifiersToEnemy(
+    baseEnemy,
+    next.pendingNextBattleModifiers.enemyHpModifier,
+  );
+  const drawModifier = next.pendingNextBattleModifiers.drawModifier;
   next.enemyActionIndex = 0;
   next.enemyGuarding = false;
   next.enemyCharged = false;
@@ -864,8 +933,6 @@ function startNextStage(
   next.stageConfig = stageConfig;
   next.enemyHealth = nextEnemy.maxHealth;
   next.encounteredEnemyIds = [...next.encounteredEnemyIds, nextEnemy.id];
-  next.discard.push(...next.hand);
-  next.hand = [];
   next.turn += 1;
   next.phase = "player";
   next.player.morale = next.player.maxMorale;
@@ -875,13 +942,14 @@ function startNextStage(
   next.player.equipmentUsageThisTurn = createTurnEquipmentUsage();
   next.player.equipmentUsageThisBattle = createBattleEquipmentUsage();
   next.lowHpDialogueUsed = false;
+  next.pendingNextBattleModifiers = { ...emptyNextBattleModifiers };
 
   const stagedState = {
     ...next,
     log: [
       next.enemy.intro,
       `下一關開始：${stageConfig.name}。${stageConfig.flavorText}`,
-      getRouteLogMessage(route),
+      getRouteLogMessage(next.selectedRoute, drawModifier, baseEnemy.maxHealth, nextEnemy.maxHealth),
       ...next.log,
     ].slice(0, logLimit),
   };
@@ -890,11 +958,11 @@ function startNextStage(
   if (next.player.heroId === "zhuge-liang") {
     return startObservation(
       stagedState,
-      zhugeLiangTurnDraw + next.playerUpgrades.startingDrawBonus,
+      Math.max(0, zhugeLiangTurnDraw + next.playerUpgrades.startingDrawBonus + drawModifier),
     );
   }
 
-  return drawCards(stagedState, 5 + next.playerUpgrades.startingDrawBonus);
+  return drawCards(stagedState, Math.max(0, 5 + next.playerUpgrades.startingDrawBonus + drawModifier));
 }
 
 function applyCardDialogue(state: GameState, card: Card) {
@@ -939,6 +1007,92 @@ function applyReward(state: GameState, reward: Reward): GameState {
 
   state.playerUpgrades.armorBreakDamageBonus += 1;
   return state;
+}
+
+function applyRouteEventEffect(
+  state: GameState,
+  event: RouteEvent,
+  random: () => number = Math.random,
+) {
+  if (event.id === "mountain-spring") {
+    state.player.health = Math.min(state.player.maxHealth, state.player.health + 2);
+    return ["事件效果：回復 2 點體力。"];
+  }
+
+  if (event.id === "hermit-guidance" || event.id === "urgent-orders") {
+    state.pendingNextBattleModifiers.drawModifier += 1;
+    return ["下一關效果：額外抽 1 張牌。"];
+  }
+
+  if (event.id === "foggy-trail") {
+    state.pendingNextBattleModifiers.enemyHpModifier -= 1;
+    state.pendingNextBattleModifiers.drawModifier -= 1;
+    return ["下一關效果：敵人 HP -1，玩家少抽 1 張牌。"];
+  }
+
+  if (event.id === "relay-station") {
+    const drawn = drawCards(state, 1);
+    state.deck = drawn.deck;
+    state.hand = drawn.hand;
+    state.discard = drawn.discard;
+    state.player.health = Math.min(state.player.maxHealth, state.player.health + 1);
+    return ["事件效果：抽 1 張牌並回復 1 點體力。"];
+  }
+
+  if (event.id === "remnant-troops") {
+    state.playerUpgrades.slashDamageBonus += 1;
+    return ["事件效果：收編官軍殘部，斬傷害 +1。"];
+  }
+
+  if (event.id === "cliff-ambush") {
+    state.player.health = Math.max(0, state.player.health - 1);
+    state.rewardOptionBonus += 1;
+    return ["事件效果：失去 1 點體力。", "下一次戰後獎勵 +1 個選項。"];
+  }
+
+  if (event.id === "battlefield-relic") {
+    const equipment = pickUnequippedEquipment(state, random);
+
+    if (equipment) {
+      state.player.equippedItems.push(equipment);
+      return [`事件效果：獲得裝備「${equipment.name}」。`];
+    }
+
+    const drawn = drawCards(state, 2);
+    state.deck = drawn.deck;
+    state.hand = drawn.hand;
+    state.discard = drawn.discard;
+    return ["事件效果：裝備已齊，改為抽 2 張牌。"];
+  }
+
+  if (event.id === "night-raid") {
+    if (state.player.health >= 4) {
+      state.playerUpgrades.slashDamageBonus += 1;
+      return ["事件效果：夜襲成功，斬傷害 +1。"];
+    }
+
+    state.player.health = Math.max(0, state.player.health - 1);
+    const drawn = drawCards(state, 1);
+    state.deck = drawn.deck;
+    state.hand = drawn.hand;
+    state.discard = drawn.discard;
+    return ["事件效果：夜襲失利，失去 1 點體力並抽 1 張牌。"];
+  }
+
+  return ["事件效果：穩定前進，無額外修正。"];
+}
+
+function pickUnequippedEquipment(state: GameState, random: () => number) {
+  const equippedNames = new Set(state.player.equippedItems.map((item) => item.name));
+  const candidates = starterDeck.filter(
+    (card) => card.kind === "equipment" && !equippedNames.has(card.name),
+  );
+
+  if (candidates.length === 0) {
+    return undefined;
+  }
+
+  return { ...candidates[Math.floor(random() * candidates.length)] };
 }
 
 function pickRewardOptions(count = 3): Reward[] {
@@ -1095,10 +1249,21 @@ function cloneState(state: GameState): GameState {
           options: state.currentEvent.options.map((option) => ({ ...option })),
         }
       : undefined,
+    currentRouteEvent: state.currentRouteEvent
+      ? {
+          ...state.currentRouteEvent,
+          options: state.currentRouteEvent.options.map((option) => ({ ...option })),
+        }
+      : undefined,
     availableRoutes: state.availableRoutes.map((route) => ({ ...route })),
     selectedRoute: state.selectedRoute ? { ...state.selectedRoute } : undefined,
+    pendingNextBattleModifiers: {
+      ...emptyNextBattleModifiers,
+      ...(state.pendingNextBattleModifiers ?? {}),
+    },
     rewardOptionBonus: state.rewardOptionBonus ?? 0,
     rewardOptions: state.rewardOptions.map((reward) => ({ ...reward })),
+    routeEventHistory: [...(state.routeEventHistory ?? [])],
     log: [...state.log],
     currentDialogue: state.currentDialogue ? cloneDialogue(state.currentDialogue) : undefined,
     dialogueHistory: (state.dialogueHistory ?? []).map((line) => cloneDialogue(line)),
@@ -1123,13 +1288,13 @@ function createRewardPhaseFields(rewardOptionBonus: number) {
 
 function createRewardLog(rewardOptionBonus: number, entries: string[]) {
   const bonusLog =
-    rewardOptionBonus > 0 ? ["險道報酬觸發，本次戰後獎勵增加 1 個選項。"] : [];
+    rewardOptionBonus > 0 ? ["路線事件報酬觸發，本次戰後獎勵增加 1 個選項。"] : [];
 
   return [...entries.slice(0, 1), ...bonusLog, ...entries.slice(1)].slice(0, logLimit);
 }
 
-function applyRouteToEnemy(enemy: Enemy, route: StageRoute): Enemy {
-  const maxHealth = Math.max(1, enemy.maxHealth + route.enemyHpModifier);
+function applyNextBattleModifiersToEnemy(enemy: Enemy, enemyHpModifier: number): Enemy {
+  const maxHealth = Math.max(1, enemy.maxHealth + enemyHpModifier);
 
   return {
     ...enemy,
@@ -1141,16 +1306,40 @@ function applyRouteToEnemy(enemy: Enemy, route: StageRoute): Enemy {
   };
 }
 
-function getRouteLogMessage(route: StageRoute) {
-  if (route.id === "mountain-path") {
-    return "你選擇山道，下一關敵人體力 -1。";
+function getRouteLogMessage(
+  route: StageRoute | undefined,
+  drawModifier: number,
+  baseEnemyMaxHealth: number,
+  nextEnemyMaxHealth: number,
+) {
+  const routeName = route?.name ?? "路線";
+  const notes = [`${routeName}事件已結算，進入下一關。`];
+
+  if (nextEnemyMaxHealth !== baseEnemyMaxHealth) {
+    notes.push(`敵人 HP 修正 ${formatSigned(nextEnemyMaxHealth - baseEnemyMaxHealth)}。`);
   }
 
-  if (route.id === "official-road") {
-    return "你選擇官道，下一關維持正常難度。";
+  if (drawModifier !== 0) {
+    notes.push(`開局抽牌 ${formatSigned(drawModifier)}。`);
   }
 
-  return "你選擇險道，下一關敵人體力 +2，但戰後獎勵多 1 個選項。";
+  return notes.join(" ");
+}
+
+function formatSigned(value: number) {
+  return value > 0 ? `+${value}` : `${value}`;
+}
+
+function createRouteNarratorDialogue(event: RouteEvent): DialogueLine {
+  return {
+    id: `route-event-${event.id}`,
+    speakerId: "narrator",
+    speakerName: "戰場旁白",
+    speakerType: "narrator",
+    trigger: "stage_intro",
+    text: event.flavorText,
+    tone: "路線事件",
+  };
 }
 
 function createOpeningDialogueHistory(heroId: string, stage: EnemyStage, enemy: Enemy) {

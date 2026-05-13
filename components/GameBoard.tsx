@@ -23,11 +23,13 @@ import {
 } from "@/lib/game/voice";
 import { getSpeakerTypeLabel } from "@/lib/game/dialogues";
 import { getEventTypeLabel } from "@/lib/game/events";
+import { getRouteEventTypeLabel } from "@/lib/game/routeEvents";
 import {
   createGame,
   endTurn,
   getCurrentEnemyAction,
   playCard,
+  resolveRouteEventOption,
   resolveEventOption,
   resolveDefense,
   selectObservation,
@@ -44,6 +46,7 @@ import type {
   GameState,
   PlayerUpgrades,
   Reward,
+  RouteEvent,
   StageRoute,
 } from "@/lib/game/types";
 
@@ -378,17 +381,56 @@ function GameBoardContent({
   }
 
   function handleSelectRoute(route: StageRoute) {
-    const next = selectRoute(state, route.id, { enemyRandom: Math.random });
+    const next = selectRoute(state, route.id, { routeEventRandom: Math.random });
 
     if (next !== state) {
       showEventToast(`選擇路線：${route.name}`, route.id === "dangerous-pass" ? "danger" : "reward");
       emitSound("route");
+    }
+
+    setState(next);
+  }
+
+  function handleResolveRouteEvent(optionId: string) {
+    const beforePlayerHealth = state.player.health;
+    const beforeHandCount = state.hand.length;
+    const beforeEquipmentCount = state.player.equippedItems.length;
+    const eventName = state.currentRouteEvent?.name ?? "路線事件";
+    const next = resolveRouteEventOption(state, optionId, {
+      enemyRandom: Math.random,
+      equipmentRandom: Math.random,
+    });
+
+    if (next !== state) {
+      showEventToast(`${eventName}完成`, getRouteToastTone(state.selectedRoute?.id));
+      emitSound("event");
+
+      if (next.player.health > beforePlayerHealth) {
+        showPanelFeedback("player", "heal", "回復體力");
+        emitSound("heal");
+      }
+
+      if (next.player.health < beforePlayerHealth) {
+        showPanelFeedback("player", "hit", "受到傷害");
+        emitSound("hit");
+      }
+
+      if (next.hand.length > beforeHandCount) {
+        showEventToast("📜 抽牌！", "strategy");
+        emitSound("draw");
+      }
+
+      if (next.player.equippedItems.length > beforeEquipmentCount) {
+        showEventToast("獲得裝備！", "reward");
+        emitSound("reward");
+      }
 
       if (next.enemy.id === "lu-bu") {
         emitSound("boss");
       }
     }
 
+    emitOutcomeSound(next);
     setState(next);
   }
 
@@ -736,9 +778,9 @@ function GameBoardContent({
                 <p className="text-xs font-bold uppercase tracking-[0.2em] text-amber-200">
                   選擇路線
                 </p>
-                <h2 className="mt-2 text-2xl font-black">決定下一場戰鬥的風險與報酬</h2>
+                <h2 className="mt-2 text-2xl font-black">決定下一段劇情遭遇</h2>
                 <p className="mt-2 text-sm leading-6 text-stone-300">
-                  高風險路線會讓敵人更強，但也可能帶來更好的戰後選項。
+                  山道偏向安全補給，官道偏向情報支援，險道則可能用危險換取更大報酬。
                 </p>
                 <div className="mt-5 grid gap-4 md:grid-cols-3">
                   {state.availableRoutes.map((route) => (
@@ -746,6 +788,55 @@ function GameBoardContent({
                       key={route.id}
                       route={route}
                       onChoose={() => handleSelectRoute(route)}
+                    />
+                  ))}
+                </div>
+              </section>
+            ) : null}
+
+            {state.phase === "routeEvent" && state.currentRouteEvent && state.selectedRoute ? (
+              <section className={`rounded-xl border p-5 shadow-[0_18px_45px_rgba(0,0,0,0.35)] ${getRouteEventFrameClass(state.selectedRoute.id)}`}>
+                <p className="text-xs font-bold uppercase tracking-[0.2em] text-amber-200">
+                  路線事件
+                </p>
+                <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <p className="text-sm font-black text-stone-200">
+                      目前路線：{state.selectedRoute.name}
+                    </p>
+                    <h2 className="mt-2 text-2xl font-black text-stone-50">
+                      {state.currentRouteEvent.name}
+                    </h2>
+                    <p className="mt-3 text-sm leading-6 text-stone-200">
+                      {state.currentRouteEvent.description}
+                    </p>
+                    <p className="mt-3 rounded-md border border-white/15 bg-black/20 px-3 py-2 text-sm font-bold leading-6 text-stone-100">
+                      {state.currentRouteEvent.flavorText}
+                    </p>
+                  </div>
+                  <span className="inline-flex w-fit rounded-full border border-amber-200/50 bg-black/25 px-3 py-1 text-xs font-black text-amber-100">
+                    {getRouteEventTypeLabel(state.currentRouteEvent.type)}
+                  </span>
+                </div>
+                <div className="mt-5">
+                  <VisualPlaceholder
+                    type="route"
+                    label={state.currentRouteEvent.name}
+                    prompt={state.selectedRoute.visualPrompt}
+                    description="路線事件圖 placeholder"
+                  />
+                </div>
+                <div className="mt-5 grid gap-4 md:grid-cols-2">
+                  {state.currentRouteEvent.options.map((option) => (
+                    <RouteEventOptionCard
+                      key={option.id}
+                      routeId={state.selectedRoute!.id}
+                      optionId={option.id}
+                      label={option.label}
+                      description={option.description}
+                      riskLevel={option.riskLevel}
+                      eventType={state.currentRouteEvent!.type}
+                      onChoose={handleResolveRouteEvent}
                     />
                   ))}
                 </div>
@@ -1417,11 +1508,6 @@ function EventOptionCard({
 }
 
 function RouteCard({ route, onChoose }: { route: StageRoute; onChoose: () => void }) {
-  const rewardText =
-    route.rewardOptionBonus > 0
-      ? `戰後獎勵 +${route.rewardOptionBonus} 個選項`
-      : "戰後獎勵維持 3 選 1";
-
   return (
     <button
       type="button"
@@ -1439,11 +1525,46 @@ function RouteCard({ route, onChoose }: { route: StageRoute; onChoose: () => voi
       </span>
       <span className="mt-4 block text-2xl font-black text-stone-50">{route.name}</span>
       <span className="mt-3 block text-sm leading-6 text-stone-200">
-        敵人體力 {formatModifier(route.enemyHpModifier)}
+        {getRoutePositioning(route.id)}
       </span>
-      <span className="mt-1 block text-sm leading-6 text-stone-200">{rewardText}</span>
+      <span className="mt-1 block text-sm leading-6 text-stone-200">
+        選擇後會觸發專屬路線事件。
+      </span>
       <span className="mt-4 block text-sm leading-6 text-stone-300">{route.description}</span>
       <span className="mt-3 block text-xs leading-5 text-stone-400">{route.flavorText}</span>
+    </button>
+  );
+}
+
+function RouteEventOptionCard({
+  routeId,
+  optionId,
+  label,
+  description,
+  riskLevel,
+  eventType,
+  onChoose,
+}: {
+  routeId: StageRoute["id"];
+  optionId: string;
+  label: string;
+  description: string;
+  riskLevel?: string;
+  eventType: RouteEvent["type"];
+  onChoose: (optionId: string) => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={() => onChoose(optionId)}
+      className={`min-h-36 rounded-lg border p-4 text-left shadow-[0_16px_34px_rgba(0,0,0,0.34)] transition hover:-translate-y-1 ${getRouteEventButtonClass(routeId)}`}
+    >
+      <span className="rounded-full border border-white/25 bg-black/25 px-3 py-1 text-xs font-black text-stone-100">
+        {getRouteEventTypeLabel(eventType)}
+        {riskLevel ? `｜風險 ${riskLevel}` : ""}
+      </span>
+      <span className="mt-4 block text-xl font-black text-stone-50">{label}</span>
+      <span className="mt-3 block text-sm leading-6 text-stone-200">{description}</span>
     </button>
   );
 }
@@ -1680,10 +1801,50 @@ function getRouteButtonClass(routeId: StageRoute["id"]) {
   return "border-red-300/60 bg-red-950/85 hover:border-red-100 hover:bg-purple-950/80";
 }
 
-function formatModifier(value: number) {
-  if (value > 0) {
-    return `+${value}`;
+function getRouteEventFrameClass(routeId: StageRoute["id"]) {
+  if (routeId === "mountain-path") {
+    return "border-emerald-300/50 bg-emerald-950/65 text-emerald-50";
   }
 
-  return `${value}`;
+  if (routeId === "official-road") {
+    return "border-amber-300/50 bg-amber-950/60 text-amber-50";
+  }
+
+  return "border-red-300/60 bg-red-950/75 text-red-50";
+}
+
+function getRouteEventButtonClass(routeId: StageRoute["id"]) {
+  if (routeId === "mountain-path") {
+    return "border-emerald-300/50 bg-emerald-950/85 hover:border-emerald-100 hover:bg-emerald-900/70";
+  }
+
+  if (routeId === "official-road") {
+    return "border-amber-300/50 bg-amber-950/80 hover:border-amber-100 hover:bg-amber-900/70";
+  }
+
+  return "border-red-300/60 bg-red-950/85 hover:border-red-100 hover:bg-red-900/75";
+}
+
+function getRouteToastTone(routeId?: StageRoute["id"]): EventToast["tone"] {
+  if (routeId === "dangerous-pass") {
+    return "danger";
+  }
+
+  if (routeId === "official-road") {
+    return "strategy";
+  }
+
+  return "reward";
+}
+
+function getRoutePositioning(routeId: StageRoute["id"]) {
+  if (routeId === "mountain-path") {
+    return "定位：安全、補給、探索、保命。";
+  }
+
+  if (routeId === "official-road") {
+    return "定位：主線、情報、穩定、平均。";
+  }
+
+  return "定位：高風險、稀有獎勵、強敵、賭一把。";
 }

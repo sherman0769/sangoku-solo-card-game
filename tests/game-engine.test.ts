@@ -14,6 +14,7 @@ import {
   playCard,
   rewardCatalog,
   resolveEventOption,
+  resolveRouteEventOption,
   resolveDefense,
   selectObservation,
   selectReward,
@@ -29,6 +30,7 @@ import {
 } from "@/lib/game/enemies";
 import { gameEvents } from "@/lib/game/events";
 import { heroes } from "@/lib/game/heroes";
+import { getRouteEventsForRoute, routeEvents } from "@/lib/game/routeEvents";
 import { stageRoutes } from "@/lib/game/routes";
 import { chapterOne, chapterStages, getEventChanceForStage, getStageConfig } from "@/lib/game/stages";
 import type { GameState, RewardId, StageRouteId } from "@/lib/game/types";
@@ -190,6 +192,30 @@ describe("game engine", () => {
 
   it("includes the first route set", () => {
     expect(stageRoutes.map((route) => route.name)).toEqual(["山道", "官道", "險道"]);
+  });
+
+  it("removes fixed route number modifiers from route choices", () => {
+    expect(stageRoutes.map((route) => route.enemyHpModifier)).toEqual([0, 0, 0]);
+    expect(stageRoutes.map((route) => route.rewardOptionBonus)).toEqual([0, 0, 0]);
+  });
+
+  it("includes three route events for each route", () => {
+    expect(getRouteEventsForRoute("mountain-path").map((event) => event.name)).toEqual([
+      "山泉療傷",
+      "隱士指路",
+      "迷霧小徑",
+    ]);
+    expect(getRouteEventsForRoute("official-road").map((event) => event.name)).toEqual([
+      "驛站補給",
+      "軍令急報",
+      "官軍殘部",
+    ]);
+    expect(getRouteEventsForRoute("dangerous-pass").map((event) => event.name)).toEqual([
+      "絕壁伏擊",
+      "古戰場遺物",
+      "夜襲敵營",
+    ]);
+    expect(routeEvents).toHaveLength(9);
   });
 
   it("adds visual prompts to core game data", () => {
@@ -402,7 +428,7 @@ describe("game engine", () => {
     expect(next.log[0]).toBe("擊敗黃巾兵，選擇一項通關獎勵。");
   });
 
-  it("can enter an event phase after defeating the first enemy", () => {
+  it("does not enter old random event phase after defeating the first enemy", () => {
     const state = createGame();
     const slash = state.hand.find((card) => card.name === "斬")!;
     const nearDefeat = {
@@ -416,10 +442,10 @@ describe("game engine", () => {
     });
 
     expect(next.status).toBe("playing");
-    expect(next.phase).toBe("event");
-    expect(next.currentEvent?.name).toBe("荒村補給");
-    expect(next.rewardOptions).toHaveLength(0);
-    expect(next.log[0]).toBe("事件出現：荒村補給。");
+    expect(next.phase).toBe("reward");
+    expect(next.currentEvent).toBeUndefined();
+    expect(next.rewardOptions).toHaveLength(3);
+    expect(next.log[0]).toBe("擊敗黃巾兵，選擇一項通關獎勵。");
   });
 
   it("can deterministically select Yellow Turban Archer for stage one", () => {
@@ -434,7 +460,10 @@ describe("game engine", () => {
 
   it("can deterministically select Yellow Turban Brute for stage two", () => {
     const routeState = selectReward(forceReward(defeatFirstEnemy(), "max-health"), "max-health");
-    const next = selectRoute(routeState, "official-road", {
+    const routeEventState = selectRoute(routeState, "official-road", {
+      routeEventId: "urgent-orders",
+    });
+    const next = resolveRouteEventOption(routeEventState, "study-orders", {
       enemyIds: { 2: "yellow-turban-brute" },
     });
 
@@ -932,7 +961,10 @@ describe("game engine", () => {
       ),
       "max-health",
     );
-    const next = selectRoute(routeState, "official-road");
+    const routeEventState = selectRoute(routeState, "official-road", {
+      routeEventId: "urgent-orders",
+    });
+    const next = resolveRouteEventOption(routeEventState, "study-orders");
 
     expect(next.player.guardActive).toBe(false);
     expect(next.phase).toBe("player");
@@ -1003,21 +1035,29 @@ describe("game engine", () => {
 
   it("moves to the next stage after choosing a route", () => {
     const routeState = selectReward(forceReward(defeatFirstEnemy(), "starting-draw"), "starting-draw");
-    const next = selectRoute(routeState, "official-road");
+    const routeEventState = selectRoute(routeState, "official-road", {
+      routeEventId: "urgent-orders",
+    });
+    const next = resolveRouteEventOption(routeEventState, "study-orders");
 
+    expect(routeEventState.phase).toBe("routeEvent");
+    expect(routeEventState.currentRouteEvent?.name).toBe("軍令急報");
     expect(next.phase).toBe("player");
     expect(next.enemyIndex).toBe(1);
     expect(next.stageConfig.name).toBe("山道伏兵");
     expect(next.enemy.name).toBe("黃巾弓手");
     expect(next.enemyHealth).toBe(getEnemiesForStage(2)[0].maxHealth);
     expect(next.playerUpgrades.startingDrawBonus).toBe(1);
-    expect(next.hand).toHaveLength(6);
+    expect(next.hand).toHaveLength(7);
     expect(next.log[0]).toBe("第 2 關｜山道伏兵｜黃巾弓手登場：體力較低，但攻擊較頻繁。");
   });
 
   it("can deterministically select Xiliang Cavalry for stage five", () => {
     const routeState = prepareRouteStateAtStage(4);
-    const next = selectRoute(routeState, "official-road", {
+    const routeEventState = selectRoute(routeState, "official-road", {
+      routeEventId: "relay-station",
+    });
+    const next = resolveRouteEventOption(routeEventState, "prepare-party", {
       enemyIds: { 5: "xiliang-cavalry" },
     });
 
@@ -1038,67 +1078,214 @@ describe("game engine", () => {
     expect(rewarded.availableRoutes).toHaveLength(3);
   });
 
-  it("applies mountain path enemy health reduction to the next stage", () => {
+  it("choosing mountain path enters route event phase", () => {
     const routeState = selectReward(forceReward(defeatFirstEnemy(), "max-health"), "max-health");
-    const next = selectRoute(routeState, "mountain-path");
+    const next = selectRoute(routeState, "mountain-path", { routeEventId: "mountain-spring" });
 
-    expect(next.enemy.name).toBe("黃巾弓手");
-    expect(next.enemy.maxHealth).toBe(getEnemiesForStage(2)[0].maxHealth - 1);
-    expect(next.enemyHealth).toBe(getEnemiesForStage(2)[0].maxHealth - 1);
-    expect(next.log).toContain("你選擇山道，下一關敵人體力 -1。");
+    expect(next.phase).toBe("routeEvent");
+    expect(next.selectedRoute?.name).toBe("山道");
+    expect(next.currentRouteEvent?.name).toBe("山泉療傷");
   });
 
-  it("keeps official road enemy health unchanged", () => {
+  it("choosing official road enters route event phase", () => {
     const routeState = selectReward(forceReward(defeatFirstEnemy(), "max-health"), "max-health");
-    const next = selectRoute(routeState, "official-road");
+    const next = selectRoute(routeState, "official-road", { routeEventId: "relay-station" });
 
-    expect(next.enemy.maxHealth).toBe(getEnemiesForStage(2)[0].maxHealth);
-    expect(next.enemyHealth).toBe(getEnemiesForStage(2)[0].maxHealth);
-    expect(next.log).toContain("你選擇官道，下一關維持正常難度。");
+    expect(next.phase).toBe("routeEvent");
+    expect(next.selectedRoute?.name).toBe("官道");
+    expect(next.currentRouteEvent?.name).toBe("驛站補給");
   });
 
-  it("applies dangerous pass enemy health increase to the next stage", () => {
+  it("choosing dangerous pass enters route event phase", () => {
     const routeState = selectReward(forceReward(defeatFirstEnemy(), "max-health"), "max-health");
-    const next = selectRoute(routeState, "dangerous-pass");
+    const next = selectRoute(routeState, "dangerous-pass", { routeEventId: "cliff-ambush" });
 
-    expect(next.enemy.maxHealth).toBe(getEnemiesForStage(2)[0].maxHealth + 2);
-    expect(next.enemyHealth).toBe(getEnemiesForStage(2)[0].maxHealth + 2);
-    expect(next.rewardOptionBonus).toBe(1);
-    expect(next.log).toContain("你選擇險道，下一關敵人體力 +2，但戰後獎勵多 1 個選項。");
+    expect(next.phase).toBe("routeEvent");
+    expect(next.selectedRoute?.name).toBe("險道");
+    expect(next.currentRouteEvent?.name).toBe("絕壁伏擊");
   });
 
-  it("adds one reward option after clearing dangerous pass", () => {
-    const dangerousStage = chooseRewardAndRoute(defeatFirstEnemy(), "max-health", "dangerous-pass");
+  it("adds one reward option after clearing cliff ambush", () => {
+    const dangerousStage = chooseRewardAndRoute(
+      defeatFirstEnemy(),
+      "max-health",
+      "dangerous-pass",
+      "cliff-ambush",
+    );
     const next = defeatCurrentEnemy(dangerousStage);
 
     expect(next.phase).toBe("reward");
     expect(next.rewardOptions).toHaveLength(4);
     expect(next.rewardOptionBonus).toBe(0);
-    expect(next.log).toContain("險道報酬觸發，本次戰後獎勵增加 1 個選項。");
+    expect(next.log).toContain("路線事件報酬觸發，本次戰後獎勵增加 1 個選項。");
+  });
+
+  it("mountain spring heals two health", () => {
+    const routeState = {
+      ...selectReward(forceReward(defeatFirstEnemy(), "max-health"), "max-health"),
+      player: { ...createGame().player, health: 3 },
+    };
+    const eventState = selectRoute(routeState, "mountain-path", {
+      routeEventId: "mountain-spring",
+    });
+    const next = resolveRouteEventOption(eventState, "rest-at-spring");
+
+    expect(next.player.health).toBe(5);
+    expect(next.routeEventHistory).toContain("mountain-spring");
+    expect(next.log).toContain("事件效果：回復 2 點體力。");
+  });
+
+  it("hermit guidance adds next battle draw", () => {
+    const routeState = selectReward(forceReward(defeatFirstEnemy(), "max-health"), "max-health");
+    const eventState = selectRoute(routeState, "mountain-path", {
+      routeEventId: "hermit-guidance",
+    });
+    const next = resolveRouteEventOption(eventState, "listen-to-hermit");
+
+    expect(next.hand).toHaveLength(6);
+    expect(next.log).toContain("下一關效果：額外抽 1 張牌。");
+  });
+
+  it("foggy trail reduces next enemy health and starting draw", () => {
+    const routeState = selectReward(forceReward(defeatFirstEnemy(), "max-health"), "max-health");
+    const eventState = selectRoute(routeState, "mountain-path", {
+      routeEventId: "foggy-trail",
+    });
+    const next = resolveRouteEventOption(eventState, "cross-fog");
+
+    expect(next.enemy.maxHealth).toBe(getEnemiesForStage(2)[0].maxHealth - 1);
+    expect(next.enemyHealth).toBe(getEnemiesForStage(2)[0].maxHealth - 1);
+    expect(next.hand).toHaveLength(4);
+    expect(next.log).toContain("下一關效果：敵人 HP -1，玩家少抽 1 張牌。");
+  });
+
+  it("relay station draws one card and heals one health", () => {
+    const routeState = {
+      ...selectReward(forceReward(defeatFirstEnemy(), "max-health"), "max-health"),
+      player: { ...createGame().player, health: 4 },
+      hand: [],
+      deck: createGame().deck,
+      discard: [],
+    };
+    const eventState = selectRoute(routeState, "official-road", {
+      routeEventId: "relay-station",
+    });
+    const next = resolveRouteEventOption(eventState, "prepare-party");
+
+    expect(next.player.health).toBe(5);
+    expect(next.hand.length).toBeGreaterThanOrEqual(6);
+    expect(next.log).toContain("事件效果：抽 1 張牌並回復 1 點體力。");
+  });
+
+  it("remnant troops grant slash damage bonus", () => {
+    const routeState = selectReward(forceReward(defeatFirstEnemy(), "max-health"), "max-health");
+    const eventState = selectRoute(routeState, "official-road", {
+      routeEventId: "remnant-troops",
+    });
+    const next = resolveRouteEventOption(eventState, "recruit-remnants");
+
+    expect(next.playerUpgrades.slashDamageBonus).toBe(1);
+    expect(next.log).toContain("事件效果：收編官軍殘部，斬傷害 +1。");
+  });
+
+  it("cliff ambush loses one health and grants next reward bonus", () => {
+    const routeState = {
+      ...selectReward(forceReward(defeatFirstEnemy(), "max-health"), "max-health"),
+      player: { ...createGame().player, health: 5 },
+    };
+    const eventState = selectRoute(routeState, "dangerous-pass", {
+      routeEventId: "cliff-ambush",
+    });
+    const next = resolveRouteEventOption(eventState, "force-breakthrough");
+
+    expect(next.player.health).toBe(4);
+    expect(next.rewardOptionBonus).toBe(1);
+    expect(next.log).toContain("下一次戰後獎勵 +1 個選項。");
+  });
+
+  it("battlefield relic grants unequipped equipment or draws cards", () => {
+    const routeState = selectReward(forceReward(defeatFirstEnemy(), "max-health"), "max-health");
+    const eventState = selectRoute(routeState, "dangerous-pass", {
+      routeEventId: "battlefield-relic",
+    });
+    const next = resolveRouteEventOption(eventState, "search-relic", {
+      equipmentRandom: () => 0,
+    });
+
+    expect(next.player.equippedItems).toHaveLength(1);
+    expect(next.player.equippedItems[0].kind).toBe("equipment");
+
+    const allEquippedState = selectRoute(
+      {
+        ...routeState,
+        player: {
+          ...routeState.player,
+          equippedItems: starterDeck.filter((card) => card.kind === "equipment"),
+        },
+      },
+      "dangerous-pass",
+      { routeEventId: "battlefield-relic" },
+    );
+    const fallback = resolveRouteEventOption(allEquippedState, "search-relic");
+
+    expect(fallback.log).toContain("事件效果：裝備已齊，改為抽 2 張牌。");
+  });
+
+  it("night raid branches by current health", () => {
+    const healthyRouteState = {
+      ...selectReward(forceReward(defeatFirstEnemy(), "max-health"), "max-health"),
+      player: { ...createGame().player, health: 4 },
+    };
+    const healthyEvent = selectRoute(healthyRouteState, "dangerous-pass", {
+      routeEventId: "night-raid",
+    });
+    const healthyNext = resolveRouteEventOption(healthyEvent, "launch-night-raid");
+
+    expect(healthyNext.playerUpgrades.slashDamageBonus).toBe(1);
+
+    const woundedRouteState = {
+      ...selectReward(forceReward(defeatFirstEnemy(), "max-health"), "max-health"),
+      player: { ...createGame().player, health: 3 },
+      hand: [],
+      deck: createGame().deck,
+      discard: [],
+    };
+    const woundedEvent = selectRoute(woundedRouteState, "dangerous-pass", {
+      routeEventId: "night-raid",
+    });
+    const woundedNext = resolveRouteEventOption(woundedEvent, "launch-night-raid");
+
+    expect(woundedNext.player.health).toBe(2);
+    expect(woundedNext.hand.length).toBeGreaterThanOrEqual(6);
+    expect(woundedNext.log).toContain("事件效果：夜襲失利，失去 1 點體力並抽 1 張牌。");
   });
 
   it("keeps stage seven victory in the reward and route flow before Lu Bu", () => {
     const defeated = defeatStage(7, "zhang-liang", { eventRoll: () => 1 });
     const routeState = selectReward(forceReward(defeated, "max-health"), "max-health");
-    const next = selectRoute(routeState, "official-road");
+    const routeEventState = selectRoute(routeState, "official-road", {
+      routeEventId: "urgent-orders",
+    });
+    const next = resolveRouteEventOption(routeEventState, "study-orders");
 
     expect(defeated.phase).toBe("reward");
     expect(routeState.phase).toBe("route");
+    expect(routeEventState.phase).toBe("routeEvent");
     expect(next.phase).toBe("player");
     expect(next.stageConfig.name).toBe("虎牢關前");
     expect(next.enemy.name).toBe("呂布");
     expect(next.currentDialogue).toMatchObject(getEnemyIntroDialogue("lu-bu", true)!);
   });
 
-  it("uses a higher event trigger chance on event-heavy stages", () => {
+  it("no longer triggers old random events from victory", () => {
     const eventHeavy = defeatStage(3, "bandit-leader", {
       eventRoll: () => 0.6,
       eventId: "strategist-advice",
     });
     const normal = defeatStage(4, "bandit-leader", { eventRoll: () => 0.6 });
 
-    expect(eventHeavy.phase).toBe("event");
-    expect(eventHeavy.currentEvent?.name).toBe("軍師獻策");
+    expect(eventHeavy.phase).toBe("reward");
+    expect(eventHeavy.currentEvent).toBeUndefined();
     expect(normal.phase).toBe("reward");
   });
 
@@ -1114,34 +1301,40 @@ describe("game engine", () => {
     expect(next.rewardOptions).toHaveLength(rewardCatalog.length);
   });
 
-  it("runs event to reward to route to next stage flow", () => {
+  it("can still run old event to reward when event phase is entered directly", () => {
     const state = createGame();
-    const slash = state.hand.find((card) => card.name === "斬")!;
-    const eventState = playCard(
-      { ...state, enemyHealth: 3 },
-      slash.id,
-      { eventRoll: () => 0, eventId: "strategist-advice" },
-    );
+    const eventState = enterEventPhase({ ...state, enemyHealth: 0 }, "strategist-advice");
     const rewardState = resolveEventOption(eventState, "listen");
-    const routeState = selectReward(forceReward(rewardState, "max-health"), "max-health");
-    const next = selectRoute(routeState, "mountain-path");
 
     expect(eventState.phase).toBe("event");
     expect(rewardState.phase).toBe("reward");
+  });
+
+  it("runs reward to route to route event to next stage flow", () => {
+    const rewardState = defeatFirstEnemy();
+    const routeState = selectReward(forceReward(rewardState, "max-health"), "max-health");
+    const routeEventState = selectRoute(routeState, "official-road", {
+      routeEventId: "urgent-orders",
+    });
+    const next = resolveRouteEventOption(routeEventState, "study-orders");
+
+    expect(rewardState.phase).toBe("reward");
     expect(routeState.phase).toBe("route");
+    expect(routeEventState.phase).toBe("routeEvent");
     expect(next.phase).toBe("player");
     expect(next.enemy.name).toBe("黃巾弓手");
   });
 
-  it("runs reward to route to next stage flow when no event triggers", () => {
+  it("route event flow records route event history", () => {
     const rewardState = defeatFirstEnemy();
     const routeState = selectReward(forceReward(rewardState, "max-health"), "max-health");
-    const next = selectRoute(routeState, "official-road");
+    const routeEventState = selectRoute(routeState, "mountain-path", {
+      routeEventId: "mountain-spring",
+    });
+    const next = resolveRouteEventOption(routeEventState, "rest-at-spring");
 
-    expect(rewardState.phase).toBe("reward");
-    expect(routeState.phase).toBe("route");
-    expect(next.phase).toBe("player");
-    expect(next.enemy.name).toBe("黃巾弓手");
+    expect(next.routeEventHistory).toContain("mountain-spring");
+    expect(next.currentRouteEvent).toBeUndefined();
   });
 
   it("wins after the eighth enemy is defeated", () => {
@@ -1239,8 +1432,14 @@ function chooseRewardAndRoute(
   state: GameState,
   rewardId: RewardId,
   routeId: StageRouteId,
+  routeEventId = "urgent-orders",
 ): GameState {
-  return selectRoute(selectReward(forceReward(state, rewardId), rewardId), routeId);
+  const routeEventState = selectRoute(selectReward(forceReward(state, rewardId), rewardId), routeId, {
+    routeEventId,
+  });
+  const optionId = routeEventState.currentRouteEvent?.options[0]?.id ?? "";
+
+  return resolveRouteEventOption(routeEventState, optionId);
 }
 
 function forceReward(state: GameState, rewardId: RewardId): GameState {
