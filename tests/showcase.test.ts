@@ -18,7 +18,7 @@ import { canPlayVoice } from "@/lib/game/voice";
 
 describe("showcase and onboarding copy", () => {
   it("includes homepage how-to and current feature copy", () => {
-    expect(currentVersionLabel).toBe("v0.13.4 首頁主流程修正版");
+    expect(currentVersionLabel).toBe("v0.14.0 卡牌音效導入版");
     expect(howToSteps.map((step) => step.title)).toEqual([
       "選擇武將",
       "進入戰鬥",
@@ -65,6 +65,9 @@ describe("showcase and onboarding copy", () => {
     );
     expect(currentFeatureHighlights).toContain(
       "首頁主流程：觀看開場動畫 → 選擇武將 → 開始遊戲",
+    );
+    expect(currentFeatureHighlights).toContain(
+      "卡牌音效系統：不同類型卡牌可對應不同音效",
     );
     expect(currentFeatureHighlights).toContain(
       "視覺資產 placeholder：角色、敵人、關卡、事件、路線與卡牌",

@@ -1,6 +1,6 @@
 import type { GamePhase } from "./types";
 
-export const currentVersionLabel = "v0.13.4 首頁主流程修正版";
+export const currentVersionLabel = "v0.14.0 卡牌音效導入版";
 
 export const homeMainFlowSteps = [
   "觀看開場動畫",
@@ -69,6 +69,7 @@ export const currentFeatureHighlights = [
   "首頁互動修正：武將試聽登場語音、開場動畫入口上移、教學與特色收合",
   "開場動畫體驗：一次點擊全螢幕播放、可略過、可關閉、可重播",
   "首頁主流程：觀看開場動畫 → 選擇武將 → 開始遊戲",
+  "卡牌音效系統：不同類型卡牌可對應不同音效",
   "視覺資產 placeholder：角色、敵人、關卡、事件、路線與卡牌",
   "Mini-boss 張梁 / 張寶",
   "隨機事件與路線選擇",

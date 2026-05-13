@@ -7,6 +7,7 @@ import BattleLog from "@/components/BattleLog";
 import CardView from "@/components/CardView";
 import { GameImage } from "@/components/GameImage";
 import { VisualPlaceholder } from "@/components/VisualPlaceholder";
+import { playCardSound } from "@/lib/game/cardSoundManifest";
 import { equipmentEffects } from "@/lib/game/cards";
 import {
   isAudioSupported,
@@ -37,7 +38,7 @@ import { heroes } from "@/lib/game/heroes";
 import { currentVersionLabel, getPhaseHint, quickRules } from "@/lib/game/showcase";
 import { totalStages } from "@/lib/game/stages";
 import type { SoundCue } from "@/lib/game/sounds";
-import type { Card, DialogueLine, GameEvent, PlayerUpgrades, Reward, StageRoute } from "@/lib/game/types";
+import type { DialogueLine, GameEvent, PlayerUpgrades, Reward, StageRoute } from "@/lib/game/types";
 
 interface EventToast {
   id: number;
@@ -234,9 +235,7 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
     if (next !== state && card && state.phase === "player") {
       const toast = getCardToast(card.name, state.player.heroId);
       showEventToast(toast.text, toast.tone);
-      emitSound("card-play");
-
-      getCardSoundCues(card, state.player.heroId).forEach(emitSound);
+      playCardSound(card.id, { enabled: soundEnabled });
 
       if (next.enemyHealth < beforeEnemyHealth) {
         showPanelFeedback("enemy", "hit", "受到傷害");
@@ -1546,30 +1545,6 @@ function getCardToast(cardName: string, heroId: string): Pick<EventToast, "text"
   }
 
   return { text: "🛡 閃避！", tone: "guard" };
-}
-
-function getCardSoundCues(card: Card, heroId: string): SoundCue[] {
-  if (card.kind === "attack" || card.kind === "combo" || card.kind === "fire") {
-    return ["slash"];
-  }
-
-  if (card.kind === "dodge") {
-    return heroId === "zhao-yun" ? ["dodge", "slash"] : ["dodge"];
-  }
-
-  if (card.kind === "wine" || card.kind === "rally") {
-    return ["heal"];
-  }
-
-  if (card.kind === "draw") {
-    return ["draw"];
-  }
-
-  if (card.kind === "equipment") {
-    return ["reward"];
-  }
-
-  return [];
 }
 
 function getEquippedLabels(equippedItems: ReturnType<typeof createGame>["player"]["equippedItems"]) {
