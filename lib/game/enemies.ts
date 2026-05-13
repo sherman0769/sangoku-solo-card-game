@@ -10,7 +10,10 @@ const actionTemplates = {
   charge: { kind: "charge", label: "蓄力", text: "下次攻擊傷害 +1。" },
 } satisfies Record<string, EnemyAction>;
 
-function createEnemy(enemy: Omit<Enemy, "title" | "intro" | "maxHealth" | "actions">): Enemy {
+function createEnemy(
+  enemy: Omit<Enemy, "title" | "intro" | "maxHealth" | "actions" | "bossTraits"> &
+    Pick<Partial<Enemy>, "bossTraits">,
+): Enemy {
   const title = getStageTitle(enemy.stage);
   const stageConfig = getStageConfig(enemy.stage);
 
@@ -19,6 +22,7 @@ function createEnemy(enemy: Omit<Enemy, "title" | "intro" | "maxHealth" | "actio
     title,
     intro: getEnemyIntro(title, stageConfig.name, enemy.name, enemy.description),
     maxHealth: enemy.maxHp,
+    bossTraits: enemy.bossTraits ?? [],
     actions: enemy.actionDeck.map((action) => ({ ...action })),
   };
 }
@@ -176,6 +180,7 @@ export const enemyPool: Enemy[] = [
     maxHp: 14,
     description: "虎牢關前的最終考驗，擁有高壓攻勢與蓄力爆發。",
     traits: ["Boss", "無雙", "猛攻", "蓄力爆發"],
+    bossTraits: ["unmatched-pressure", "warlord-recovery"],
     attack: 3,
     portrait: "/images/enemies/lu-bu.png",
     visualPrompt: "呂布，方天畫戟，赤兔馬，虎牢關前無雙猛將，壓倒性氣勢，東方史詩卡牌 Boss 立繪",
@@ -226,6 +231,7 @@ export function cloneEnemy(enemy: Enemy): Enemy {
   return {
     ...enemy,
     traits: [...enemy.traits],
+    bossTraits: [...enemy.bossTraits],
     actionDeck: enemy.actionDeck.map((action) => ({ ...action })),
     actions: enemy.actions.map((action) => ({ ...action })),
   };

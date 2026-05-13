@@ -10,6 +10,11 @@ import { VisualPlaceholder } from "@/components/VisualPlaceholder";
 import { playCardSound } from "@/lib/game/cardSoundManifest";
 import { equipmentEffects } from "@/lib/game/cards";
 import {
+  getBossTraitDescription,
+  getBossTraitName,
+  getBossTraitShortName,
+} from "@/lib/game/bossTraits";
+import {
   isAudioSupported,
   playSound,
   readSoundEnabledSetting,
@@ -161,7 +166,11 @@ function GameBoardContent({
     charged: state.enemyCharged,
     phase: state.phase,
     nextAction: nextEnemyAction.label,
+    bossTraitNames: state.enemy.bossTraits.map(getBossTraitShortName),
   });
+  const enemyBossTraitDetails = state.enemy.bossTraits.map(
+    (traitId) => `Boss 特性｜${getBossTraitName(traitId)}：${getBossTraitDescription(traitId)}`,
+  );
   const upgradeLabels = getUpgradeLabels(state.playerUpgrades);
   const equippedLabels = getEquippedLabels(state.player.equippedItems);
   const phaseHint = getPhaseHint(state.phase);
@@ -656,6 +665,7 @@ function GameBoardContent({
                 details={[
                   `類型：${getEnemyTypeLabel(state.enemy.type)}`,
                   `特性：${state.enemy.traits.join("、")}`,
+                  ...enemyBossTraitDetails,
                   state.enemy.description,
                   `下一步：${nextEnemyAction.label}`,
                   nextEnemyAction.text,
@@ -1629,26 +1639,33 @@ function getEnemyStatuses({
   charged,
   phase,
   nextAction,
+  bossTraitNames = [],
 }: {
   guarding: boolean;
   charged: boolean;
   phase: string;
   nextAction: string;
+  bossTraitNames?: string[];
 }) {
+  const bossTraitStatus =
+    bossTraitNames.length > 0 ? `Boss 特性：${bossTraitNames.join("、")}` : null;
+
   if (phase === "reward") {
-    return ["戰後整備"];
+    return ["戰後整備", bossTraitStatus].filter((status): status is string => Boolean(status));
   }
 
   if (phase === "route") {
-    return ["等待選路"];
+    return ["等待選路", bossTraitStatus].filter((status): status is string => Boolean(status));
   }
 
   if (phase === "event") {
-    return ["事件中"];
+    return ["事件中", bossTraitStatus].filter((status): status is string => Boolean(status));
   }
 
   if (phase === "observe") {
-    return ["等待觀星", `預告：${nextAction}`];
+    return ["等待觀星", bossTraitStatus, `預告：${nextAction}`].filter(
+      (status): status is string => Boolean(status),
+    );
   }
 
   return [
@@ -1656,6 +1673,7 @@ function getEnemyStatuses({
     charged ? "蓄力" : null,
     phase === "defense" ? "攻擊中" : null,
     !guarding && !charged && phase === "player" ? "普通" : null,
+    bossTraitStatus,
     `預告：${nextAction}`,
   ].filter((status): status is string => Boolean(status));
 }

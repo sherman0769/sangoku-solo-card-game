@@ -130,6 +130,22 @@ export const dialogueLines: DialogueLine[] = [
     "霸氣",
     "lu-bu-intro",
   ),
+  createEnemyDialogue(
+    "lu-bu",
+    "呂布",
+    "boss_trait",
+    "天下群雄，誰能擋我？",
+    "壓迫",
+    "lu-bu-unmatched-pressure",
+  ),
+  createEnemyDialogue(
+    "lu-bu",
+    "呂布",
+    "boss_recovery",
+    "這點傷，也想取我性命？",
+    "狂傲",
+    "lu-bu-warlord-recovery",
+  ),
 
   createNarratorDialogue(
     "chapter-1-intro",
@@ -174,6 +190,14 @@ export function getHeroDialogue(heroId: string, trigger: DialogueTrigger) {
 
 export function getEnemyIntroDialogue(enemyId: string, isBoss = false) {
   return findDialogue(enemyId, isBoss ? "boss_intro" : "enemy_intro");
+}
+
+export function getBossTraitDialogue(enemyId: string) {
+  return findDialogue(enemyId, "boss_trait");
+}
+
+export function getBossRecoveryDialogue(enemyId: string) {
+  return findDialogue(enemyId, "boss_recovery");
 }
 
 export function getChapterIntroDialogue() {

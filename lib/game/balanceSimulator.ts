@@ -1,4 +1,5 @@
 import { createSeededRandom } from "./seededRandom";
+import { getBossTraitName } from "./bossTraits";
 import {
   createGame,
   endTurn,
@@ -13,6 +14,7 @@ import {
 import { resolveHero } from "./heroes";
 import type {
   Card,
+  BossTraitId,
   GameState,
   HeroId,
   Reward,
@@ -47,6 +49,7 @@ export interface RunSimulationResult {
   routeDecisionContexts: string[];
   eventsEncountered: string[];
   routeEventsEncountered: string[];
+  bossTraitTriggers: string[];
   damageTaken: number;
   cardsPlayed: Record<string, number>;
   defeatReason?: string;
@@ -73,6 +76,7 @@ export interface BalanceSimulationSummary {
   routeDecisionStats: Record<string, number>;
   routeEventStats: Record<string, number>;
   routeEventDeathStats: Record<string, number>;
+  bossTraitStats: Record<string, number>;
   results: RunSimulationResult[];
 }
 
@@ -171,6 +175,7 @@ export function simulateRun(options: RunSimulationOptions): RunSimulationResult 
       routeDecisionContexts,
       eventsEncountered,
       routeEventsEncountered,
+      bossTraitTriggers: state.bossTraitHistory,
       damageTaken,
       cardsPlayed,
       defeatReason: timedOut ? `超過 ${maxTurns} 步仍未結束` : getDefeatReason(state),
@@ -206,6 +211,7 @@ export function summarizeResults(results: RunSimulationResult[]): BalanceSimulat
   const routeDecisionStats: Record<string, number> = {};
   const routeEventStats: Record<string, number> = {};
   const routeEventDeathStats: Record<string, number> = {};
+  const bossTraitStats: Record<string, number> = {};
 
   results.forEach((result) => {
     if (!result.won) {
@@ -227,6 +233,11 @@ export function summarizeResults(results: RunSimulationResult[]): BalanceSimulat
 
     result.routeEventsEncountered.forEach((eventName) => {
       routeEventStats[eventName] = (routeEventStats[eventName] ?? 0) + 1;
+    });
+
+    result.bossTraitTriggers.forEach((traitId) => {
+      const traitName = getBossTraitName(traitId as BossTraitId);
+      bossTraitStats[traitName] = (bossTraitStats[traitName] ?? 0) + 1;
     });
 
     if (!result.won) {
@@ -267,6 +278,7 @@ export function summarizeResults(results: RunSimulationResult[]): BalanceSimulat
     routeDecisionStats,
     routeEventStats,
     routeEventDeathStats,
+    bossTraitStats,
     results,
   };
 }

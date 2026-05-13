@@ -27,6 +27,7 @@ describe("battle balance simulator", () => {
     expect(result.turnsTaken).toBeGreaterThan(0);
     expect(result.enemiesEncountered.length).toBeGreaterThan(0);
     expect(Array.isArray(result.routeEventsEncountered)).toBe(true);
+    expect(Array.isArray(result.bossTraitTriggers)).toBe(true);
   });
 
   it("summarizes multiple runs for all heroes", () => {
@@ -48,6 +49,7 @@ describe("battle balance simulator", () => {
     expect(summary.averageTurns).toBeGreaterThan(0);
     expect(summary.routeEventStats).toBeDefined();
     expect(summary.routeDecisionStats).toBeDefined();
+    expect(summary.bossTraitStats).toBeDefined();
   });
 
   it("generates a Traditional Chinese Markdown report", () => {
@@ -65,26 +67,27 @@ describe("battle balance simulator", () => {
     expect(report).toContain("建議調整方向");
   });
 
-  it("generates the v0.16.2 route style balance report sections", () => {
+  it("generates the v0.17.0 boss trait balance report sections", () => {
     const summary = simulateManyRuns({
       heroIds: ["guan-yu", "zhao-yun", "zhuge-liang"],
       runsPerHero: 2,
-      seed: "report-v0162-test",
+      seed: "report-v0170-test",
       maxTurns: 180,
       strategy: "basic-safe-strategy",
     });
     const report = generateBalanceReport(summary, {
-      title: "# v0.16.2 路線風格平衡報告",
-      preAdjustmentSummary: ["v0.16.1 整體勝率 99.3%。"],
-      adjustments: ["路線改為玩法風格。"],
-      goalAssessment: ["本輪觀察路線風格分佈。"],
+      title: "# v0.17.0 Boss 特性系統平衡報告",
+      preAdjustmentSummary: ["v0.16.2 整體勝率 100%。"],
+      adjustments: ["呂布新增無雙壓迫與戰神回血。"],
+      goalAssessment: ["本輪觀察 Boss 特性觸發分佈。"],
     });
 
-    expect(report).toContain("# v0.16.2 路線風格平衡報告");
+    expect(report).toContain("# v0.17.0 Boss 特性系統平衡報告");
     expect(report).toContain("調整前摘要");
     expect(report).toContain("調整內容");
     expect(report).toContain("路線風格決策分佈");
     expect(report).toContain("路線事件分佈");
+    expect(report).toContain("Boss 特性觸發次數");
     expect(report).toContain("是否達到平衡目標");
   });
 

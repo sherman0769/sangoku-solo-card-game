@@ -64,6 +64,10 @@ export function generateBalanceReport(
     "",
     formatDistribution(summary.routeEventDeathStats, "目前沒有路線事件後死亡紀錄。"),
     "",
+    "## Boss 特性觸發次數",
+    "",
+    formatDistribution(summary.bossTraitStats, "目前沒有 Boss 特性觸發紀錄。"),
+    "",
     "## 初步觀察",
     "",
     ...createObservations(summary),
@@ -119,6 +123,9 @@ function createObservations(summary: BalanceSimulationSummary) {
   const highHealthDangerousPicks = summary.routeDecisionStats["高血量｜險道"] ?? 0;
   const mostCommonRouteEvent = Object.entries(summary.routeEventStats)
     .sort((a, b) => b[1] - a[1])[0];
+  const stageEightDeaths = summary.stageDeathDistribution["第 8 關"] ?? 0;
+  const unmatchedPressureCount = summary.bossTraitStats["無雙壓迫"] ?? 0;
+  const warlordRecoveryCount = summary.bossTraitStats["戰神回血"] ?? 0;
 
   return [
     `- 目前整體勝率為 ${formatPercent(summary.overallWinRate)}，可作為後續數值調整基準。`,
@@ -137,6 +144,8 @@ function createObservations(summary: BalanceSimulationSummary) {
     mostCommonRouteEvent
       ? `- 最常遭遇的路線事件為 ${mostCommonRouteEvent[0]}（${mostCommonRouteEvent[1]} 次）。`
       : "- 本次模擬沒有路線事件資料。",
+    `- 第 8 關死亡 ${stageEightDeaths} 次，可觀察呂布 Boss 特性是否提高最終戰壓力。`,
+    `- 呂布無雙壓迫觸發 ${unmatchedPressureCount} 次，戰神回血觸發 ${warlordRecoveryCount} 次。`,
   ];
 }
 

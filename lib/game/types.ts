@@ -16,6 +16,8 @@ export type EnemyStage = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 
 export type EnemyType = "soldier" | "elite" | "boss";
 
+export type BossTraitId = "unmatched-pressure" | "warlord-recovery";
+
 export type ChapterStageType = "normal" | "event-heavy" | "elite" | "mini-boss" | "boss";
 
 export type GamePhase =
@@ -42,6 +44,8 @@ export type DialogueTrigger =
   | "victory"
   | "enemy_intro"
   | "boss_intro"
+  | "boss_trait"
+  | "boss_recovery"
   | "chapter_intro"
   | "stage_intro"
   | "game_win"
@@ -119,6 +123,7 @@ export interface Enemy {
   maxHealth: number;
   description: string;
   traits: string[];
+  bossTraits: BossTraitId[];
   attack: number;
   portrait: string;
   visualPrompt: string;
@@ -270,6 +275,8 @@ export interface GameState {
   enemyGuarding: boolean;
   enemyCharged: boolean;
   enemyArmorBroken: boolean;
+  bossTraitUsage: Partial<Record<BossTraitId, boolean>>;
+  bossTraitHistory: BossTraitId[];
   deck: Card[];
   hand: Card[];
   discard: Card[];

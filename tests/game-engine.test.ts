@@ -3,6 +3,8 @@ import { getVisualPlaceholderStyle } from "@/components/VisualPlaceholder";
 import { starterDeck } from "@/lib/game/cards";
 import {
   dialogueLines,
+  getBossRecoveryDialogue,
+  getBossTraitDialogue,
   getChapterIntroDialogue,
   getEnemyIntroDialogue,
   getHeroDialogue,
@@ -112,6 +114,7 @@ describe("game engine", () => {
     expect(bossEnemy.type).toBe("boss");
     expect(bossEnemy.maxHealth).toBe(14);
     expect(bossEnemy.actions.filter((action) => action.kind === "fierce")).toHaveLength(2);
+    expect(bossEnemy.bossTraits).toEqual(["unmatched-pressure", "warlord-recovery"]);
   });
 
   it("includes chapter one with eight stages", () => {
@@ -265,6 +268,8 @@ describe("game engine", () => {
       ]),
     );
     expect(getEnemyIntroDialogue("lu-bu", true)?.text).toBe("吾乃呂布，誰敢與我一戰？");
+    expect(getBossTraitDialogue("lu-bu")?.text).toBe("天下群雄，誰能擋我？");
+    expect(getBossRecoveryDialogue("lu-bu")?.text).toBe("這點傷，也想取我性命？");
     expect(getChapterIntroDialogue()?.text).toContain("第一章：黃巾亂起");
     expect(dialogueLines.every((line) => "audioKey" in line)).toBe(true);
   });
@@ -1419,6 +1424,51 @@ describe("game engine", () => {
     expect(next.currentRouteEvent).toBeUndefined();
   });
 
+  it("triggers Lu Bu unmatched pressure only on the first fierce attack", () => {
+    const first = endTurn(prepareLuBuState({ playerHealth: 10, enemyActionIndex: 1 }));
+    const second = endTurn(prepareLuBuState({
+      playerHealth: 10,
+      enemyActionIndex: 1,
+      bossTraitUsage: { "unmatched-pressure": true },
+      bossTraitHistory: ["unmatched-pressure"],
+    }));
+
+    expect(first.player.health).toBe(5);
+    expect(first.bossTraitUsage["unmatched-pressure"]).toBe(true);
+    expect(first.bossTraitHistory).toContain("unmatched-pressure");
+    expect(first.log.join("\n")).toContain("呂布發動無雙壓迫，猛攻第二段傷害 +1！");
+    expect(first.currentDialogue?.trigger).toBe("boss_trait");
+    expect(second.player.health).toBe(6);
+    expect(second.log.join("\n")).not.toContain("呂布發動無雙壓迫");
+  });
+
+  it("triggers Lu Bu warlord recovery once when reaching half health", () => {
+    const state = prepareLuBuState({ enemyHealth: 8 });
+    const slash = state.hand.find((card) => card.name === "斬")!;
+    const recovered = playCard(state, slash.id);
+    const secondSlash = recovered.hand.find((card) => card.name === "斬");
+    const afterSecondAttack = secondSlash ? playCard(recovered, secondSlash.id) : recovered;
+
+    expect(recovered.enemyHealth).toBe(8);
+    expect(recovered.enemyHealth).toBeLessThanOrEqual(recovered.enemy.maxHealth);
+    expect(recovered.bossTraitUsage["warlord-recovery"]).toBe(true);
+    expect(recovered.bossTraitHistory).toContain("warlord-recovery");
+    expect(recovered.log.join("\n")).toContain("呂布發動戰神回血，回復 3 點體力！");
+    expect(recovered.currentDialogue?.trigger).toBe("boss_recovery");
+    expect(afterSecondAttack.bossTraitHistory.filter((trait) => trait === "warlord-recovery")).toHaveLength(1);
+  });
+
+  it("lets Lu Bu recover before death if warlord recovery has not triggered", () => {
+    const state = prepareLuBuState({ enemyHealth: 1 });
+    const slash = state.hand.find((card) => card.name === "斬")!;
+    const next = playCard(state, slash.id);
+
+    expect(next.status).toBe("playing");
+    expect(next.enemyHealth).toBe(3);
+    expect(next.bossTraitUsage["warlord-recovery"]).toBe(true);
+    expect(next.log.join("\n")).toContain("呂布發動戰神回血，回復 3 點體力！");
+  });
+
   it("wins after the eighth enemy is defeated", () => {
     const luBu = selectEnemyForStage(8);
     const state = {
@@ -1426,7 +1476,9 @@ describe("game engine", () => {
       enemyIndex: 7,
       stageConfig: getStageConfig(8),
       enemy: luBu,
-      enemyHealth: 3,
+      enemyHealth: 2,
+      bossTraitUsage: { "warlord-recovery": true },
+      bossTraitHistory: ["warlord-recovery"],
     };
     const slash = state.hand.find((card) => card.name === "斬")!;
     const next = playCard(state, slash.id, { eventRoll: () => 0 });
@@ -1476,6 +1528,45 @@ function defeatCurrentEnemy(state: GameState): GameState {
     slash.id,
     { eventRoll: () => 1 },
   );
+}
+
+function prepareLuBuState({
+  playerHealth = 8,
+  enemyHealth,
+  enemyActionIndex = 0,
+  bossTraitUsage = {},
+  bossTraitHistory = [],
+}: {
+  playerHealth?: number;
+  enemyHealth?: number;
+  enemyActionIndex?: number;
+  bossTraitUsage?: GameState["bossTraitUsage"];
+  bossTraitHistory?: GameState["bossTraitHistory"];
+} = {}): GameState {
+  const luBu = selectEnemyForStage(8, "lu-bu");
+  const base = createGame("guan-yu");
+
+  return {
+    ...base,
+    enemyIndex: 7,
+    stageConfig: getStageConfig(8),
+    enemy: luBu,
+    enemyHealth: enemyHealth ?? luBu.maxHealth,
+    enemyActionIndex,
+    bossTraitUsage,
+    bossTraitHistory,
+    hand: [getCard("斬")],
+    player: {
+      ...base.player,
+      health: playerHealth,
+      maxHealth: Math.max(base.player.maxHealth, playerHealth),
+      morale: base.player.maxMorale,
+      equipmentUsageThisBattle: {
+        ...base.player.equipmentUsageThisBattle,
+        diluDodged: true,
+      },
+    },
+  };
 }
 
 function defeatStage(

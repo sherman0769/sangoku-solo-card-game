@@ -129,6 +129,8 @@ function getUsage(line: DialogueLine) {
     victory: "擊敗敵人後播放",
     enemy_intro: "一般敵人登場時播放",
     boss_intro: "Boss 登場時播放",
+    boss_trait: "Boss 特性觸發時播放",
+    boss_recovery: "Boss 回血特性觸發時播放",
     chapter_intro: "章節開場或開頭動畫旁白",
     stage_intro: "指定關卡開場旁白",
     game_win: "通關結果頁旁白",

@@ -1,6 +1,6 @@
 import type { GamePhase } from "./types";
 
-export const currentVersionLabel = "v0.16.2 路線風格平衡版";
+export const currentVersionLabel = "v0.17.0 Boss 特性系統版";
 
 export const gameLoadingCopy = {
   title: "戰局準備中……",
@@ -87,6 +87,7 @@ export const currentFeatureHighlights = [
   "路線劇情事件：山道、官道、險道擁有不同遭遇與資源方向",
   "險道風險再平衡：提高絕壁伏擊、古戰場遺物與夜襲敵營代價",
   "路線風格選擇：山道、官道、險道不再只是難度差異，而是不同劇情與資源方向",
+  "Boss 特性系統：呂布具備無雙壓迫與戰神回血，最終戰更具壓迫感",
   "Hydration 修正：/game 隨機戰局初始化改為 client mounted 後執行",
   "視覺資產 placeholder：角色、敵人、關卡、事件、路線與卡牌",
   "Mini-boss 張梁 / 張寶",

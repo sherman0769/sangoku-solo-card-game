@@ -1,6 +1,8 @@
 import { starterDeck } from "./cards";
 import {
   getChapterIntroDialogue,
+  getBossRecoveryDialogue,
+  getBossTraitDialogue,
   getEnemyIntroDialogue,
   getGameResultDialogue,
   getHeroDialogue,
@@ -18,6 +20,7 @@ import {
   totalStages,
 } from "./stages";
 import type {
+  BossTraitId,
   Card,
   DialogueLine,
   Enemy,
@@ -173,6 +176,8 @@ export function createGame(heroId?: string, enemyOptions?: EnemySelectionOptions
     pendingNextBattleModifiers: { ...emptyNextBattleModifiers },
     rewardOptionBonus: 0,
     rewardOptions: [],
+    bossTraitUsage: {},
+    bossTraitHistory: [],
     routeEventHistory: [],
     status: "playing",
     log: [firstEnemy.intro, firstStage.flavorText],
@@ -265,7 +270,9 @@ export function playCard(
   next.player.morale -= card.cost;
 
   applyCardEffect(next, card);
-  applyCardDialogue(next, card);
+  if (!["boss_trait", "boss_recovery"].includes(next.currentDialogue?.trigger ?? "")) {
+    applyCardDialogue(next, card);
+  }
 
   if (card.kind !== "equipment") {
     next.discard.push(card);
@@ -327,8 +334,12 @@ export function endTurn(state: GameState): GameState {
 
   const baseDamage = action.kind === "fierce" ? next.enemy.attack + 1 : next.enemy.attack;
   const chargedBonus = next.enemyCharged ? 1 : 0;
-  const damage = baseDamage + chargedBonus;
-  const damageSegments = action.kind === "fierce" ? [1, Math.max(0, damage - 1)] : [damage];
+  const initialDamage = baseDamage + chargedBonus;
+  const damageSegments =
+    action.kind === "fierce" ? [1, Math.max(0, initialDamage - 1)] : [initialDamage];
+  const bossTraitMessages = applyUnmatchedPressure(next, action, damageSegments);
+  const damage = damageSegments.reduce((total, segmentDamage) => total + segmentDamage, 0);
+  const bossTraitText = bossTraitMessages.length ? ` ${bossTraitMessages.join(" ")}` : "";
   next.enemyCharged = false;
 
   const attackMessage =
@@ -341,7 +352,7 @@ export function endTurn(state: GameState): GameState {
     return startNextTurn(
       appendLog(
         next,
-        `${attackMessage} 的盧馬發動，自動閃避一次攻擊。`,
+        `${attackMessage}${bossTraitText} 的盧馬發動，自動閃避一次攻擊。`,
       ),
     );
   }
@@ -361,12 +372,12 @@ export function endTurn(state: GameState): GameState {
         damage,
         damageSegments,
       },
-    }, `${attackMessage} ${defenseHint}`);
+    }, `${attackMessage}${bossTraitText} ${defenseHint}`);
   }
 
   return finishEnemyDamage(next, damageSegments, (finalDamage) => (
-    `${attackMessage} 你沒有可抵消的牌，受到 ${finalDamage} 點傷害。`
-  ));
+    `${attackMessage}${bossTraitText} 你沒有可抵消的牌，受到 ${finalDamage} 點傷害。`
+  ), { preserveCurrentDialogue: bossTraitMessages.length > 0 });
 }
 
 export function resolveDefense(state: GameState, useDodge: boolean): GameState {
@@ -725,7 +736,7 @@ function applyCardEffect(state: GameState, card: Card) {
     const wasEnemyWounded = state.enemyHealth < state.enemy.maxHealth;
     const damage = card.value;
     const notes: string[] = [];
-    state.enemyHealth = Math.max(0, state.enemyHealth - damage);
+    const bossTraitMessages = applyEnemyDamage(state, damage);
 
     if (wasEnemyWounded) {
       const drawn = drawCards(state, 1);
@@ -735,10 +746,12 @@ function applyCardEffect(state: GameState, card: Card) {
       notes.push("連斬追擊成功，抽 1 張牌。");
     }
 
-    state.log = [`你使用連斬，造成 ${damage} 點傷害。`, ...notes, ...state.log].slice(
-      0,
-      logLimit,
-    );
+    state.log = [
+      `你使用連斬，造成 ${damage} 點傷害。`,
+      ...notes,
+      ...bossTraitMessages,
+      ...state.log,
+    ].slice(0, logLimit);
     return;
   }
 
@@ -764,34 +777,37 @@ function applyCardEffect(state: GameState, card: Card) {
   if (card.kind === "fire") {
     if (state.enemyCharged) {
       state.enemyCharged = false;
-      state.enemyHealth = Math.max(0, state.enemyHealth - 2);
+      const bossTraitMessages = applyEnemyDamage(state, 2);
       state.log = [
         "火攻破勢，對蓄力中的敵人造成 2 點傷害，並打斷蓄力。",
+        ...bossTraitMessages,
         ...state.log,
       ].slice(0, logLimit);
       return;
     }
 
-    state.enemyHealth = Math.max(0, state.enemyHealth - card.value);
-    state.log = [`你使用火攻，造成 ${card.value} 點傷害。`, ...state.log].slice(
-      0,
-      logLimit,
-    );
+    const bossTraitMessages = applyEnemyDamage(state, card.value);
+    state.log = [
+      `你使用火攻，造成 ${card.value} 點傷害。`,
+      ...bossTraitMessages,
+      ...state.log,
+    ].slice(0, logLimit);
     return;
   }
 
   if (card.kind === "pierce") {
     state.enemyGuarding = false;
     state.enemyArmorBroken = true;
-    state.enemyHealth = Math.max(0, state.enemyHealth - card.value);
+    const bossTraitMessages = applyEnemyDamage(state, card.value);
     const bonusText =
       state.playerUpgrades.armorBreakDamageBonus > 0
         ? `本回合下一次斬傷害 +${1 + state.playerUpgrades.armorBreakDamageBonus}`
         : "下一次斬傷害 +1";
-    state.log = [`你使用了破甲，造成 ${card.value} 點傷害，${bonusText}。`, ...state.log].slice(
-      0,
-      logLimit,
-    );
+    state.log = [
+      `你使用了破甲，造成 ${card.value} 點傷害，${bonusText}。`,
+      ...bossTraitMessages,
+      ...state.log,
+    ].slice(0, logLimit);
   }
 }
 
@@ -817,6 +833,7 @@ function advanceEnemy(state: GameState): GameState {
     enemyGuarding: false,
     enemyCharged: false,
     enemyArmorBroken: false,
+    bossTraitUsage: {},
     pendingDefense: undefined,
     currentEvent: undefined,
     currentRouteEvent: undefined,
@@ -841,6 +858,7 @@ function finishEnemyDamage(
   state: GameState,
   damage: number | number[],
   message: string | ((finalDamage: number) => string),
+  options: { preserveCurrentDialogue?: boolean } = {},
 ): GameState {
   const next = cloneState(state);
   const damageSegments = Array.isArray(damage) ? damage : [damage];
@@ -875,7 +893,7 @@ function finishEnemyDamage(
     );
   }
 
-  if (finalDamage > 0) {
+  if (finalDamage > 0 && !options.preserveCurrentDialogue) {
     if (next.player.health <= 2 && !next.lowHpDialogueUsed) {
       next.lowHpDialogueUsed = true;
       setDialogue(next, getHeroDialogue(next.player.heroId, "low_hp"));
@@ -929,6 +947,7 @@ function startNextStage(
   next.enemyGuarding = false;
   next.enemyCharged = false;
   next.enemyArmorBroken = false;
+  next.bossTraitUsage = {};
   next.enemy = nextEnemy;
   next.stageConfig = stageConfig;
   next.enemyHealth = nextEnemy.maxHealth;
@@ -1165,12 +1184,68 @@ function applySlashEffect(state: GameState, baseValue: number, actionText: strin
     notes.push("敵人防守抵消 1 點傷害");
   }
 
-  state.enemyHealth = Math.max(0, state.enemyHealth - damage);
+  const bossTraitMessages = applyEnemyDamage(state, damage);
   state.log = [
     `${actionText}，造成 ${damage} 點傷害。`,
     ...notes.map((note) => `${note}。`),
+    ...bossTraitMessages,
     ...state.log,
   ].slice(0, logLimit);
+}
+
+function applyEnemyDamage(state: GameState, damage: number) {
+  state.enemyHealth = Math.max(0, state.enemyHealth - damage);
+  return applyWarlordRecovery(state);
+}
+
+function applyWarlordRecovery(state: GameState) {
+  if (
+    !hasBossTrait(state.enemy, "warlord-recovery") ||
+    state.bossTraitUsage["warlord-recovery"]
+  ) {
+    return [];
+  }
+
+  const recoveryThreshold = Math.floor(state.enemy.maxHealth / 2);
+
+  if (state.enemyHealth > recoveryThreshold) {
+    return [];
+  }
+
+  state.bossTraitUsage["warlord-recovery"] = true;
+  state.bossTraitHistory.push("warlord-recovery");
+  state.enemyHealth = Math.min(state.enemy.maxHealth, state.enemyHealth + 3);
+  setDialogue(state, getBossRecoveryDialogue(state.enemy.id));
+
+  return [`${state.enemy.name}發動戰神回血，回復 3 點體力！`];
+}
+
+function applyUnmatchedPressure(
+  state: GameState,
+  action: EnemyAction,
+  damageSegments: number[],
+) {
+  if (
+    action.kind !== "fierce" ||
+    !hasBossTrait(state.enemy, "unmatched-pressure") ||
+    state.bossTraitUsage["unmatched-pressure"]
+  ) {
+    return [];
+  }
+
+  if (damageSegments.length >= 2) {
+    damageSegments[1] += 1;
+  }
+
+  state.bossTraitUsage["unmatched-pressure"] = true;
+  state.bossTraitHistory.push("unmatched-pressure");
+  setDialogue(state, getBossTraitDialogue(state.enemy.id));
+
+  return [`${state.enemy.name}發動無雙壓迫，猛攻第二段傷害 +1！`];
+}
+
+function hasBossTrait(enemy: Enemy, traitId: BossTraitId) {
+  return enemy.bossTraits.includes(traitId);
 }
 
 function hasDodge(state: GameState): boolean {
@@ -1284,6 +1359,8 @@ function cloneState(state: GameState): GameState {
     },
     rewardOptionBonus: state.rewardOptionBonus ?? 0,
     rewardOptions: state.rewardOptions.map((reward) => ({ ...reward })),
+    bossTraitUsage: { ...(state.bossTraitUsage ?? {}) },
+    bossTraitHistory: [...(state.bossTraitHistory ?? [])],
     routeEventHistory: [...(state.routeEventHistory ?? [])],
     log: [...state.log],
     currentDialogue: state.currentDialogue ? cloneDialogue(state.currentDialogue) : undefined,
@@ -1322,6 +1399,7 @@ function applyNextBattleModifiersToEnemy(enemy: Enemy, enemyHpModifier: number):
     maxHp: maxHealth,
     maxHealth,
     traits: [...enemy.traits],
+    bossTraits: [...enemy.bossTraits],
     actionDeck: enemy.actionDeck.map((action) => ({ ...action })),
     actions: enemy.actions.map((action) => ({ ...action })),
   };

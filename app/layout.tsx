@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "三國單騎傳",
-  description: "v0.16.2 路線風格平衡版：山道、官道、險道改為不同劇情與資源方向，不再只是難度差異。",
+  description: "v0.17.0 Boss 特性系統版：呂布具備無雙壓迫與戰神回血，最終戰更具壓迫感。",
 };
 
 export default function RootLayout({
