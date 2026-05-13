@@ -5,6 +5,7 @@ import {
   getPhaseHint,
   getHeroIntroAudioKey,
   getHeroStartLabel,
+  gameLoadingCopy,
   homeCollapsibleSections,
   homeHeroSelectionCopy,
   homeMainFlowSteps,
@@ -18,7 +19,7 @@ import { canPlayVoice } from "@/lib/game/voice";
 
 describe("showcase and onboarding copy", () => {
   it("includes homepage how-to and current feature copy", () => {
-    expect(currentVersionLabel).toBe("v0.14.0 卡牌音效導入版");
+    expect(currentVersionLabel).toBe("v0.14.1 Hydration 修正版");
     expect(howToSteps.map((step) => step.title)).toEqual([
       "選擇武將",
       "進入戰鬥",
@@ -70,8 +71,18 @@ describe("showcase and onboarding copy", () => {
       "卡牌音效系統：不同類型卡牌可對應不同音效",
     );
     expect(currentFeatureHighlights).toContain(
+      "Hydration 修正：/game 隨機戰局初始化改為 client mounted 後執行",
+    );
+    expect(currentFeatureHighlights).toContain(
       "視覺資產 placeholder：角色、敵人、關卡、事件、路線與卡牌",
     );
+  });
+
+  it("defines deterministic loading copy for client-only game initialization", () => {
+    expect(gameLoadingCopy).toEqual({
+      title: "戰局準備中……",
+      description: "正在生成本局敵人與初始手牌。",
+    });
   });
 
   it("describes the corrected homepage start flow", () => {

@@ -386,6 +386,18 @@ describe("game engine", () => {
     expect(state.encounteredEnemyIds).toEqual(["yellow-turban-archer"]);
   });
 
+  it("can deterministically select Yellow Turban Brute for stage two", () => {
+    const routeState = selectReward(forceReward(defeatFirstEnemy(), "max-health"), "max-health");
+    const next = selectRoute(routeState, "official-road", {
+      enemyIds: { 2: "yellow-turban-brute" },
+    });
+
+    expect(next.stageConfig.name).toBe("山道伏兵");
+    expect(next.enemy.name).toBe("黃巾力士");
+    expect(next.enemy.maxHealth).toBe(5);
+    expect(next.encounteredEnemyIds.at(-1)).toBe("yellow-turban-brute");
+  });
+
   it("heals two health from village supply without exceeding max health", () => {
     const eventState = enterEventPhase(
       {

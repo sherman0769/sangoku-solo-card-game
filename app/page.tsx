@@ -237,7 +237,7 @@ export default function Home() {
           <summary className="cursor-pointer text-2xl font-black text-amber-50">
             {homeCollapsibleSections[1].title}
           </summary>
-          <h2 className="sr-only">v0.14.0 目前特色</h2>
+          <h2 className="sr-only">v0.14.1 目前特色</h2>
           <ul className="mt-5 grid gap-3 text-sm leading-6 text-stone-300 md:grid-cols-2">
             {currentFeatureHighlights.map((feature) => (
               <li
@@ -271,6 +271,7 @@ export default function Home() {
             ["手機遊玩優化", "戰鬥 HUD、底部手牌操作區、紀錄與狀態設定收合，降低直屏滑動負擔。"],
             ["首頁主流程", "首頁改為觀看開場動畫、選擇武將、開始遊戲，避免選角前直接進入遊戲。"],
             ["卡牌音效系統", "不同類型卡牌已可對應不同音效，正式音檔尚未導入時會 fallback 到提示音。"],
+            ["Hydration 修正", "/game 隨機敵人與初始手牌改為 client mounted 後生成，避免初始畫面不一致。"],
           ].map(([title, text]) => (
             <section
               key={title}

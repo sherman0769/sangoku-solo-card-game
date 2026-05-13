@@ -35,10 +35,17 @@ import {
   selectRoute,
 } from "@/lib/game/engine";
 import { heroes } from "@/lib/game/heroes";
-import { currentVersionLabel, getPhaseHint, quickRules } from "@/lib/game/showcase";
+import { currentVersionLabel, gameLoadingCopy, getPhaseHint, quickRules } from "@/lib/game/showcase";
 import { totalStages } from "@/lib/game/stages";
 import type { SoundCue } from "@/lib/game/sounds";
-import type { DialogueLine, GameEvent, PlayerUpgrades, Reward, StageRoute } from "@/lib/game/types";
+import type {
+  DialogueLine,
+  GameEvent,
+  GameState,
+  PlayerUpgrades,
+  Reward,
+  StageRoute,
+} from "@/lib/game/types";
 
 interface EventToast {
   id: number;
@@ -60,8 +67,57 @@ interface StageNotice {
 }
 
 export default function GameBoard({ initialHeroId }: { initialHeroId?: string }) {
+  const [initialState, setInitialState] = useState<GameState | null>(null);
+  const initializedRef = useRef(false);
+
+  useEffect(() => {
+    if (initializedRef.current) {
+      return;
+    }
+
+    initializedRef.current = true;
+    setInitialState(createGame(initialHeroId, { enemyRandom: Math.random }));
+  }, [initialHeroId]);
+
+  if (!initialState) {
+    return <GameBoardLoading />;
+  }
+
+  return <GameBoardContent initialHeroId={initialHeroId} initialState={initialState} />;
+}
+
+function GameBoardLoading() {
+  return (
+    <main className="min-h-screen bg-[#140c09] bg-[radial-gradient(circle_at_top_left,rgba(127,29,29,0.34),transparent_34%),linear-gradient(135deg,#1b100b_0%,#2a120d_45%,#090605_100%)] px-4 py-8 text-stone-100 sm:px-6 lg:px-8">
+      <section className="mx-auto flex min-h-[60vh] max-w-3xl items-center justify-center">
+        <div className="w-full rounded-2xl border border-amber-700/45 bg-black/35 p-6 text-center shadow-[0_24px_70px_rgba(0,0,0,0.42)] sm:p-8">
+          <p className="text-xs font-black uppercase tracking-[0.22em] text-amber-300">
+            三國單騎傳
+          </p>
+          <h1 className="mt-4 text-3xl font-black text-amber-50 sm:text-4xl">
+            {gameLoadingCopy.title}
+          </h1>
+          <p className="mt-4 text-sm font-bold leading-7 text-stone-300">
+            {gameLoadingCopy.description}
+          </p>
+          <p className="mt-6 text-xs font-bold uppercase tracking-[0.18em] text-stone-500">
+            版本：{currentVersionLabel}
+          </p>
+        </div>
+      </section>
+    </main>
+  );
+}
+
+function GameBoardContent({
+  initialHeroId,
+  initialState,
+}: {
+  initialHeroId?: string;
+  initialState: GameState;
+}) {
   const router = useRouter();
-  const [state, setState] = useState(() => createGame(initialHeroId));
+  const [state, setState] = useState(initialState);
   const [eventToast, setEventToast] = useState<EventToast | null>(null);
   const [panelFeedback, setPanelFeedback] = useState<PanelFeedback | null>(null);
   const [stageNotice, setStageNotice] = useState<StageNotice | null>(null);
@@ -405,7 +461,7 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
             </div>
             <button
               type="button"
-              onClick={() => setState(createGame(initialHeroId))}
+              onClick={() => setState(createGame(initialHeroId, { enemyRandom: Math.random }))}
               className="h-10 rounded-md border border-amber-600/60 bg-stone-950/70 px-4 text-sm font-bold text-amber-100 transition hover:border-amber-300 hover:bg-amber-950/70"
             >
               重新開始
