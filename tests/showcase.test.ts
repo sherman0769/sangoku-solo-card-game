@@ -22,7 +22,7 @@ import { canPlayVoice } from "@/lib/game/voice";
 
 describe("showcase and onboarding copy", () => {
   it("includes homepage how-to and current feature copy", () => {
-    expect(currentVersionLabel).toBe("v0.18.3-pre 第一章 P0 TTS 生成準備版");
+    expect(currentVersionLabel).toBe("v0.18.3 第一章 P0 TTS 導入版");
     expect(howToSteps.map((step) => step.title)).toEqual([
       "選擇武將",
       "進入戰鬥",
@@ -62,7 +62,7 @@ describe("showcase and onboarding copy", () => {
       "第一章 TTS 補完規劃：已整理八關旁白、敵人登場、擊敗語音與路線事件語音清單。",
     );
     expect(currentFeatureHighlights).toContain(
-      "P0 TTS 批量生成清單：已匯出 20 筆第一章優先語音的 Markdown 與 JSON manifest。",
+      "第一章 P0 語音已導入：八關旁白、敵人登場、Boss 特性與勝敗語音陸續完成。",
     );
     expect(currentFeatureHighlights).toContain(
       "開頭動畫：以 AI 圖像、影片與音樂製作第一章開場",

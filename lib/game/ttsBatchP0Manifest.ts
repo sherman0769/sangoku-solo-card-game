@@ -1,7 +1,4 @@
-import {
-  CHAPTER_1_TTS_GAP_MANIFEST,
-  type TtsGapCategory,
-} from "./ttsGapManifest";
+import { type TtsGapCategory } from "./ttsGapManifest";
 import {
   getTtsAssetByAudioKey,
   type TtsDialogueAsset,
@@ -22,21 +19,63 @@ export interface TtsBatchP0Item {
   suggestedSpeed: string;
   filePath: string;
   usage: string;
-  status: "planned";
+  status: "ready";
 }
 
-export const CHAPTER_1_TTS_P0_BATCH_MANIFEST: TtsBatchP0Item[] = CHAPTER_1_TTS_GAP_MANIFEST
-  .filter((gap) => gap.priority === "P0")
-  .map((gap, index) => {
-    const asset = getTtsAssetByAudioKey(gap.audioKey);
+const chapterOneP0BatchTargets: Array<{
+  audioKey: string;
+  category: TtsGapCategory;
+}> = [
+  ...[
+    "stage-1-intro",
+    "stage-2-intro",
+    "stage-3-intro",
+    "stage-4-intro",
+    "stage-5-intro",
+    "stage-6-intro",
+    "stage-7-intro",
+    "stage-8-intro",
+  ].map((audioKey) => ({
+    audioKey,
+    category: "stage_intro" as const,
+  })),
+  ...[
+    "yellow-turban-soldier-intro",
+    "yellow-turban-archer-intro",
+    "yellow-turban-brute-intro",
+    "bandit-leader-intro",
+    "black-mountain-general-intro",
+    "xiliang-cavalry-intro",
+    "zhang-liang-intro",
+    "zhang-bao-intro",
+  ].map((audioKey) => ({
+    audioKey,
+    category: "enemy_intro" as const,
+  })),
+  ...[
+    "lu-bu-unmatched-pressure",
+    "lu-bu-warlord-recovery",
+  ].map((audioKey) => ({
+    audioKey,
+    category: "boss_trait" as const,
+  })),
+  ...["game-win", "game-lose"].map((audioKey) => ({
+    audioKey,
+    category: "game_result" as const,
+  })),
+];
 
-    if (!asset || asset.status !== "planned") {
-      throw new Error(`Missing planned P0 TTS asset: ${gap.audioKey}`);
+export const CHAPTER_1_TTS_P0_BATCH_MANIFEST: TtsBatchP0Item[] = chapterOneP0BatchTargets
+  .map((target, index) => {
+    const asset = getTtsAssetByAudioKey(target.audioKey);
+
+    if (!asset || asset.status !== "ready") {
+      throw new Error(`Missing ready P0 TTS asset: ${target.audioKey}`);
     }
 
     return {
       index: index + 1,
-      category: gap.category,
+      category: target.category,
       priority: "P0",
       audioKey: asset.audioKey,
       fileName: getFileName(asset.filePath),

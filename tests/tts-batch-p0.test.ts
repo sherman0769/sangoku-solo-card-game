@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 import ttsBatchP0Json from "@/docs/tts-batch-p0-v0.18.3.json";
 import { CHAPTER_1_TTS_P0_BATCH_MANIFEST } from "@/lib/game/ttsBatchP0Manifest";
-import { CHAPTER_1_TTS_GAP_MANIFEST } from "@/lib/game/ttsGapManifest";
 import { getTtsAssetByAudioKey } from "@/lib/game/ttsManifest";
 
 const expectedStageIntroAudioKeys = [
@@ -34,18 +33,13 @@ const expectedBossAndResultAudioKeys = [
 ] as const;
 
 describe("chapter one P0 TTS batch manifest", () => {
-  it("exports exactly the planned P0 gap items", () => {
-    const p0GapAudioKeys = CHAPTER_1_TTS_GAP_MANIFEST
-      .filter((item) => item.priority === "P0")
-      .map((item) => item.audioKey);
-
+  it("exports exactly the imported ready P0 batch items", () => {
     expect(CHAPTER_1_TTS_P0_BATCH_MANIFEST).toHaveLength(20);
-    expect(CHAPTER_1_TTS_P0_BATCH_MANIFEST.map((item) => item.audioKey)).toEqual(p0GapAudioKeys);
     expect(CHAPTER_1_TTS_P0_BATCH_MANIFEST.every((item) => item.priority === "P0")).toBe(true);
-    expect(CHAPTER_1_TTS_P0_BATCH_MANIFEST.every((item) => item.status === "planned")).toBe(true);
+    expect(CHAPTER_1_TTS_P0_BATCH_MANIFEST.every((item) => item.status === "ready")).toBe(true);
   });
 
-  it("contains stage intros, planned enemy intros, boss traits, and result narration", () => {
+  it("contains stage intros, enemy intros, boss traits, and result narration", () => {
     expect(CHAPTER_1_TTS_P0_BATCH_MANIFEST.map((item) => item.audioKey)).toEqual([
       ...expectedStageIntroAudioKeys,
       ...expectedEnemyIntroAudioKeys,
@@ -53,7 +47,7 @@ describe("chapter one P0 TTS batch manifest", () => {
     ]);
   });
 
-  it("keeps ready audioKeys out of the batch", () => {
+  it("keeps non-batch ready audioKeys out of the batch", () => {
     expect(CHAPTER_1_TTS_P0_BATCH_MANIFEST.map((item) => item.audioKey)).not.toEqual(
       expect.arrayContaining([
         "chapter-1-intro",
@@ -86,18 +80,18 @@ describe("chapter one P0 TTS batch manifest", () => {
         suggestedSpeed: item.suggestedSpeed,
         filePath: item.filePath,
         usage: item.usage,
-        status: "planned",
+        status: "ready",
       });
     });
   });
 
   it("provides a JSON manifest matching the TypeScript export", () => {
     expect(ttsBatchP0Json).toMatchObject({
-      version: "v0.18.3-pre",
-      title: "第一章 P0 TTS 生成準備版",
+      version: "v0.18.3",
+      title: "第一章 P0 TTS 導入版",
       language: "繁體中文",
       format: "mp3",
-      status: "planned",
+      status: "ready",
       count: 20,
     });
     expect(ttsBatchP0Json.items).toEqual(CHAPTER_1_TTS_P0_BATCH_MANIFEST);

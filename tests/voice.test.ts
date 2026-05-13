@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { CHAPTER_1_TTS_P0_BATCH_MANIFEST } from "@/lib/game/ttsBatchP0Manifest";
 import { TTS_DIALOGUE_MANIFEST, ttsAssetStatuses } from "@/lib/game/ttsManifest";
 import {
   canPlayVoice,
@@ -10,7 +11,7 @@ import {
   writeVoiceEnabledSetting,
 } from "@/lib/game/voice";
 
-const firstReadyVoiceAssets = [
+const existingReadyVoiceAssets = [
   ["chapter-1-intro", "/audio/narration/chapter-1-intro.mp3"],
   ["guan-yu-preview", "/audio/voices/guan-yu/guan-yu-preview.mp3"],
   ["guan-yu-intro", "/audio/voices/guan-yu/guan-yu-intro.mp3"],
@@ -21,6 +22,11 @@ const firstReadyVoiceAssets = [
   ["lu-bu-intro", "/audio/voices/lu-bu/lu-bu-intro.mp3"],
 ] as const;
 
+const readyVoiceAssets = [
+  ...existingReadyVoiceAssets,
+  ...CHAPTER_1_TTS_P0_BATCH_MANIFEST.map((asset) => [asset.audioKey, asset.filePath] as const),
+];
+
 describe("voice playback framework", () => {
   it("checks voice support safely without browser APIs", () => {
     expect(() => isVoiceSupported()).not.toThrow();
@@ -28,7 +34,7 @@ describe("voice playback framework", () => {
   });
 
   it("only allows ready voice assets to play", () => {
-    firstReadyVoiceAssets.forEach(([audioKey, filePath]) => {
+    readyVoiceAssets.forEach(([audioKey, filePath]) => {
       expect(getVoiceAssetByAudioKey(audioKey)).toMatchObject({
         audioKey,
         filePath,
@@ -63,9 +69,9 @@ describe("voice playback framework", () => {
 
   it("supports voice lifecycle statuses while keeping non-imported assets planned", () => {
     expect(ttsAssetStatuses).toEqual(["planned", "generated", "ready"]);
-    expect(TTS_DIALOGUE_MANIFEST.filter((asset) => asset.status === "ready")).toHaveLength(8);
+    expect(TTS_DIALOGUE_MANIFEST.filter((asset) => asset.status === "ready")).toHaveLength(28);
     expect(
-      TTS_DIALOGUE_MANIFEST.filter((asset) => !firstReadyVoiceAssets.some(([audioKey]) => audioKey === asset.audioKey))
+      TTS_DIALOGUE_MANIFEST.filter((asset) => !readyVoiceAssets.some(([audioKey]) => audioKey === asset.audioKey))
         .every((asset) => asset.status === "planned"),
     ).toBe(true);
   });

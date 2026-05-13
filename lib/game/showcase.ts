@@ -1,6 +1,6 @@
 import type { GamePhase } from "./types";
 
-export const currentVersionLabel = "v0.18.3-pre 第一章 P0 TTS 生成準備版";
+export const currentVersionLabel = "v0.18.3 第一章 P0 TTS 導入版";
 
 export const gameLoadingCopy = {
   title: "戰局準備中……",
@@ -78,7 +78,7 @@ export const currentFeatureHighlights = [
   "第一批 TTS 語音：章節開場、三位武將登場與呂布登場",
   "首頁武將試聽語音：選角時可聽到專屬語音，與進入遊戲後登場語音分離。",
   "第一章 TTS 補完規劃：已整理八關旁白、敵人登場、擊敗語音與路線事件語音清單。",
-  "P0 TTS 批量生成清單：已匯出 20 筆第一章優先語音的 Markdown 與 JSON manifest。",
+  "第一章 P0 語音已導入：八關旁白、敵人登場、Boss 特性與勝敗語音陸續完成。",
   "開頭動畫：以 AI 圖像、影片與音樂製作第一章開場",
   "手機遊玩優化：戰鬥 HUD、底部手牌操作區、紀錄與設定收合",
   "首頁互動修正：武將試聽台詞、開場動畫入口上移、教學與特色收合",

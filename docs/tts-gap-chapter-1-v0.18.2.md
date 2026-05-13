@@ -2,9 +2,9 @@
 
 ## 1. 文件目的
 
-本文件整理《三國單騎傳》第一章「黃巾亂起」目前尚未導入真實音檔、但值得補齊的 TTS 台詞。v0.18.2 只建立缺口文件與結構化清單，不新增真實 MP3，也不把尚未存在的音檔標記為 `ready`。
+本文件整理《三國單騎傳》第一章「黃巾亂起」目前尚未導入真實音檔、但值得補齊的 TTS 台詞。v0.18.2 先建立缺口文件與結構化清單；v0.18.3 已導入 P0 批次 MP3，剩餘缺口以 P1 / P2 為主。
 
-結構化資料位於 `lib/game/ttsGapManifest.ts` 的 `CHAPTER_1_TTS_GAP_MANIFEST`。後續可依照本文件批量生成 MP3，放入建議路徑後，再逐筆將 status 改為 `ready`。
+結構化資料位於 `lib/game/ttsGapManifest.ts` 的 `CHAPTER_1_TTS_GAP_MANIFEST`。後續可依照本文件與 batch 文件繼續生成剩餘 P1 / P2 MP3，放入建議路徑後，再逐筆將 status 改為 `ready`。
 
 ## 2. 已完成語音清單
 
@@ -21,43 +21,43 @@
 
 ## 3. 尚未完成語音清單
 
-### P0：八關開場旁白
+### P0：八關開場旁白（v0.18.3 已導入）
 
 | audioKey | speakerName | text | 建議路徑 | status |
 |---|---|---|---|---|
-| stage-1-intro | 旁白 | 荒村煙塵未散，黃巾餘黨仍在掠奪糧草。 | public/audio/narration/stage-1-intro.mp3 | planned |
-| stage-2-intro | 旁白 | 山道狹窄，伏兵隱於林間。 | public/audio/narration/stage-2-intro.mp3 | planned |
-| stage-3-intro | 旁白 | 破廟燈火搖曳，敵影在夜色中逼近。 | public/audio/narration/stage-3-intro.mp3 | planned |
-| stage-4-intro | 旁白 | 黑山賊寨盤踞山間，守備森嚴。 | public/audio/narration/stage-4-intro.mp3 | planned |
-| stage-5-intro | 旁白 | 馬蹄聲急，西涼騎兵席捲而來。 | public/audio/narration/stage-5-intro.mp3 | planned |
-| stage-6-intro | 旁白 | 古戰場埋藏著舊日兵戈，也藏著未知危機。 | public/audio/narration/stage-6-intro.mp3 | planned |
-| stage-7-intro | 旁白 | 祭壇妖風四起，黃巾殘部正進行詭異儀式。 | public/audio/narration/stage-7-intro.mp3 | planned |
-| stage-8-intro | 旁白 | 虎牢關前，赤兔嘶鳴，真正的考驗終於降臨。 | public/audio/narration/stage-8-intro.mp3 | planned |
+| stage-1-intro | 旁白 | 荒村煙塵未散，黃巾餘黨仍在掠奪糧草。 | /audio/narration/stage-1-intro.mp3 | ready |
+| stage-2-intro | 旁白 | 山道狹窄，伏兵隱於林間。 | /audio/narration/stage-2-intro.mp3 | ready |
+| stage-3-intro | 旁白 | 破廟燈火搖曳，敵影在夜色中逼近。 | /audio/narration/stage-3-intro.mp3 | ready |
+| stage-4-intro | 旁白 | 黑山賊寨盤踞山間，守備森嚴。 | /audio/narration/stage-4-intro.mp3 | ready |
+| stage-5-intro | 旁白 | 馬蹄聲急，西涼騎兵席捲而來。 | /audio/narration/stage-5-intro.mp3 | ready |
+| stage-6-intro | 旁白 | 古戰場埋藏著舊日兵戈，也藏著未知危機。 | /audio/narration/stage-6-intro.mp3 | ready |
+| stage-7-intro | 旁白 | 祭壇妖風四起，黃巾殘部正進行詭異儀式。 | /audio/narration/stage-7-intro.mp3 | ready |
+| stage-8-intro | 旁白 | 虎牢關前，赤兔嘶鳴，真正的考驗終於降臨。 | /audio/narration/stage-8-intro.mp3 | ready |
 
-### P0：敵人登場語音
+### P0：敵人登場語音（v0.18.3 已導入；呂布登場原本已 ready）
 
 | audioKey | speakerName | text | 建議路徑 | status |
 |---|---|---|---|---|
-| yellow-turban-soldier-intro | 黃巾兵 | 蒼天已死，黃天當立！ | public/audio/voices/enemies/yellow-turban-soldier-intro.mp3 | planned |
-| yellow-turban-archer-intro | 黃巾弓手 | 賊軍弓手已就位，箭雨將至！ | public/audio/voices/enemies/yellow-turban-archer-intro.mp3 | planned |
-| yellow-turban-brute-intro | 黃巾力士 | 黃巾力士踏地而來，巨力壓陣！ | public/audio/voices/enemies/yellow-turban-brute-intro.mp3 | planned |
-| bandit-leader-intro | 山賊頭目 | 此山是我開，想過此路，留下性命！ | public/audio/voices/enemies/bandit-leader-intro.mp3 | planned |
-| black-mountain-general-intro | 黑山賊將 | 黑山賊將據寨而守，休想輕易通過！ | public/audio/voices/enemies/black-mountain-general-intro.mp3 | planned |
-| xiliang-cavalry-intro | 西涼騎兵 | 西涼鐵騎至，誰敢擋路！ | public/audio/voices/enemies/xiliang-cavalry-intro.mp3 | planned |
-| zhang-liang-intro | 張梁 | 人公將軍張梁在此，黃天之威不容爾等侵犯！ | public/audio/voices/enemies/zhang-liang-intro.mp3 | planned |
-| zhang-bao-intro | 張寶 | 地公將軍張寶施法布陣，妖風已起。 | public/audio/voices/enemies/zhang-bao-intro.mp3 | planned |
+| yellow-turban-soldier-intro | 黃巾兵 | 蒼天已死，黃天當立！ | /audio/voices/enemies/yellow-turban-soldier-intro.mp3 | ready |
+| yellow-turban-archer-intro | 黃巾弓手 | 賊軍弓手已就位，箭雨將至！ | /audio/voices/enemies/yellow-turban-archer-intro.mp3 | ready |
+| yellow-turban-brute-intro | 黃巾力士 | 黃巾力士踏地而來，巨力壓陣！ | /audio/voices/enemies/yellow-turban-brute-intro.mp3 | ready |
+| bandit-leader-intro | 山賊頭目 | 此山是我開，想過此路，留下性命！ | /audio/voices/enemies/bandit-leader-intro.mp3 | ready |
+| black-mountain-general-intro | 黑山賊將 | 黑山賊將據寨而守，休想輕易通過！ | /audio/voices/enemies/black-mountain-general-intro.mp3 | ready |
+| xiliang-cavalry-intro | 西涼騎兵 | 西涼鐵騎至，誰敢擋路！ | /audio/voices/enemies/xiliang-cavalry-intro.mp3 | ready |
+| zhang-liang-intro | 張梁 | 人公將軍張梁在此，黃天之威不容爾等侵犯！ | /audio/voices/enemies/zhang-liang-intro.mp3 | ready |
+| zhang-bao-intro | 張寶 | 地公將軍張寶施法布陣，妖風已起。 | /audio/voices/enemies/zhang-bao-intro.mp3 | ready |
 | lu-bu-intro | 呂布 | 吾乃呂布，誰敢與我一戰？ | /audio/voices/lu-bu/lu-bu-intro.mp3 | ready |
 
 `lu-bu-intro` 已完成，不列入 `CHAPTER_1_TTS_GAP_MANIFEST`。
 
-### P0：Boss 特性與結果旁白
+### P0：Boss 特性與結果旁白（v0.18.3 已導入）
 
 | audioKey | speakerName | text | 建議路徑 | status |
 |---|---|---|---|---|
-| lu-bu-unmatched-pressure | 呂布 | 天下群雄，誰能擋我？ | public/audio/voices/lu-bu/lu-bu-unmatched-pressure.mp3 | planned |
-| lu-bu-warlord-recovery | 呂布 | 這點傷，也想取我性命？ | public/audio/voices/lu-bu/lu-bu-warlord-recovery.mp3 | planned |
-| game-win | 旁白 | 你突破虎牢關前的考驗，第一章：黃巾亂起，至此落幕。 | public/audio/narration/game-win.mp3 | planned |
-| game-lose | 旁白 | 亂世無情，英雄亦有敗時。重整旗鼓，再入戰場。 | public/audio/narration/game-lose.mp3 | planned |
+| lu-bu-unmatched-pressure | 呂布 | 天下群雄，誰能擋我？ | /audio/voices/lu-bu/lu-bu-unmatched-pressure.mp3 | ready |
+| lu-bu-warlord-recovery | 呂布 | 這點傷，也想取我性命？ | /audio/voices/lu-bu/lu-bu-warlord-recovery.mp3 | ready |
+| game-win | 旁白 | 你突破虎牢關前的考驗，第一章：黃巾亂起，至此落幕。 | /audio/narration/game-win.mp3 | ready |
+| game-lose | 旁白 | 亂世無情，英雄亦有敗時。重整旗鼓，再入戰場。 | /audio/narration/game-lose.mp3 | ready |
 
 ### P1：敵人被擊敗旁白
 
@@ -109,11 +109,11 @@
 
 ## 4. 生成優先級
 
-- P0：優先補齊八關開場旁白、敵人登場、呂布 Boss 特性、通關與戰敗旁白。這些最直接影響第一章流程完整度。
+- P0：v0.18.3 已導入八關開場旁白、敵人登場、呂布 Boss 特性、通關與戰敗旁白；不再列入 `CHAPTER_1_TTS_GAP_MANIFEST` 缺口。
 - P1：補齊敵人被擊敗旁白與路線事件旁白，強化戰鬥後與路線選擇的敘事回饋。
 - P2：補齊武將戰鬥補充台詞，提升出牌、受傷、低血量與勝利時的角色感。
 
-`CHAPTER_1_TTS_GAP_MANIFEST` 目前共有 53 筆：P0 20 筆、P1 18 筆、P2 15 筆。
+v0.18.3 後，`CHAPTER_1_TTS_GAP_MANIFEST` 目前共有 33 筆：P1 18 筆、P2 15 筆。P0 20 筆已導入並改為 `ready`。
 
 ## 5. 建議聲線
 
@@ -137,13 +137,13 @@
 
 ## 7. 批量生成檢查表
 
-- [ ] 先從 `CHAPTER_1_TTS_GAP_MANIFEST` 匯出 P0 清單。
+- [x] 已從 `CHAPTER_1_TTS_GAP_MANIFEST` 匯出 P0 清單並於 v0.18.3 導入。
 - [ ] 依 speakerName 與 suggestedVoice 分批生成 MP3。
 - [ ] 確認檔名完全等於 `audioKey.mp3`。
-- [ ] 將旁白與路線事件放入 `public/audio/narration`。
+- [ ] 繼續將 P1 / P2 旁白與路線事件放入 `public/audio/narration`。
 - [ ] 將武將語音放入各自的 `public/audio/voices/{hero}` 資料夾。
-- [ ] 將一般敵人語音放入 `public/audio/voices/enemies`。
-- [ ] 將呂布 Boss 特性語音放入 `public/audio/voices/lu-bu`。
-- [ ] 實際檔案存在後，才把對應 audioKey 加入 ready 清單。
+- [x] 已將 P0 一般敵人登場語音放入 `public/audio/voices/enemies`。
+- [x] 已將 P0 呂布 Boss 特性語音放入 `public/audio/voices/lu-bu`。
+- [ ] P1 / P2 實際檔案存在後，才把對應 audioKey 加入 ready 清單。
 - [ ] 執行 `npm run lint`、`npm test`、`npm run build`。
 - [ ] 到首頁與遊戲流程抽查語音開關不會影響音效、卡牌音效、開場動畫與 Boss 特性。

@@ -89,6 +89,8 @@
 
 - v0.12.3 已將 `chapter-1-intro`、`guan-yu-intro`、`zhao-yun-intro`、`zhuge-liang-intro`、`lu-bu-intro` 標記為 `ready`；其他素材仍維持 `planned`。
 - v0.18.1 已將 `guan-yu-preview`、`zhao-yun-preview`、`zhuge-liang-preview` 標記為 `ready`，用途為首頁武將選擇試聽語音，不同於遊戲內登場台詞；其他未導入音檔的素材仍維持 `planned`。
+- v0.18.3 已將第一章 P0 批次語音導入並標記為 `ready`：八關開場旁白、第一章敵人登場、呂布 Boss 特性、通關與戰敗旁白。
+- P1 / P2 語音仍維持 `planned`，包含敵人被擊敗旁白、路線事件旁白與武將戰鬥語音。
 - 生成後音檔建議使用 MP3，放入上表的 `suggestedFilePath`。
 - 不要在音檔中加入背景音樂、Logo 音、水印或額外口白。
 - 角色語音應保留清楚斷句，避免過度戲劇化。

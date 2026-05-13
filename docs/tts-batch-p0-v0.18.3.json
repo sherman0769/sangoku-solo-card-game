@@ -1,10 +1,10 @@
 {
-  "version": "v0.18.3-pre",
-  "title": "第一章 P0 TTS 生成準備版",
+  "version": "v0.18.3",
+  "title": "第一章 P0 TTS 導入版",
   "language": "繁體中文",
   "format": "mp3",
   "sampleRate": "44.1kHz 或 48kHz",
-  "status": "planned",
+  "status": "ready",
   "count": 20,
   "items": [
     {
@@ -20,9 +20,9 @@
       "tone": "敘事",
       "suggestedVoice": "旁白：成熟、穩定、史詩敘事",
       "suggestedSpeed": "中慢速",
-      "filePath": "public/audio/narration/stage-1-intro.mp3",
+      "filePath": "/audio/narration/stage-1-intro.mp3",
       "usage": "指定關卡開場旁白",
-      "status": "planned"
+      "status": "ready"
     },
     {
       "index": 2,
@@ -37,9 +37,9 @@
       "tone": "伏擊",
       "suggestedVoice": "旁白：成熟、穩定、史詩敘事",
       "suggestedSpeed": "中慢速",
-      "filePath": "public/audio/narration/stage-2-intro.mp3",
+      "filePath": "/audio/narration/stage-2-intro.mp3",
       "usage": "指定關卡開場旁白",
-      "status": "planned"
+      "status": "ready"
     },
     {
       "index": 3,
@@ -54,9 +54,9 @@
       "tone": "夜戰",
       "suggestedVoice": "旁白：成熟、穩定、史詩敘事",
       "suggestedSpeed": "中慢速",
-      "filePath": "public/audio/narration/stage-3-intro.mp3",
+      "filePath": "/audio/narration/stage-3-intro.mp3",
       "usage": "指定關卡開場旁白",
-      "status": "planned"
+      "status": "ready"
     },
     {
       "index": 4,
@@ -71,9 +71,9 @@
       "tone": "壓迫",
       "suggestedVoice": "旁白：成熟、穩定、史詩敘事",
       "suggestedSpeed": "中慢速",
-      "filePath": "public/audio/narration/stage-4-intro.mp3",
+      "filePath": "/audio/narration/stage-4-intro.mp3",
       "usage": "指定關卡開場旁白",
-      "status": "planned"
+      "status": "ready"
     },
     {
       "index": 5,
@@ -88,9 +88,9 @@
       "tone": "急迫",
       "suggestedVoice": "旁白：成熟、穩定、史詩敘事",
       "suggestedSpeed": "中慢速",
-      "filePath": "public/audio/narration/stage-5-intro.mp3",
+      "filePath": "/audio/narration/stage-5-intro.mp3",
       "usage": "指定關卡開場旁白",
-      "status": "planned"
+      "status": "ready"
     },
     {
       "index": 6,
@@ -105,9 +105,9 @@
       "tone": "荒涼",
       "suggestedVoice": "旁白：成熟、穩定、史詩敘事",
       "suggestedSpeed": "中慢速",
-      "filePath": "public/audio/narration/stage-6-intro.mp3",
+      "filePath": "/audio/narration/stage-6-intro.mp3",
       "usage": "指定關卡開場旁白",
-      "status": "planned"
+      "status": "ready"
     },
     {
       "index": 7,
@@ -122,9 +122,9 @@
       "tone": "詭譎",
       "suggestedVoice": "旁白：成熟、穩定、史詩敘事",
       "suggestedSpeed": "中慢速",
-      "filePath": "public/audio/narration/stage-7-intro.mp3",
+      "filePath": "/audio/narration/stage-7-intro.mp3",
       "usage": "指定關卡開場旁白",
-      "status": "planned"
+      "status": "ready"
     },
     {
       "index": 8,
@@ -139,9 +139,9 @@
       "tone": "決戰",
       "suggestedVoice": "旁白：成熟、穩定、史詩敘事",
       "suggestedSpeed": "中慢速",
-      "filePath": "public/audio/narration/stage-8-intro.mp3",
+      "filePath": "/audio/narration/stage-8-intro.mp3",
       "usage": "指定關卡開場旁白",
-      "status": "planned"
+      "status": "ready"
     },
     {
       "index": 9,
@@ -156,9 +156,9 @@
       "tone": "狂熱",
       "suggestedVoice": "敵人：粗獷、緊張、戰場感",
       "suggestedSpeed": "中慢速",
-      "filePath": "public/audio/voices/enemies/yellow-turban-soldier-intro.mp3",
+      "filePath": "/audio/voices/enemies/yellow-turban-soldier-intro.mp3",
       "usage": "一般敵人登場時播放",
-      "status": "planned"
+      "status": "ready"
     },
     {
       "index": 10,
@@ -173,9 +173,9 @@
       "tone": "警戒",
       "suggestedVoice": "敵人：粗獷、緊張、戰場感",
       "suggestedSpeed": "中慢速",
-      "filePath": "public/audio/voices/enemies/yellow-turban-archer-intro.mp3",
+      "filePath": "/audio/voices/enemies/yellow-turban-archer-intro.mp3",
       "usage": "一般敵人登場時播放",
-      "status": "planned"
+      "status": "ready"
     },
     {
       "index": 11,
@@ -190,9 +190,9 @@
       "tone": "沉重",
       "suggestedVoice": "敵人：粗獷、緊張、戰場感",
       "suggestedSpeed": "中慢速",
-      "filePath": "public/audio/voices/enemies/yellow-turban-brute-intro.mp3",
+      "filePath": "/audio/voices/enemies/yellow-turban-brute-intro.mp3",
       "usage": "一般敵人登場時播放",
-      "status": "planned"
+      "status": "ready"
     },
     {
       "index": 12,
@@ -207,9 +207,9 @@
       "tone": "兇狠",
       "suggestedVoice": "敵人：粗獷、緊張、戰場感",
       "suggestedSpeed": "中慢速",
-      "filePath": "public/audio/voices/enemies/bandit-leader-intro.mp3",
+      "filePath": "/audio/voices/enemies/bandit-leader-intro.mp3",
       "usage": "一般敵人登場時播放",
-      "status": "planned"
+      "status": "ready"
     },
     {
       "index": 13,
@@ -224,9 +224,9 @@
       "tone": "沉穩",
       "suggestedVoice": "敵人：粗獷、緊張、戰場感",
       "suggestedSpeed": "中慢速",
-      "filePath": "public/audio/voices/enemies/black-mountain-general-intro.mp3",
+      "filePath": "/audio/voices/enemies/black-mountain-general-intro.mp3",
       "usage": "一般敵人登場時播放",
-      "status": "planned"
+      "status": "ready"
     },
     {
       "index": 14,
@@ -241,9 +241,9 @@
       "tone": "壓迫",
       "suggestedVoice": "敵人：粗獷、緊張、戰場感",
       "suggestedSpeed": "中慢速",
-      "filePath": "public/audio/voices/enemies/xiliang-cavalry-intro.mp3",
+      "filePath": "/audio/voices/enemies/xiliang-cavalry-intro.mp3",
       "usage": "一般敵人登場時播放",
-      "status": "planned"
+      "status": "ready"
     },
     {
       "index": 15,
@@ -258,9 +258,9 @@
       "tone": "狂熱",
       "suggestedVoice": "敵人：粗獷、緊張、戰場感",
       "suggestedSpeed": "中慢速",
-      "filePath": "public/audio/voices/enemies/zhang-liang-intro.mp3",
+      "filePath": "/audio/voices/enemies/zhang-liang-intro.mp3",
       "usage": "一般敵人登場時播放",
-      "status": "planned"
+      "status": "ready"
     },
     {
       "index": 16,
@@ -275,9 +275,9 @@
       "tone": "詭譎",
       "suggestedVoice": "敵人：粗獷、緊張、戰場感",
       "suggestedSpeed": "中慢速",
-      "filePath": "public/audio/voices/enemies/zhang-bao-intro.mp3",
+      "filePath": "/audio/voices/enemies/zhang-bao-intro.mp3",
       "usage": "一般敵人登場時播放",
-      "status": "planned"
+      "status": "ready"
     },
     {
       "index": 17,
@@ -292,9 +292,9 @@
       "tone": "壓迫",
       "suggestedVoice": "呂布：低沉、強勢、壓迫感",
       "suggestedSpeed": "中慢速",
-      "filePath": "public/audio/voices/lu-bu/lu-bu-unmatched-pressure.mp3",
+      "filePath": "/audio/voices/lu-bu/lu-bu-unmatched-pressure.mp3",
       "usage": "Boss 特性觸發時播放",
-      "status": "planned"
+      "status": "ready"
     },
     {
       "index": 18,
@@ -309,9 +309,9 @@
       "tone": "狂傲",
       "suggestedVoice": "呂布：低沉、強勢、壓迫感",
       "suggestedSpeed": "中慢速",
-      "filePath": "public/audio/voices/lu-bu/lu-bu-warlord-recovery.mp3",
+      "filePath": "/audio/voices/lu-bu/lu-bu-warlord-recovery.mp3",
       "usage": "Boss 回血特性觸發時播放",
-      "status": "planned"
+      "status": "ready"
     },
     {
       "index": 19,
@@ -326,9 +326,9 @@
       "tone": "勝利",
       "suggestedVoice": "旁白：成熟、穩定、史詩敘事",
       "suggestedSpeed": "中慢速",
-      "filePath": "public/audio/narration/game-win.mp3",
+      "filePath": "/audio/narration/game-win.mp3",
       "usage": "通關結果頁旁白",
-      "status": "planned"
+      "status": "ready"
     },
     {
       "index": 20,
@@ -343,9 +343,9 @@
       "tone": "戰敗",
       "suggestedVoice": "旁白：成熟、穩定、史詩敘事",
       "suggestedSpeed": "中慢速",
-      "filePath": "public/audio/narration/game-lose.mp3",
+      "filePath": "/audio/narration/game-lose.mp3",
       "usage": "戰敗結果頁旁白",
-      "status": "planned"
+      "status": "ready"
     }
   ]
 }

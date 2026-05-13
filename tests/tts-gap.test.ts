@@ -51,23 +51,33 @@ const routeEventAudioKeys = [
 
 describe("chapter one TTS gap manifest", () => {
   it("contains planned chapter one TTS gaps", () => {
-    expect(CHAPTER_1_TTS_GAP_MANIFEST.length).toBeGreaterThan(0);
+    expect(CHAPTER_1_TTS_GAP_MANIFEST).toHaveLength(33);
     expect(CHAPTER_1_TTS_GAP_MANIFEST.every((item) => item.status === "planned")).toBe(true);
   });
 
-  it("includes stage one through stage eight intro gaps", () => {
-    expect(CHAPTER_1_TTS_GAP_MANIFEST.map((item) => item.audioKey)).toEqual(
+  it("excludes imported stage one through stage eight intro voices from the remaining gaps", () => {
+    stageIntroAudioKeys.forEach((audioKey) => {
+      expect(getTtsAssetByAudioKey(audioKey)).toMatchObject({
+        audioKey,
+        status: "ready",
+      });
+    });
+
+    expect(CHAPTER_1_TTS_GAP_MANIFEST.map((item) => item.audioKey)).not.toEqual(
       expect.arrayContaining([...stageIntroAudioKeys]),
     );
   });
 
-  it("covers all nine chapter enemy intro audioKeys in the TTS manifest", () => {
+  it("keeps chapter enemy intro audioKeys in the TTS manifest while excluding ready voices from gaps", () => {
     enemyIntroAudioKeys.forEach((audioKey) => {
-      expect(getTtsAssetByAudioKey(audioKey)).toBeTruthy();
+      expect(getTtsAssetByAudioKey(audioKey)).toMatchObject({
+        audioKey,
+        status: "ready",
+      });
     });
 
-    expect(CHAPTER_1_TTS_GAP_MANIFEST.map((item) => item.audioKey)).toEqual(
-      expect.arrayContaining(enemyIntroAudioKeys.filter((audioKey) => audioKey !== "lu-bu-intro")),
+    expect(CHAPTER_1_TTS_GAP_MANIFEST.map((item) => item.audioKey)).not.toEqual(
+      expect.arrayContaining([...enemyIntroAudioKeys]),
     );
   });
 
@@ -83,8 +93,16 @@ describe("chapter one TTS gap manifest", () => {
     );
   });
 
-  it("includes game win and game lose narration gaps", () => {
-    expect(CHAPTER_1_TTS_GAP_MANIFEST.map((item) => item.audioKey)).toEqual(
+  it("excludes imported game win and game lose narration from the remaining gaps", () => {
+    expect(getTtsAssetByAudioKey("game-win")).toMatchObject({
+      audioKey: "game-win",
+      status: "ready",
+    });
+    expect(getTtsAssetByAudioKey("game-lose")).toMatchObject({
+      audioKey: "game-lose",
+      status: "ready",
+    });
+    expect(CHAPTER_1_TTS_GAP_MANIFEST.map((item) => item.audioKey)).not.toEqual(
       expect.arrayContaining(["game-win", "game-lose"]),
     );
   });
@@ -98,7 +116,7 @@ describe("chapter one TTS gap manifest", () => {
     });
   });
 
-  it("excludes already ready preview and intro audioKeys", () => {
+  it("excludes already ready preview, intro, and imported P0 audioKeys", () => {
     expect(CHAPTER_1_TTS_GAP_MANIFEST.map((item) => item.audioKey)).not.toEqual(
       expect.arrayContaining([
         "chapter-1-intro",
@@ -109,6 +127,12 @@ describe("chapter one TTS gap manifest", () => {
         "zhao-yun-intro",
         "zhuge-liang-intro",
         "lu-bu-intro",
+        ...stageIntroAudioKeys,
+        ...enemyIntroAudioKeys,
+        "lu-bu-unmatched-pressure",
+        "lu-bu-warlord-recovery",
+        "game-win",
+        "game-lose",
       ]),
     );
   });
@@ -120,10 +144,8 @@ describe("chapter one TTS gap manifest", () => {
     }, {});
 
     expect(countByPriority).toEqual({
-      P0: 20,
       P1: 18,
       P2: 15,
     });
   });
 });
-
