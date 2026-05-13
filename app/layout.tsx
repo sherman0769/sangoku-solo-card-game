@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "三國單騎傳",
-  description: "v0.14.1 Hydration 修正版：修復 /game 初始隨機敵人造成的 hydration mismatch，隨機戰局初始化改為 client mounted 後執行，並保留 deterministic 測試能力、卡牌音效、語音與手機戰鬥 HUD。",
+  description: "v0.14.2 真實卡牌音效導入版：導入 7 個真實卡牌 MP3 音效，斬與連斬分開播放，音效開關仍控制卡牌音效，播放失敗時 fallback 到 Web Audio 提示音。",
 };
 
 export default function RootLayout({

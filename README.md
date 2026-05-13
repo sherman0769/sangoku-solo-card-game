@@ -4,7 +4,7 @@
 
 線上遊玩網址：[https://sangoku-solo-card-game.vercel.app](https://sangoku-solo-card-game.vercel.app)
 
-目前版本：`v0.14.1 Hydration 修正版`
+目前版本：`v0.14.2 真實卡牌音效導入版`
 
 ## 已完成功能
 
@@ -44,6 +44,7 @@
 - 開場動畫體驗優化：一次點擊全螢幕播放，可關閉、略過、重播
 - 首頁主流程修正：觀看開場動畫 → 選擇武將 → 開始遊戲，選角前不再出現直接開始遊戲主 CTA
 - 卡牌音效導入系統：不同類型卡牌可對應不同音效檔，未導入時 fallback 到 Web Audio 提示音
+- 真實卡牌音效：已導入斬、連斬、防禦、回復、策略、裝備、火攻 7 個 MP3 音效
 - Hydration 修正：`/game` 初始隨機敵人與手牌改為 client mounted 後生成，避免 server / client 首屏不一致
 - 視覺資產欄位與 placeholder：武將、敵人、關卡、事件、路線與卡牌
 - 第一批 AI 圖像資產規劃：10 張核心圖像、建議路徑與中英文提示詞
@@ -144,6 +145,7 @@ npm run build
 - v0.13.4：首頁主流程引導修正
 - v0.14.0：建立卡牌音效導入系統
 - v0.14.1：修復隨機初始化造成的 hydration mismatch
+- v0.14.2：導入第一批真實卡牌音效
 
 ## 視覺資產系統
 
@@ -226,6 +228,18 @@ v0.14.0 建立第一版卡牌音效導入系統。`lib/game/cardSoundManifest.ts
 目前尚未導入真實卡牌音效檔，manifest 狀態皆為 `planned`。當音效開關開啟時，尚未有 ready MP3 的卡牌音效會 fallback 到既有 Web Audio cue；未來把 MP3 放入 `public/audio/sfx/cards`，並將對應 status 改為 `ready` 後，就會優先播放正式音效檔。若音檔不存在或瀏覽器阻擋播放，仍會安全 fallback，不會中斷遊戲。
 
 v0.14.1 修復 `/game` 初始隨機敵人造成的 hydration mismatch。遊戲頁首次 SSR / hydrate 階段只顯示固定的「戰局準備中……」畫面，等 client mounted 後才呼叫 `createGame(..., { enemyRandom: Math.random })` 生成本局敵人與初始手牌，因此 server 與 client 首屏不再因隨機結果不同而不一致。engine 層的 `createGame(..., { enemyIds })` 與 `selectRoute(..., { enemyIds })` deterministic 測試能力仍保留。
+
+v0.14.2 導入第一批 7 個真實卡牌音效：
+
+- 斬：`/audio/sfx/cards/slash-card.mp3`
+- 連斬：`/audio/sfx/cards/combo-slash-card.mp3`
+- 防禦：`/audio/sfx/cards/defense-card.mp3`
+- 回復：`/audio/sfx/cards/heal-card.mp3`
+- 策略：`/audio/sfx/cards/strategy-card.mp3`
+- 裝備：`/audio/sfx/cards/equipment-card.mp3`
+- 火攻：`/audio/sfx/cards/fire-card.mp3`
+
+音效開關仍會控制卡牌音效。斬與連斬已拆成不同 MP3；若瀏覽器阻擋、檔案缺失或播放失敗，仍會 fallback 到既有 Web Audio 提示音。
 
 ## TTS 配音規劃
 

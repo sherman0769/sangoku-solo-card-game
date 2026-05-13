@@ -19,7 +19,7 @@ import { canPlayVoice } from "@/lib/game/voice";
 
 describe("showcase and onboarding copy", () => {
   it("includes homepage how-to and current feature copy", () => {
-    expect(currentVersionLabel).toBe("v0.14.1 Hydration 修正版");
+    expect(currentVersionLabel).toBe("v0.14.2 真實卡牌音效導入版");
     expect(howToSteps.map((step) => step.title)).toEqual([
       "選擇武將",
       "進入戰鬥",
@@ -69,6 +69,9 @@ describe("showcase and onboarding copy", () => {
     );
     expect(currentFeatureHighlights).toContain(
       "卡牌音效系統：不同類型卡牌可對應不同音效",
+    );
+    expect(currentFeatureHighlights).toContain(
+      "真實卡牌音效：斬、連斬、防禦、回復、策略、裝備、火攻 MP3 已導入",
     );
     expect(currentFeatureHighlights).toContain(
       "Hydration 修正：/game 隨機戰局初始化改為 client mounted 後執行",

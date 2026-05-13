@@ -5,8 +5,8 @@ import type { Card } from "./types";
 export type CardSoundStatus = "planned" | "ready";
 
 export type CardSoundKey =
-  | "card-play"
-  | "attack-card"
+  | "slash-card"
+  | "combo-slash-card"
   | "defense-card"
   | "heal-card"
   | "strategy-card"
@@ -21,47 +21,47 @@ export interface CardSoundAsset {
 }
 
 export const CARD_SOUND_MANIFEST: Record<CardSoundKey, CardSoundAsset> = {
-  "card-play": {
-    displayName: "通用出牌",
-    filePath: "/audio/sfx/cards/card-play.mp3",
-    fallbackCue: "card-play",
-    status: "planned",
-  },
-  "attack-card": {
-    displayName: "攻擊卡音效",
-    filePath: "/audio/sfx/cards/attack-card.mp3",
+  "slash-card": {
+    displayName: "斬卡音效",
+    filePath: "/audio/sfx/cards/slash-card.mp3",
     fallbackCue: "slash",
-    status: "planned",
+    status: "ready",
+  },
+  "combo-slash-card": {
+    displayName: "連斬卡音效",
+    filePath: "/audio/sfx/cards/combo-slash-card.mp3",
+    fallbackCue: "slash",
+    status: "ready",
   },
   "defense-card": {
     displayName: "防禦卡音效",
     filePath: "/audio/sfx/cards/defense-card.mp3",
     fallbackCue: "dodge",
-    status: "planned",
+    status: "ready",
   },
   "heal-card": {
     displayName: "回復卡音效",
     filePath: "/audio/sfx/cards/heal-card.mp3",
     fallbackCue: "heal",
-    status: "planned",
+    status: "ready",
   },
   "strategy-card": {
     displayName: "策略卡音效",
     filePath: "/audio/sfx/cards/strategy-card.mp3",
     fallbackCue: "draw",
-    status: "planned",
+    status: "ready",
   },
   "equipment-card": {
     displayName: "裝備卡音效",
     filePath: "/audio/sfx/cards/equipment-card.mp3",
     fallbackCue: "reward",
-    status: "planned",
+    status: "ready",
   },
   "fire-card": {
-    displayName: "火攻音效",
+    displayName: "火攻卡音效",
     filePath: "/audio/sfx/cards/fire-card.mp3",
     fallbackCue: "slash",
-    status: "planned",
+    status: "ready",
   },
 };
 
@@ -74,8 +74,12 @@ export function getCardSoundKey(card: Pick<Card, "id" | "kind" | "name">): CardS
 export function getCardSoundKeyByCardId(cardId: string): CardSoundKey {
   const normalizedCardId = cardId.replace(/-\d+$/, "");
 
-  if (normalizedCardId === "slash" || normalizedCardId === "combo-slash") {
-    return "attack-card";
+  if (normalizedCardId === "slash") {
+    return "slash-card";
+  }
+
+  if (normalizedCardId === "combo-slash") {
+    return "combo-slash-card";
   }
 
   if (normalizedCardId === "dodge" || normalizedCardId === "guard") {
@@ -91,7 +95,7 @@ export function getCardSoundKeyByCardId(cardId: string): CardSoundKey {
   }
 
   if (normalizedCardId === "pierce") {
-    return "attack-card";
+    return "slash-card";
   }
 
   if (normalizedCardId === "fire-attack") {
@@ -106,7 +110,7 @@ export function getCardSoundKeyByCardId(cardId: string): CardSoundKey {
     return "equipment-card";
   }
 
-  return "card-play";
+  return "slash-card";
 }
 
 export function getCardSoundAssetByCardId(cardId: string) {
