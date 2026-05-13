@@ -8,6 +8,12 @@ import CardView from "@/components/CardView";
 import { GameImage } from "@/components/GameImage";
 import { VisualPlaceholder } from "@/components/VisualPlaceholder";
 import { equipmentEffects } from "@/lib/game/cards";
+import {
+  isAudioSupported,
+  playSound,
+  readSoundEnabledSetting,
+  writeSoundEnabledSetting,
+} from "@/lib/game/audio";
 import { getSpeakerTypeLabel } from "@/lib/game/dialogues";
 import { getEventTypeLabel } from "@/lib/game/events";
 import {
@@ -24,7 +30,8 @@ import {
 import { heroes } from "@/lib/game/heroes";
 import { currentVersionLabel, getPhaseHint, quickRules } from "@/lib/game/showcase";
 import { totalStages } from "@/lib/game/stages";
-import type { DialogueLine, GameEvent, PlayerUpgrades, Reward, StageRoute } from "@/lib/game/types";
+import type { SoundCue } from "@/lib/game/sounds";
+import type { Card, DialogueLine, GameEvent, PlayerUpgrades, Reward, StageRoute } from "@/lib/game/types";
 
 interface EventToast {
   id: number;
@@ -51,6 +58,8 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
   const [eventToast, setEventToast] = useState<EventToast | null>(null);
   const [panelFeedback, setPanelFeedback] = useState<PanelFeedback | null>(null);
   const [stageNotice, setStageNotice] = useState<StageNotice | null>(null);
+  const [soundEnabled, setSoundEnabled] = useState(false);
+  const [audioSupported, setAudioSupported] = useState(false);
   const eventTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const panelTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const stageTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -87,6 +96,15 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
     : undefined;
 
   useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setAudioSupported(isAudioSupported());
+      setSoundEnabled(readSoundEnabledSetting());
+    }, 0);
+
+    return () => window.clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
     if (state.status === "won" || state.status === "lost") {
       router.push(`/result?outcome=${state.status}`);
     }
@@ -117,6 +135,32 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
 
     setPanelFeedback({ id: nextFeedbackId(), target, tone, text });
     panelTimerRef.current = setTimeout(() => setPanelFeedback(null), 760);
+  }
+
+  function emitSound(cue: SoundCue) {
+    if (soundEnabled) {
+      playSound(cue);
+    }
+  }
+
+  function emitOutcomeSound(next: ReturnType<typeof createGame>) {
+    if (next.status === "won") {
+      emitSound("victory");
+    }
+
+    if (next.status === "lost") {
+      emitSound("defeat");
+    }
+  }
+
+  function toggleSound() {
+    const nextEnabled = !soundEnabled;
+    setSoundEnabled(nextEnabled);
+    writeSoundEnabledSetting(nextEnabled);
+
+    if (nextEnabled) {
+      playSound("reward");
+    }
   }
 
   useEffect(() => {
@@ -156,16 +200,26 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
     if (next !== state && card && state.phase === "player") {
       const toast = getCardToast(card.name, state.player.heroId);
       showEventToast(toast.text, toast.tone);
+      emitSound("card-play");
+
+      getCardSoundCues(card, state.player.heroId).forEach(emitSound);
 
       if (next.enemyHealth < beforeEnemyHealth) {
         showPanelFeedback("enemy", "hit", "受到傷害");
+        emitSound("hit");
       }
 
       if (next.player.health > beforePlayerHealth) {
         showPanelFeedback("player", "heal", "回復體力");
+        emitSound("heal");
+      }
+
+      if (next.phase === "event") {
+        emitSound("event");
       }
     }
 
+    emitOutcomeSound(next);
     setState(next);
   }
 
@@ -176,8 +230,14 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
     if (next.player.health < beforePlayerHealth) {
       showEventToast("☠ 受到傷害！", "danger");
       showPanelFeedback("player", "hit", "受到傷害");
+      emitSound("hit");
     }
 
+    if (state.phase !== "event" && next.phase === "event") {
+      emitSound("event");
+    }
+
+    emitOutcomeSound(next);
     setState(next);
   }
 
@@ -187,13 +247,16 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
 
     if (useDodge && next !== state) {
       showEventToast("🛡 閃避！", "guard");
+      emitSound("dodge");
     }
 
     if (next.player.health < beforePlayerHealth) {
       showEventToast("☠ 受到傷害！", "danger");
       showPanelFeedback("player", "hit", "受到傷害");
+      emitSound("hit");
     }
 
+    emitOutcomeSound(next);
     setState(next);
   }
 
@@ -202,6 +265,7 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
 
     if (next !== state) {
       showEventToast("觀星入手！", "strategy");
+      emitSound("draw");
     }
 
     setState(next);
@@ -213,9 +277,11 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
 
     if (next !== state) {
       showEventToast(`獲得強化：${reward.name}`, "reward");
+      emitSound("reward");
 
       if (next.player.health > beforePlayerHealth) {
         showPanelFeedback("player", "heal", "回復體力");
+        emitSound("heal");
       }
     }
 
@@ -227,6 +293,11 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
 
     if (next !== state) {
       showEventToast(`選擇路線：${route.name}`, route.id === "dangerous-pass" ? "danger" : "reward");
+      emitSound("route");
+
+      if (next.enemy.id === "lu-bu") {
+        emitSound("boss");
+      }
     }
 
     setState(next);
@@ -240,20 +311,25 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
 
     if (next !== state) {
       showEventToast(`${eventName}完成`, eventName === "伏兵突襲" ? "danger" : "strategy");
+      emitSound("event");
 
       if (next.player.health > beforePlayerHealth) {
         showPanelFeedback("player", "heal", "回復體力");
+        emitSound("heal");
       }
 
       if (next.player.health < beforePlayerHealth) {
         showPanelFeedback("player", "hit", "受到傷害");
+        emitSound("hit");
       }
 
       if (next.hand.length > beforeHandCount) {
         showEventToast("📜 抽牌！", "strategy");
+        emitSound("draw");
       }
     }
 
+    emitOutcomeSound(next);
     setState(next);
   }
 
@@ -280,6 +356,11 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
             </p>
           </div>
           <div className="mt-4 flex flex-wrap gap-3 sm:mt-0">
+            <SoundToggle
+              enabled={soundEnabled}
+              audioSupported={audioSupported}
+              onToggle={toggleSound}
+            />
             <button
               type="button"
               onClick={() => setState(createGame(initialHeroId, { enemyRandom: Math.random }))}
@@ -678,6 +759,37 @@ function DialoguePanel({ dialogue }: { dialogue?: DialogueLine }) {
         </div>
       </div>
     </section>
+  );
+}
+
+function SoundToggle({
+  enabled,
+  audioSupported,
+  onToggle,
+}: {
+  enabled: boolean;
+  audioSupported: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <div className="min-w-[150px] rounded-md border border-amber-600/50 bg-stone-950/60 px-3 py-2">
+      <button
+        type="button"
+        onClick={onToggle}
+        className={`h-9 w-full rounded-md px-3 text-sm font-black transition ${
+          enabled
+            ? "bg-amber-400 text-stone-950 hover:bg-amber-300"
+            : "border border-stone-600 bg-stone-950/70 text-stone-100 hover:border-amber-400"
+        }`}
+      >
+        音效：{enabled ? "開" : "關"}
+      </button>
+      <p className="mt-1 text-[11px] leading-4 text-stone-400">
+        {audioSupported
+          ? "音效需手動開啟，避免瀏覽器自動播放限制。"
+          : "此瀏覽器不支援 Web Audio。"}
+      </p>
+    </div>
   );
 }
 
@@ -1085,6 +1197,30 @@ function getCardToast(cardName: string, heroId: string): Pick<EventToast, "text"
   }
 
   return { text: "🛡 閃避！", tone: "guard" };
+}
+
+function getCardSoundCues(card: Card, heroId: string): SoundCue[] {
+  if (card.kind === "attack" || card.kind === "combo" || card.kind === "fire") {
+    return ["slash"];
+  }
+
+  if (card.kind === "dodge") {
+    return heroId === "zhao-yun" ? ["dodge", "slash"] : ["dodge"];
+  }
+
+  if (card.kind === "wine" || card.kind === "rally") {
+    return ["heal"];
+  }
+
+  if (card.kind === "draw") {
+    return ["draw"];
+  }
+
+  if (card.kind === "equipment") {
+    return ["reward"];
+  }
+
+  return [];
 }
 
 function getEquippedLabels(equippedItems: ReturnType<typeof createGame>["player"]["equippedItems"]) {

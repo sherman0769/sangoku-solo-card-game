@@ -151,7 +151,7 @@ export default function Home() {
         </section>
 
         <section className="mt-10 rounded-xl border border-amber-700/40 bg-black/30 p-5 shadow-[0_18px_45px_rgba(0,0,0,0.28)]">
-          <h2 className="text-3xl font-black text-amber-50">v0.11.0 目前特色</h2>
+          <h2 className="text-3xl font-black text-amber-50">v0.12.0 目前特色</h2>
           <ul className="mt-5 grid gap-3 text-sm leading-6 text-stone-300 md:grid-cols-2">
             {currentFeatureHighlights.map((feature) => (
               <li
@@ -177,6 +177,7 @@ export default function Home() {
             ["挑戰最終 Boss 呂布", "前七關累積優勢，第八關迎戰真正的亂世猛將。"],
             ["視覺呈現優化", "首頁、武將、敵人、Boss 與關卡背景已調整為更適合手機與展示。"],
             ["人物台詞系統", "武將、敵人、旁白與勝敗結果會以文字台詞呈現。"],
+            ["音效系統測試版", "使用 Web Audio API 生成提示音，預設關閉，可在遊戲頁手動開啟。"],
           ].map(([title, text]) => (
             <section
               key={title}
