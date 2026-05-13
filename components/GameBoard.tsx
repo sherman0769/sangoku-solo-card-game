@@ -364,6 +364,7 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
                 visualType="enemy"
                 visualLabel={state.enemy.name}
                 visualPrompt={state.enemy.visualPrompt}
+                visualEmphasis={state.enemy.type === "boss"}
                 details={[
                   `類型：${getEnemyTypeLabel(state.enemy.type)}`,
                   `特性：${state.enemy.traits.join("、")}`,
@@ -614,6 +615,7 @@ function CombatantPanel({
   visualType,
   visualLabel,
   visualPrompt,
+  visualEmphasis = false,
   details,
   statuses,
   feedback,
@@ -628,6 +630,7 @@ function CombatantPanel({
   visualType: "hero" | "enemy";
   visualLabel: string;
   visualPrompt?: string;
+  visualEmphasis?: boolean;
   details: string[];
   statuses: string[];
   feedback?: PanelFeedback;
@@ -640,6 +643,9 @@ function CombatantPanel({
   const badgeClass = isPlayer
     ? "border-emerald-300/50 bg-emerald-500/15 text-emerald-100"
     : "border-red-300/50 bg-red-500/15 text-red-100";
+  const visualFrameClass = visualEmphasis
+    ? "aspect-[3/4] rounded-md border border-red-200/70 shadow-[0_0_34px_rgba(248,113,113,0.24)] ring-2 ring-red-500/30"
+    : "aspect-[3/4] rounded-md border border-white/10";
 
   const feedbackClass =
     feedback?.tone === "heal"
@@ -677,7 +683,7 @@ function CombatantPanel({
         <GameImage
           src={visualSrc}
           alt={`${visualLabel}立繪`}
-          className="aspect-[3/4] rounded-md border border-white/10"
+          className={visualFrameClass}
           imageClassName="object-cover object-top"
           sizes="(min-width: 768px) 420px, 100vw"
           fallbackType={visualType}

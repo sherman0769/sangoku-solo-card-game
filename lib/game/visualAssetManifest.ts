@@ -65,7 +65,7 @@ export const VISUAL_ASSET_MANIFEST: VisualAssetManifestItem[] = [
     type: "enemy",
     name: "黃巾兵",
     aspectRatio: "3:4",
-    path: "public/images/enemies/yellow-turban-soldier.webp",
+    path: "/images/enemies/yellow-turban-soldier.png",
     usage: "敵人面板",
     promptZh:
       "黃巾兵，頭綁黃巾，粗布甲胄，手持短刀與木盾，亂世低階士兵，東方史詩卡牌風，半寫實敵人立繪，戰場煙塵背景。",
@@ -77,7 +77,7 @@ export const VISUAL_ASSET_MANIFEST: VisualAssetManifestItem[] = [
     type: "enemy",
     name: "山賊頭目",
     aspectRatio: "3:4",
-    path: "public/images/enemies/bandit-leader.webp",
+    path: "/images/enemies/bandit-leader.png",
     usage: "敵人面板",
     promptZh:
       "山賊頭目，皮甲披風，手持大刀，粗獷狡詐，背後是山寨木柵與火把，三國亂世敵將，東方史詩卡牌風，半寫實立繪。",
@@ -89,7 +89,7 @@ export const VISUAL_ASSET_MANIFEST: VisualAssetManifestItem[] = [
     type: "enemy",
     name: "西涼騎兵",
     aspectRatio: "3:4",
-    path: "public/images/enemies/xiliang-cavalry.webp",
+    path: "/images/enemies/xiliang-cavalry.png",
     usage: "敵人面板",
     promptZh:
       "西涼騎兵，鐵甲騎士，手持長槍，馬蹄踏起沙塵，猛烈衝鋒姿態，三國戰場，東方史詩卡牌風，半寫實敵人立繪。",
@@ -101,7 +101,7 @@ export const VISUAL_ASSET_MANIFEST: VisualAssetManifestItem[] = [
     type: "boss",
     name: "呂布",
     aspectRatio: "3:4",
-    path: "public/images/enemies/lu-bu.webp",
+    path: "/images/enemies/lu-bu.png",
     usage: "Boss 敵人面板",
     promptZh:
       "呂布，方天畫戟，赤兔馬，虎牢關前最終 Boss，無雙猛將氣勢，黑紅戰甲與壓迫感光影，東方史詩卡牌風，半寫實 Boss 立繪。",

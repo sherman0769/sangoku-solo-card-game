@@ -4,7 +4,7 @@
 
 線上遊玩網址：[https://sangoku-solo-card-game.vercel.app](https://sangoku-solo-card-game.vercel.app)
 
-目前版本：`v0.10.2 導入第一批 AI 圖像資產版`
+目前版本：`v0.10.3 導入第二批敵人與 Boss 圖像版`
 
 ## 已完成功能
 
@@ -36,6 +36,7 @@
 - 視覺資產欄位與 placeholder：武將、敵人、關卡、事件、路線與卡牌
 - 第一批 AI 圖像資產規劃：10 張核心圖像、建議路徑與中英文提示詞
 - 第一批 AI 圖像已導入：首頁主視覺、關羽、趙雲、諸葛亮
+- 第二批 AI 敵人圖像已導入：黃巾兵、山賊頭目、西涼騎兵、呂布
 - 手機與桌機版基本響應式排版
 
 ## 本地啟動
@@ -86,8 +87,9 @@ npm run build
 ## 下一步開發方向
 
 - v0.10.0：視覺資產系統版
-- 生成敵人與 Boss 圖像
-- 生成關卡背景圖
+- 生成荒村初戰背景
+- 生成虎牢關前背景
+- 補齊其他敵人圖像
 - 依照 `docs/visual-assets-v1.md` 生成圖片並導入 `public/images`
 - 增加更多敵人與卡牌
 - 增加更多戰後獎勵與流派組合
@@ -111,6 +113,7 @@ npm run build
 - v0.9.0：第一章 8 關流程與 mini-boss
 - v0.10.0：視覺資產系統版
 - v0.10.2：導入第一批 AI 圖像資產
+- v0.10.3：導入第二批敵人與 Boss 圖像
 
 ## 視覺資產系統
 
@@ -141,6 +144,15 @@ v0.10.2 已導入第一批 AI 圖像資產：
 - 諸葛亮：`public/images/heroes/zhuge-liang.png`
 
 首頁主視覺、武將選擇卡與遊戲玩家面板會優先顯示正式圖片；若圖片路徑缺失或載入失敗，仍會回到既有 placeholder。下一步會繼續生成敵人、Boss 與關卡背景圖。
+
+v0.10.3 已導入第二批 AI 敵人圖像：
+
+- 黃巾兵：`public/images/enemies/yellow-turban-soldier.png`
+- 山賊頭目：`public/images/enemies/bandit-leader.png`
+- 西涼騎兵：`public/images/enemies/xiliang-cavalry.png`
+- 呂布：`public/images/enemies/lu-bu.png`
+
+敵人面板會優先顯示正式圖片；尚未導入圖像的黃巾弓手、黃巾力士、黑山賊將、張梁、張寶仍使用 placeholder fallback。下一步會生成荒村初戰背景、虎牢關前背景，或補齊其他敵人圖像。
 
 ## 第一章：黃巾亂起
 

@@ -9,7 +9,7 @@ import {
 
 describe("showcase and onboarding copy", () => {
   it("includes homepage how-to and current feature copy", () => {
-    expect(currentVersionLabel).toBe("v0.10.2 導入第一批 AI 圖像資產版");
+    expect(currentVersionLabel).toBe("v0.10.3 導入第二批敵人與 Boss 圖像版");
     expect(howToSteps.map((step) => step.title)).toEqual([
       "選擇武將",
       "進入戰鬥",
@@ -22,6 +22,7 @@ describe("showcase and onboarding copy", () => {
     expect(currentFeatureHighlights).toContain("第一章 8 關流程");
     expect(currentFeatureHighlights).toContain("戰術卡：連斬、固守、激勵、火攻");
     expect(currentFeatureHighlights).toContain("第一批 AI 圖像：首頁主視覺、關羽、趙雲、諸葛亮");
+    expect(currentFeatureHighlights).toContain("第二批敵人圖像：黃巾兵、山賊頭目、西涼騎兵、呂布");
     expect(currentFeatureHighlights).toContain(
       "視覺資產 placeholder：角色、敵人、關卡、事件、路線與卡牌",
     );

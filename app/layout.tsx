@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "三國單騎傳",
-  description: "v0.10.2 導入第一批 AI 圖像資產版：關羽、趙雲、諸葛亮可選，支援首頁主視覺、武將立繪、8 關流程、敵人池、裝備卡、戰術卡、事件關卡與路線選擇的三國卡牌闖關遊戲。",
+  description: "v0.10.3 導入第二批敵人與 Boss 圖像版：支援首頁主視覺、武將立繪、敵人圖像、8 關流程、敵人池、裝備卡、戰術卡、事件關卡與路線選擇的三國卡牌闖關遊戲。",
 };
 
 export default function RootLayout({

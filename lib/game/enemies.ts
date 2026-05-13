@@ -33,7 +33,7 @@ export const enemyPool: Enemy[] = [
     description: "基礎敵人，行動單純，適合熱身。",
     traits: ["基礎"],
     attack: 2,
-    portrait: "enemy-yellow-turban-soldier",
+    portrait: "/images/enemies/yellow-turban-soldier.png",
     visualPrompt: "黃巾兵，頭綁黃巾，粗布甲胄與短刀，低階亂軍士兵，三國卡牌敵人立繪",
     actionDeck: [
       actionTemplates.attack2,
@@ -87,7 +87,7 @@ export const enemyPool: Enemy[] = [
     description: "均衡型敵人，懂得攻擊、防守與蓄力。",
     traits: ["均衡"],
     attack: 2,
-    portrait: "enemy-bandit-leader",
+    portrait: "/images/enemies/bandit-leader.png",
     visualPrompt: "山賊頭目，皮甲披風，手持大刀，狡詐粗獷的山寨首領，三國卡牌敵人立繪",
     actionDeck: [
       actionTemplates.attack2,
@@ -123,7 +123,7 @@ export const enemyPool: Enemy[] = [
     description: "攻勢猛烈，容易連續造成壓力。",
     traits: ["猛攻壓制"],
     attack: 2,
-    portrait: "enemy-xiliang-cavalry",
+    portrait: "/images/enemies/xiliang-cavalry.png",
     visualPrompt: "西涼騎兵，鐵騎衝鋒，長槍與沙塵，猛烈壓制的三國騎兵敵人立繪",
     actionDeck: [
       actionTemplates.attack2,
@@ -177,7 +177,7 @@ export const enemyPool: Enemy[] = [
     description: "虎牢關前的最終考驗，擁有高壓攻勢與蓄力爆發。",
     traits: ["Boss", "無雙", "猛攻", "蓄力爆發"],
     attack: 3,
-    portrait: "enemy-lu-bu",
+    portrait: "/images/enemies/lu-bu.png",
     visualPrompt: "呂布，方天畫戟，赤兔馬，虎牢關前無雙猛將，壓倒性氣勢，東方史詩卡牌 Boss 立繪",
     actionDeck: [
       actionTemplates.attack3,

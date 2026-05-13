@@ -76,7 +76,8 @@
 - 圖像名稱：黃巾兵
 - 用途：敵人面板
 - 建議比例：3:4
-- 建議檔案路徑：`public/images/enemies/yellow-turban-soldier.webp`
+- 建議檔案路徑：`public/images/enemies/yellow-turban-soldier.png`
+- 導入狀態：已導入
 - 中文提示詞：黃巾兵，頭綁黃巾，粗布甲胄，手持短刀與木盾，亂世低階士兵，東方史詩卡牌風，半寫實敵人立繪，戰場煙塵背景。
 - 英文提示詞：A Yellow Turban soldier, yellow headscarf, rough cloth armor, holding a short blade and wooden shield, low-ranking rebel soldier in chaotic wartime, eastern epic card game style, semi-realistic enemy portrait, smoky battlefield background.
 - 風格限制：避免血腥；不可出現文字、水印、Logo；保持小兵辨識度。
@@ -88,7 +89,8 @@
 - 圖像名稱：山賊頭目
 - 用途：敵人面板
 - 建議比例：3:4
-- 建議檔案路徑：`public/images/enemies/bandit-leader.webp`
+- 建議檔案路徑：`public/images/enemies/bandit-leader.png`
+- 導入狀態：已導入
 - 中文提示詞：山賊頭目，皮甲披風，手持大刀，粗獷狡詐，背後是山寨木柵與火把，三國亂世敵將，東方史詩卡牌風，半寫實立繪。
 - 英文提示詞：A bandit leader, leather armor and cloak, holding a large blade, rugged and cunning, wooden mountain fort and torches behind him, Three Kingdoms chaotic era enemy commander, eastern epic card game style, semi-realistic portrait.
 - 風格限制：不可模仿特定 IP；不要文字、水印、Logo；避免血腥暴力。
@@ -100,7 +102,8 @@
 - 圖像名稱：西涼騎兵
 - 用途：敵人面板
 - 建議比例：3:4
-- 建議檔案路徑：`public/images/enemies/xiliang-cavalry.webp`
+- 建議檔案路徑：`public/images/enemies/xiliang-cavalry.png`
+- 導入狀態：已導入
 - 中文提示詞：西涼騎兵，鐵甲騎士，手持長槍，馬蹄踏起沙塵，猛烈衝鋒姿態，三國戰場，東方史詩卡牌風，半寫實敵人立繪。
 - 英文提示詞：A Xiliang cavalry soldier, armored rider holding a long spear, horse hooves kicking up dust, aggressive charging pose, Three Kingdoms battlefield, eastern epic card game style, semi-realistic enemy portrait.
 - 風格限制：不可使用真實歷史劇照風格；不要文字、水印、Logo；畫面避免過度混亂。
@@ -112,7 +115,8 @@
 - 圖像名稱：呂布
 - 用途：Boss 敵人面板
 - 建議比例：3:4
-- 建議檔案路徑：`public/images/enemies/lu-bu.webp`
+- 建議檔案路徑：`public/images/enemies/lu-bu.png`
+- 導入狀態：已導入
 - 中文提示詞：呂布，方天畫戟，赤兔馬，虎牢關前最終 Boss，無雙猛將氣勢，黑紅戰甲與壓迫感光影，東方史詩卡牌風，半寫實 Boss 立繪。
 - 英文提示詞：Lu Bu, holding a Fangtian halberd, with Red Hare horse, final boss before Hulao Gate, overwhelming unmatched warrior presence, black and crimson armor, dramatic lighting, eastern epic card game style, semi-realistic boss portrait.
 - 風格限制：不可模仿任何既有遊戲或影視呂布造型；不要文字、水印、Logo；避免血腥。

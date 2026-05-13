@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { getGameImageRenderMode } from "@/components/GameImage";
+import { enemyPool } from "@/lib/game/enemies";
 import { heroes } from "@/lib/game/heroes";
 import { VISUAL_ASSET_MANIFEST } from "@/lib/game/visualAssetManifest";
 
@@ -45,6 +46,7 @@ describe("visual asset manifest", () => {
         id: "enemy-lu-bu",
         type: "boss",
         name: "呂布",
+        path: "/images/enemies/lu-bu.png",
       }),
     );
   });
@@ -62,6 +64,32 @@ describe("visual asset manifest", () => {
     expect(getHeroPortrait("zhuge-liang")).toBe("/images/heroes/zhuge-liang.png");
   });
 
+  it("uses imported PNG portraits for the second enemy image batch", () => {
+    expect(getEnemyPortrait("yellow-turban-soldier")).toBe(
+      "/images/enemies/yellow-turban-soldier.png",
+    );
+    expect(getEnemyPortrait("bandit-leader")).toBe("/images/enemies/bandit-leader.png");
+    expect(getEnemyPortrait("xiliang-cavalry")).toBe("/images/enemies/xiliang-cavalry.png");
+    expect(getEnemyPortrait("lu-bu")).toBe("/images/enemies/lu-bu.png");
+  });
+
+  it("updates imported enemy manifest paths to PNG", () => {
+    expect(getAssetPath("enemy-yellow-turban-soldier")).toBe(
+      "/images/enemies/yellow-turban-soldier.png",
+    );
+    expect(getAssetPath("enemy-bandit-leader")).toBe("/images/enemies/bandit-leader.png");
+    expect(getAssetPath("enemy-xiliang-cavalry")).toBe("/images/enemies/xiliang-cavalry.png");
+    expect(getAssetPath("enemy-lu-bu")).toBe("/images/enemies/lu-bu.png");
+  });
+
+  it("keeps non-imported enemies on placeholder fallback keys", () => {
+    expect(getEnemyPortrait("yellow-turban-archer")).toBe("enemy-yellow-turban-archer");
+    expect(getEnemyPortrait("yellow-turban-brute")).toBe("enemy-yellow-turban-brute");
+    expect(getEnemyPortrait("black-mountain-general")).toBe("enemy-black-mountain-general");
+    expect(getEnemyPortrait("zhang-liang")).toBe("enemy-zhang-liang");
+    expect(getEnemyPortrait("zhang-bao")).toBe("enemy-zhang-bao");
+  });
+
   it("uses image paths when available and falls back when missing or failed", () => {
     expect(getGameImageRenderMode("/images/heroes/guan-yu.png")).toBe("image");
     expect(getGameImageRenderMode(undefined)).toBe("fallback");
@@ -75,4 +103,12 @@ function getAssetIdsByType(type: (typeof VISUAL_ASSET_MANIFEST)[number]["type"])
 
 function getHeroPortrait(heroId: string) {
   return heroes.find((hero) => hero.id === heroId)?.portrait;
+}
+
+function getEnemyPortrait(enemyId: string) {
+  return enemyPool.find((enemy) => enemy.id === enemyId)?.portrait;
+}
+
+function getAssetPath(assetId: string) {
+  return VISUAL_ASSET_MANIFEST.find((asset) => asset.id === assetId)?.path;
 }
