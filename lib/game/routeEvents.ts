@@ -114,7 +114,7 @@ export const routeEvents: RouteEvent[] = [
       {
         id: "force-breakthrough",
         label: "強行突破",
-        description: "失去 1 點體力，下一次戰後獎勵 +1 選項。",
+        description: "失去 2 點體力，下一次戰後獎勵 +1 選項。",
         effectType: "reward-bonus-damage",
         riskLevel: "高",
       },
@@ -131,7 +131,7 @@ export const routeEvents: RouteEvent[] = [
       {
         id: "search-relic",
         label: "搜尋遺物",
-        description: "隨機獲得一件尚未裝備的裝備；若都已裝備，改為抽 2 張牌。",
+        description: "失去 1 點體力，隨機獲得一件尚未裝備的裝備；若都已裝備，改為抽 2 張牌。",
         effectType: "equipment-or-draw",
         riskLevel: "中",
       },
@@ -148,7 +148,7 @@ export const routeEvents: RouteEvent[] = [
       {
         id: "launch-night-raid",
         label: "發動夜襲",
-        description: "若目前 HP 大於等於 4，獲得斬傷害 +1；否則失去 1 點體力並抽 1 張牌。",
+        description: "若目前 HP 大於等於 5，獲得斬傷害 +1；否則失去 1 點體力並抽 1 張牌。",
         effectType: "night-raid",
         riskLevel: "高",
       },

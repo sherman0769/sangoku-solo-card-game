@@ -218,6 +218,24 @@ describe("game engine", () => {
     expect(routeEvents).toHaveLength(9);
   });
 
+  it("keeps mountain and official road event text unchanged while raising dangerous pass costs", () => {
+    expect(getRouteEventsForRoute("mountain-path").map((event) => event.options[0].description)).toEqual([
+      "回復 2 點體力，不超過最大體力。",
+      "下一關開始時額外抽 1 張牌。",
+      "下一關敵人 HP -1，但玩家下一關開始少抽 1 張牌。",
+    ]);
+    expect(getRouteEventsForRoute("official-road").map((event) => event.options[0].description)).toEqual([
+      "抽 1 張牌並回復 1 點體力。",
+      "下一關敵人 HP 不變，但下一關第一回合玩家額外抽 1 張牌。",
+      "獲得斬傷害 +1 強化。",
+    ]);
+    expect(getRouteEventsForRoute("dangerous-pass").map((event) => event.options[0].description)).toEqual([
+      "失去 2 點體力，下一次戰後獎勵 +1 選項。",
+      "失去 1 點體力，隨機獲得一件尚未裝備的裝備；若都已裝備，改為抽 2 張牌。",
+      "若目前 HP 大於等於 5，獲得斬傷害 +1；否則失去 1 點體力並抽 1 張牌。",
+    ]);
+  });
+
   it("adds visual prompts to core game data", () => {
     expect(heroes.every((hero) => hero.visualPrompt && hero.portrait && hero.avatar)).toBe(true);
     expect(enemyPool.every((enemy) => enemy.visualPrompt && enemy.portrait)).toBe(true);
@@ -1188,7 +1206,7 @@ describe("game engine", () => {
     expect(next.log).toContain("事件效果：收編官軍殘部，斬傷害 +1。");
   });
 
-  it("cliff ambush loses one health and grants next reward bonus", () => {
+  it("cliff ambush loses two health and grants next reward bonus", () => {
     const routeState = {
       ...selectReward(forceReward(defeatFirstEnemy(), "max-health"), "max-health"),
       player: { ...createGame().player, health: 5 },
@@ -1198,13 +1216,32 @@ describe("game engine", () => {
     });
     const next = resolveRouteEventOption(eventState, "force-breakthrough");
 
-    expect(next.player.health).toBe(4);
+    expect(next.player.health).toBe(3);
     expect(next.rewardOptionBonus).toBe(1);
-    expect(next.log).toContain("下一次戰後獎勵 +1 個選項。");
+    expect(next.log).toContain(
+      "事件效果：你強行突破絕壁伏擊，失去 2 點體力，但下一次戰後獎勵增加 1 個選項。",
+    );
   });
 
-  it("battlefield relic grants unequipped equipment or draws cards", () => {
-    const routeState = selectReward(forceReward(defeatFirstEnemy(), "max-health"), "max-health");
+  it("cliff ambush can defeat the player", () => {
+    const routeState = {
+      ...selectReward(forceReward(defeatFirstEnemy(), "max-health"), "max-health"),
+      player: { ...createGame().player, health: 2 },
+    };
+    const eventState = selectRoute(routeState, "dangerous-pass", {
+      routeEventId: "cliff-ambush",
+    });
+    const next = resolveRouteEventOption(eventState, "force-breakthrough");
+
+    expect(next.status).toBe("lost");
+    expect(next.log).toContain("你因絕壁伏擊重傷倒下。");
+  });
+
+  it("battlefield relic costs health and grants unequipped equipment or draws cards", () => {
+    const routeState = {
+      ...selectReward(forceReward(defeatFirstEnemy(), "max-health"), "max-health"),
+      player: { ...createGame().player, health: 5 },
+    };
     const eventState = selectRoute(routeState, "dangerous-pass", {
       routeEventId: "battlefield-relic",
     });
@@ -1212,8 +1249,10 @@ describe("game engine", () => {
       equipmentRandom: () => 0,
     });
 
+    expect(next.player.health).toBe(4);
     expect(next.player.equippedItems).toHaveLength(1);
     expect(next.player.equippedItems[0].kind).toBe("equipment");
+    expect(next.log).toContain("事件效果：你在古戰場殘骸中付出代價，失去 1 點體力。");
 
     const allEquippedState = selectRoute(
       {
@@ -1231,10 +1270,24 @@ describe("game engine", () => {
     expect(fallback.log).toContain("事件效果：裝備已齊，改為抽 2 張牌。");
   });
 
+  it("battlefield relic can defeat the player", () => {
+    const routeState = {
+      ...selectReward(forceReward(defeatFirstEnemy(), "max-health"), "max-health"),
+      player: { ...createGame().player, health: 1 },
+    };
+    const eventState = selectRoute(routeState, "dangerous-pass", {
+      routeEventId: "battlefield-relic",
+    });
+    const next = resolveRouteEventOption(eventState, "search-relic");
+
+    expect(next.status).toBe("lost");
+    expect(next.log).toContain("你因搜尋古戰場遺物付出代價而倒下。");
+  });
+
   it("night raid branches by current health", () => {
     const healthyRouteState = {
       ...selectReward(forceReward(defeatFirstEnemy(), "max-health"), "max-health"),
-      player: { ...createGame().player, health: 4 },
+      player: { ...createGame().player, health: 5 },
     };
     const healthyEvent = selectRoute(healthyRouteState, "dangerous-pass", {
       routeEventId: "night-raid",
@@ -1245,7 +1298,7 @@ describe("game engine", () => {
 
     const woundedRouteState = {
       ...selectReward(forceReward(defeatFirstEnemy(), "max-health"), "max-health"),
-      player: { ...createGame().player, health: 3 },
+      player: { ...createGame().player, health: 4 },
       hand: [],
       deck: createGame().deck,
       discard: [],
@@ -1255,7 +1308,7 @@ describe("game engine", () => {
     });
     const woundedNext = resolveRouteEventOption(woundedEvent, "launch-night-raid");
 
-    expect(woundedNext.player.health).toBe(2);
+    expect(woundedNext.player.health).toBe(3);
     expect(woundedNext.hand.length).toBeGreaterThanOrEqual(6);
     expect(woundedNext.log).toContain("事件效果：夜襲失利，失去 1 點體力並抽 1 張牌。");
   });

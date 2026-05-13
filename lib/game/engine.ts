@@ -1045,28 +1045,38 @@ function applyRouteEventEffect(
   }
 
   if (event.id === "cliff-ambush") {
-    state.player.health = Math.max(0, state.player.health - 1);
+    state.player.health = Math.max(0, state.player.health - 2);
     state.rewardOptionBonus += 1;
-    return ["事件效果：失去 1 點體力。", "下一次戰後獎勵 +1 個選項。"];
+    return [
+      "事件效果：你強行突破絕壁伏擊，失去 2 點體力，但下一次戰後獎勵增加 1 個選項。",
+      ...(state.player.health <= 0 ? ["你因絕壁伏擊重傷倒下。"] : []),
+    ];
   }
 
   if (event.id === "battlefield-relic") {
+    state.player.health = Math.max(0, state.player.health - 1);
+    const costMessage = "事件效果：你在古戰場殘骸中付出代價，失去 1 點體力。";
+
+    if (state.player.health <= 0) {
+      return [costMessage, "你因搜尋古戰場遺物付出代價而倒下。"];
+    }
+
     const equipment = pickUnequippedEquipment(state, random);
 
     if (equipment) {
       state.player.equippedItems.push(equipment);
-      return [`事件效果：獲得裝備「${equipment.name}」。`];
+      return [costMessage, `事件效果：獲得裝備「${equipment.name}」。`];
     }
 
     const drawn = drawCards(state, 2);
     state.deck = drawn.deck;
     state.hand = drawn.hand;
     state.discard = drawn.discard;
-    return ["事件效果：裝備已齊，改為抽 2 張牌。"];
+    return [costMessage, "事件效果：裝備已齊，改為抽 2 張牌。"];
   }
 
   if (event.id === "night-raid") {
-    if (state.player.health >= 4) {
+    if (state.player.health >= 5) {
       state.playerUpgrades.slashDamageBonus += 1;
       return ["事件效果：夜襲成功，斬傷害 +1。"];
     }

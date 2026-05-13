@@ -1,6 +1,6 @@
 import type { GamePhase } from "./types";
 
-export const currentVersionLabel = "v0.16.0 路線劇情事件版";
+export const currentVersionLabel = "v0.16.1 險道風險再平衡版";
 
 export const gameLoadingCopy = {
   title: "戰局準備中……",
@@ -80,6 +80,7 @@ export const currentFeatureHighlights = [
   "第一輪平衡微調：諸葛亮 HP 提升至 4、呂布 HP 提升至 14，並保留第 2～3 關敵人數值",
   "後期難度微調：張梁、張寶與呂布猛攻比例小幅提高，未調整第 1～6 關敵人",
   "路線劇情事件：山道、官道、險道擁有不同遭遇與風險報酬",
+  "險道風險再平衡：提高絕壁伏擊、古戰場遺物與夜襲敵營代價",
   "Hydration 修正：/game 隨機戰局初始化改為 client mounted 後執行",
   "視覺資產 placeholder：角色、敵人、關卡、事件、路線與卡牌",
   "Mini-boss 張梁 / 張寶",

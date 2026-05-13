@@ -62,22 +62,22 @@ describe("battle balance simulator", () => {
     expect(report).toContain("建議調整方向");
   });
 
-  it("generates the v0.16.0 route event report sections", () => {
+  it("generates the v0.16.1 dangerous route balance report sections", () => {
     const summary = simulateManyRuns({
       heroIds: ["guan-yu", "zhao-yun", "zhuge-liang"],
       runsPerHero: 2,
-      seed: "report-v0160-test",
+      seed: "report-v0161-test",
       maxTurns: 180,
       strategy: "basic-safe-strategy",
     });
     const report = generateBalanceReport(summary, {
-      title: "# v0.16.0 路線劇情事件平衡報告",
-      preAdjustmentSummary: ["v0.15.2 整體勝率 99.3%。"],
-      adjustments: ["新增 9 個路線事件。"],
-      goalAssessment: ["本輪觀察路線事件分佈。"],
+      title: "# v0.16.1 險道風險再平衡報告",
+      preAdjustmentSummary: ["v0.16.0 整體勝率 100%。"],
+      adjustments: ["提高險道事件代價。"],
+      goalAssessment: ["本輪觀察險道死亡與收益分佈。"],
     });
 
-    expect(report).toContain("# v0.16.0 路線劇情事件平衡報告");
+    expect(report).toContain("# v0.16.1 險道風險再平衡報告");
     expect(report).toContain("調整前摘要");
     expect(report).toContain("調整內容");
     expect(report).toContain("路線事件分佈");

@@ -3,28 +3,28 @@ import { dirname, resolve } from "node:path";
 import { generateBalanceReport } from "../lib/game/balanceReport";
 import { simulateManyRuns } from "../lib/game/balanceSimulator";
 
-const reportPath = resolve("docs/balance-report-v0.16.0.md");
+const reportPath = resolve("docs/balance-report-v0.16.1.md");
 
 async function main() {
   const summary = simulateManyRuns({
     heroIds: ["guan-yu", "zhao-yun", "zhuge-liang"],
     runsPerHero: 50,
-    seed: "v0.16.0-balance",
+    seed: "v0.16.1-balance",
     maxTurns: 360,
     strategy: "basic-safe-strategy",
   });
 
   const report = generateBalanceReport(summary, {
-    title: "# v0.16.0 路線劇情事件平衡報告",
+    title: "# v0.16.1 險道風險再平衡報告",
     preAdjustmentSummary: [
-      "v0.15.2 共模擬 150 局：關羽 100%、趙雲 100%、諸葛亮 98%，整體勝率 99.3%。",
-      "死亡最多集中於第 3 關 1 次，第 7～8 關死亡沒有增加。",
+      "v0.16.0 共模擬 150 局：關羽 100%、趙雲 100%、諸葛亮 100%，整體勝率 100%。",
+      "basic-safe-strategy 大多選擇險道，絕壁伏擊、古戰場遺物與夜襲敵營出現次數偏高。",
     ],
     adjustments: [
-      "路線流程調整為戰後獎勵 → 路線選擇 → 路線事件 → 下一關。",
-      "新增山道、官道、險道各 3 個專屬路線事件。",
-      "山道 / 官道 / 險道不再固定套用敵人 HP 或獎勵選項修正，改由路線事件決定。",
-      "未調整三位武將、玩家牌組、裝備、戰術卡、第 1～8 關敵人數值。",
+      "絕壁伏擊從失去 1 HP 調整為失去 2 HP，並保留下一次戰後獎勵 +1 選項。",
+      "古戰場遺物新增失去 1 HP 代價，仍保留取得未裝備裝備或抽 2 張牌的收益。",
+      "夜襲敵營成功門檻從 HP >= 4 提高為 HP >= 5，成功時仍獲得斬傷害 +1。",
+      "未調整山道、官道、三位武將、玩家牌組、敵人池與第 1～8 關流程。",
     ],
     goalAssessment: createGoalAssessment(summary),
   });
