@@ -44,6 +44,8 @@ describe("game engine", () => {
     expect(state.player.title).toBe("武聖");
     expect(state.player.health).toBe(5);
     expect(state.enemy.name).toBe("黃巾兵");
+    expect(state.enemy.id).toBe("yellow-turban-soldier");
+    expect(state.enemy.portrait).toBe("/images/enemies/yellow-turban-soldier.png");
     expect(state.hand.map((card) => card.name)).toEqual([
       "斬",
       "閃",

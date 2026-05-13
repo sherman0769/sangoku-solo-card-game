@@ -60,7 +60,7 @@ interface StageNotice {
 
 export default function GameBoard({ initialHeroId }: { initialHeroId?: string }) {
   const router = useRouter();
-  const [state, setState] = useState(() => createGame(initialHeroId, { enemyRandom: Math.random }));
+  const [state, setState] = useState(() => createGame(initialHeroId));
   const [eventToast, setEventToast] = useState<EventToast | null>(null);
   const [panelFeedback, setPanelFeedback] = useState<PanelFeedback | null>(null);
   const [stageNotice, setStageNotice] = useState<StageNotice | null>(null);
@@ -402,7 +402,7 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
             />
             <button
               type="button"
-              onClick={() => setState(createGame(initialHeroId, { enemyRandom: Math.random }))}
+              onClick={() => setState(createGame(initialHeroId))}
               className="h-10 rounded-md border border-amber-600/60 bg-stone-950/70 px-4 text-sm font-bold text-amber-100 transition hover:border-amber-300 hover:bg-amber-950/70"
             >
               重新開始
