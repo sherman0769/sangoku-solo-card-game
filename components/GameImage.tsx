@@ -4,9 +4,13 @@ import Image from "next/image";
 import { useState } from "react";
 import { VisualPlaceholder, type VisualPlaceholderType } from "./VisualPlaceholder";
 
+export type GameImageVariant = "cover" | "portrait" | "card" | "background";
+
 interface GameImageProps {
   src?: string;
   alt: string;
+  variant?: GameImageVariant;
+  objectPosition?: string;
   className?: string;
   imageClassName?: string;
   sizes?: string;
@@ -21,6 +25,8 @@ interface GameImageProps {
 export function GameImage({
   src,
   alt,
+  variant,
+  objectPosition = "50% 50%",
   className = "",
   imageClassName = "object-cover",
   sizes = "100vw",
@@ -33,9 +39,10 @@ export function GameImage({
 }: GameImageProps) {
   const [imageFailed, setImageFailed] = useState(false);
   const mode = getGameImageRenderMode(src, imageFailed);
+  const variantClass = variant ? getGameImageVariantClass(variant) : "";
 
   return (
-    <div className={`relative overflow-hidden rounded-lg ${className}`}>
+    <div className={`relative overflow-hidden rounded-lg ${variantClass} ${className}`}>
       {mode === "image" ? (
         <Image
           src={src!}
@@ -44,6 +51,7 @@ export function GameImage({
           sizes={sizes}
           priority={priority}
           className={imageClassName}
+          style={getGameImageObjectPositionStyle(objectPosition)}
           onError={() => setImageFailed(true)}
         />
       ) : (
@@ -62,3 +70,18 @@ export function GameImage({
 export function getGameImageRenderMode(src?: string, imageFailed = false) {
   return src && !imageFailed ? "image" : "fallback";
 }
+
+export function getGameImageVariantClass(variant: GameImageVariant) {
+  return gameImageVariantClasses[variant];
+}
+
+export function getGameImageObjectPositionStyle(objectPosition: string) {
+  return { objectPosition };
+}
+
+const gameImageVariantClasses = {
+  cover: "aspect-[16/9]",
+  portrait: "aspect-[3/4]",
+  card: "aspect-[4/3]",
+  background: "aspect-[16/9]",
+} satisfies Record<GameImageVariant, string>;

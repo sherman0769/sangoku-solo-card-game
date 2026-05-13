@@ -257,20 +257,25 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
   }
 
   return (
-    <main className="min-h-screen bg-[#140c09] bg-[radial-gradient(circle_at_top_left,rgba(127,29,29,0.34),transparent_34%),linear-gradient(135deg,#1b100b_0%,#2a120d_45%,#090605_100%)] px-4 py-5 text-stone-100 sm:px-6 lg:px-8">
+    <main className="min-h-screen overflow-x-hidden bg-[#140c09] bg-[radial-gradient(circle_at_top_left,rgba(127,29,29,0.34),transparent_34%),linear-gradient(135deg,#1b100b_0%,#2a120d_45%,#090605_100%)] px-4 py-5 text-stone-100 sm:px-6 lg:px-8">
       {eventToast ? <EventToastView key={eventToast.id} toast={eventToast} /> : null}
-      <div className="mx-auto max-w-7xl">
+      <div className="mx-auto min-w-0 max-w-[calc(100vw-2rem)] sm:max-w-[calc(100vw-3rem)] lg:max-w-7xl">
         <header className="rounded-xl border border-amber-700/40 bg-black/30 p-4 shadow-[0_18px_45px_rgba(0,0,0,0.35)] backdrop-blur sm:flex sm:items-end sm:justify-between">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-[0.22em] text-amber-300">
+          <div className="min-w-0">
+            <p className="break-words text-xs font-bold uppercase leading-5 tracking-[0.18em] text-amber-300 sm:tracking-[0.22em]">
               {state.chapter.name} · 第 {state.enemyIndex + 1} 關 / {totalStages} ·
               第 {state.turn} 回合
             </p>
             <h1 className="mt-2 text-3xl font-black tracking-normal text-amber-50 sm:text-4xl">
               三國單騎傳
             </h1>
-            <p className="mt-2 text-sm leading-6 text-stone-300">
+            <p className="mt-2 break-words text-sm leading-6 text-stone-300">
+              <span className="sm:hidden">
+                第 {state.stageConfig.stage} 關｜{state.stageConfig.name}
+              </span>
+              <span className="hidden sm:inline">
               第 {state.stageConfig.stage} 關｜{state.stageConfig.name}：{state.stageConfig.flavorText}
+              </span>
             </p>
           </div>
           <div className="mt-4 flex flex-wrap gap-3 sm:mt-0">
@@ -308,7 +313,9 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
           <p className="text-xs font-black uppercase tracking-[0.2em] text-amber-200">
             提示
           </p>
-          <p className="mt-2 text-sm leading-6 text-stone-100">{phaseHint}</p>
+          <p className="mt-2 max-w-[300px] break-words text-sm leading-6 text-stone-100 sm:max-w-none">
+            {phaseHint}
+          </p>
         </section>
 
         {stageBackgroundSrc ? (
@@ -316,7 +323,9 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
             <GameImage
               src={stageBackgroundSrc}
               alt={`${state.stageConfig.name}關卡背景`}
-              className="aspect-[16/9] min-h-56 rounded-xl"
+              variant="background"
+              objectPosition={getStageObjectPosition(state.stageConfig.stage)}
+              className="min-h-44 max-h-[360px] rounded-xl sm:min-h-56"
               imageClassName="object-cover"
               sizes="(min-width: 1024px) 896px, 100vw"
               fallbackType="stage"
@@ -324,7 +333,7 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
               fallbackPrompt={state.stageConfig.visualPrompt}
               fallbackDescription="關卡背景圖 placeholder"
             />
-            <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(8,5,4,0.82),rgba(8,5,4,0.48)_52%,rgba(8,5,4,0.18)),linear-gradient(0deg,rgba(8,5,4,0.76),transparent_58%)]" />
+            <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(8,5,4,0.9),rgba(8,5,4,0.58)_54%,rgba(8,5,4,0.22)),linear-gradient(0deg,rgba(8,5,4,0.84),rgba(8,5,4,0.16)_58%)]" />
             <div className="absolute inset-0 flex items-end">
               <div className="p-5 sm:p-6">
                 <p className="text-xs font-black uppercase tracking-[0.2em] text-sky-100">
@@ -333,7 +342,7 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
                 <h2 className="mt-2 text-2xl font-black text-amber-50">
                   第 {state.stageConfig.stage} 關｜{state.stageConfig.name}
                 </h2>
-                <p className="mt-3 max-w-2xl text-sm leading-6 text-stone-200">
+                <p className="mt-3 max-w-[300px] text-sm leading-6 text-stone-200 sm:max-w-2xl">
                   {state.stageConfig.flavorText}
                 </p>
               </div>
@@ -375,6 +384,7 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
                 visualType="hero"
                 visualLabel={state.player.name}
                 visualPrompt={currentHero.visualPrompt}
+                visualObjectPosition={getHeroObjectPosition(state.player.heroId)}
                 details={[
                   `稱號：${state.player.title}`,
                   `士氣 ${state.player.morale}/${state.player.maxMorale}`,
@@ -397,6 +407,7 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
                 visualType="enemy"
                 visualLabel={state.enemy.name}
                 visualPrompt={state.enemy.visualPrompt}
+                visualObjectPosition={getEnemyObjectPosition(state.enemy.id)}
                 visualEmphasis={state.enemy.type === "boss"}
                 details={[
                   `類型：${getEnemyTypeLabel(state.enemy.type)}`,
@@ -648,6 +659,7 @@ function CombatantPanel({
   visualType,
   visualLabel,
   visualPrompt,
+  visualObjectPosition = "50% 24%",
   visualEmphasis = false,
   details,
   statuses,
@@ -663,6 +675,7 @@ function CombatantPanel({
   visualType: "hero" | "enemy";
   visualLabel: string;
   visualPrompt?: string;
+  visualObjectPosition?: string;
   visualEmphasis?: boolean;
   details: string[];
   statuses: string[];
@@ -677,8 +690,8 @@ function CombatantPanel({
     ? "border-emerald-300/50 bg-emerald-500/15 text-emerald-100"
     : "border-red-300/50 bg-red-500/15 text-red-100";
   const visualFrameClass = visualEmphasis
-    ? "aspect-[3/4] rounded-md border border-red-200/70 shadow-[0_0_34px_rgba(248,113,113,0.24)] ring-2 ring-red-500/30"
-    : "aspect-[3/4] rounded-md border border-white/10";
+    ? "rounded-md border border-red-200/70 shadow-[0_0_34px_rgba(248,113,113,0.24)] ring-2 ring-red-500/30"
+    : "rounded-md border border-white/10";
 
   const feedbackClass =
     feedback?.tone === "heal"
@@ -712,40 +725,44 @@ function CombatantPanel({
           {badge}
         </span>
       </div>
-      <div className="mt-5">
+      <div className="mt-5 grid gap-4 sm:grid-cols-[minmax(120px,38%)_1fr] sm:items-start">
         <GameImage
           src={visualSrc}
           alt={`${visualLabel}立繪`}
-          className={visualFrameClass}
-          imageClassName="object-cover object-top"
-          sizes="(min-width: 768px) 420px, 100vw"
+          variant="portrait"
+          objectPosition={visualObjectPosition}
+          className={`mx-auto max-h-[300px] w-full max-w-[230px] sm:max-h-[320px] sm:max-w-none ${visualFrameClass}`}
+          imageClassName="object-cover"
+          sizes="(min-width: 1024px) 180px, (min-width: 768px) 38vw, 230px"
           fallbackType={visualType}
           fallbackLabel={visualLabel}
           fallbackPrompt={visualPrompt}
           fallbackCompact
         />
-      </div>
-      <div className="mt-5 flex items-center justify-between gap-4">
-        <p className="text-lg font-black text-stone-50">{health}</p>
-        <p className="text-xs font-bold text-stone-300">體力</p>
-      </div>
-      <div className="mt-3 h-3 overflow-hidden rounded-full bg-black/40">
-        <div className={`h-full ${barClass}`} style={{ width: `${percent}%` }} />
-      </div>
-      <ul className="mt-5 space-y-2 text-sm leading-6 text-stone-200">
-        {details.map((detail) => (
-          <li key={detail}>{detail}</li>
-        ))}
-      </ul>
-      <div className="mt-4 flex flex-wrap gap-2">
-        {statuses.map((status) => (
-          <span
-            key={status}
-            className="rounded-full border border-amber-300/30 bg-black/25 px-3 py-1 text-xs font-bold text-amber-100"
-          >
-            {status}
-          </span>
-        ))}
+        <div className="min-w-0">
+          <div className="flex items-center justify-between gap-4">
+            <p className="text-lg font-black text-stone-50">{health}</p>
+            <p className="text-xs font-bold text-stone-300">體力</p>
+          </div>
+          <div className="mt-3 h-3 overflow-hidden rounded-full bg-black/40">
+            <div className={`h-full ${barClass}`} style={{ width: `${percent}%` }} />
+          </div>
+          <ul className="mt-5 space-y-2 text-sm leading-6 text-stone-200">
+            {details.map((detail) => (
+              <li key={detail}>{detail}</li>
+            ))}
+          </ul>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {statuses.map((status) => (
+              <span
+                key={status}
+                className="rounded-full border border-amber-300/30 bg-black/25 px-3 py-1 text-xs font-bold text-amber-100"
+              >
+                {status}
+              </span>
+            ))}
+          </div>
+        </div>
       </div>
     </section>
   );
@@ -770,6 +787,38 @@ function EventToastView({ toast }: { toast: EventToast }) {
       </div>
     </div>
   );
+}
+
+function getHeroObjectPosition(heroId: string) {
+  if (heroId === "guan-yu") {
+    return "50% 18%";
+  }
+
+  if (heroId === "zhuge-liang") {
+    return "50% 16%";
+  }
+
+  return "50% 24%";
+}
+
+function getEnemyObjectPosition(enemyId: string) {
+  if (enemyId === "lu-bu") {
+    return "50% 16%";
+  }
+
+  if (enemyId === "xiliang-cavalry") {
+    return "50% 30%";
+  }
+
+  return "50% 22%";
+}
+
+function getStageObjectPosition(stage: number) {
+  if (stage === 8) {
+    return "50% 46%";
+  }
+
+  return "50% 50%";
 }
 
 function RewardCard({ reward, onChoose }: { reward: Reward; onChoose: () => void }) {

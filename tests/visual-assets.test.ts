@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { getGameImageRenderMode } from "@/components/GameImage";
+import {
+  getGameImageObjectPositionStyle,
+  getGameImageRenderMode,
+  getGameImageVariantClass,
+} from "@/components/GameImage";
 import { enemyPool } from "@/lib/game/enemies";
 import { heroes } from "@/lib/game/heroes";
 import { getStageConfig } from "@/lib/game/stages";
@@ -114,6 +118,15 @@ describe("visual asset manifest", () => {
     expect(getGameImageRenderMode("/images/heroes/guan-yu.png")).toBe("image");
     expect(getGameImageRenderMode(undefined)).toBe("fallback");
     expect(getGameImageRenderMode("/images/heroes/guan-yu.png", true)).toBe("fallback");
+  });
+
+  it("supports shared image variants and object position for visual QA", () => {
+    expect(getGameImageVariantClass("cover")).toContain("aspect-[16/9]");
+    expect(getGameImageVariantClass("background")).toContain("aspect-[16/9]");
+    expect(getGameImageVariantClass("portrait")).toContain("aspect-[3/4]");
+    expect(getGameImageObjectPositionStyle("50% 18%")).toEqual({
+      objectPosition: "50% 18%",
+    });
   });
 });
 

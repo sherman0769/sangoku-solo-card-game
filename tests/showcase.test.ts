@@ -9,7 +9,7 @@ import {
 
 describe("showcase and onboarding copy", () => {
   it("includes homepage how-to and current feature copy", () => {
-    expect(currentVersionLabel).toBe("v0.10.4 導入第一批關卡背景圖像版");
+    expect(currentVersionLabel).toBe("v0.10.5 視覺呈現優化版");
     expect(howToSteps.map((step) => step.title)).toEqual([
       "選擇武將",
       "進入戰鬥",
@@ -24,6 +24,9 @@ describe("showcase and onboarding copy", () => {
     expect(currentFeatureHighlights).toContain("第一批 AI 圖像：首頁主視覺、關羽、趙雲、諸葛亮");
     expect(currentFeatureHighlights).toContain("第二批敵人圖像：黃巾兵、山賊頭目、西涼騎兵、呂布");
     expect(currentFeatureHighlights).toContain("第一批關卡背景：荒村初戰、虎牢關前");
+    expect(currentFeatureHighlights).toContain(
+      "視覺呈現優化：首頁、武將、敵人、Boss 與關卡背景手機版顯示",
+    );
     expect(currentFeatureHighlights).toContain(
       "視覺資產 placeholder：角色、敵人、關卡、事件、路線與卡牌",
     );
