@@ -13,6 +13,7 @@ type PlaybackState = "idle" | "playing" | "ended";
 
 export function OpeningVideo({ config, startHref }: OpeningVideoProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const [expanded, setExpanded] = useState(false);
   const [playbackState, setPlaybackState] = useState<PlaybackState>("idle");
   const [hasVideoError, setHasVideoError] = useState(false);
 
@@ -40,6 +41,39 @@ export function OpeningVideo({ config, startHref }: OpeningVideoProps) {
   function handleVideoError() {
     setHasVideoError(true);
     setPlaybackState("idle");
+  }
+
+  if (!expanded) {
+    return (
+      <section id="opening-video" className="mt-6 scroll-mt-6 rounded-xl border border-purple-500/35 bg-black/35 p-4 shadow-[0_18px_45px_rgba(0,0,0,0.3)] sm:p-5">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
+            <p className="text-xs font-black uppercase tracking-[0.2em] text-purple-200">
+              開場動畫
+            </p>
+            <h2 className="mt-2 text-2xl font-black text-amber-50">{config.title}</h2>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-stone-300">
+              20 秒直式開場，呈現第一章：黃巾亂起 的開場氣氛。
+            </p>
+          </div>
+          <div className="flex shrink-0 flex-col gap-3 sm:flex-row">
+            <button
+              type="button"
+              onClick={() => setExpanded(true)}
+              className="inline-flex h-11 items-center justify-center rounded-md border border-purple-200/70 bg-purple-300 px-5 text-sm font-black text-stone-950 transition hover:bg-purple-200"
+            >
+              觀看開場動畫
+            </button>
+            <Link
+              href={startHref}
+              className="inline-flex h-11 items-center justify-center rounded-md border border-amber-100/70 bg-amber-500 px-5 text-sm font-black text-stone-950 transition hover:bg-amber-300"
+            >
+              略過動畫，直接開始
+            </Link>
+          </div>
+        </div>
+      </section>
+    );
   }
 
   return (

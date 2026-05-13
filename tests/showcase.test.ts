@@ -3,14 +3,17 @@ import {
   currentFeatureHighlights,
   currentVersionLabel,
   getPhaseHint,
+  getHeroIntroAudioKey,
+  homeCollapsibleSections,
   howToSteps,
   mobileGameplaySections,
   quickRules,
 } from "@/lib/game/showcase";
+import { canPlayVoice } from "@/lib/game/voice";
 
 describe("showcase and onboarding copy", () => {
   it("includes homepage how-to and current feature copy", () => {
-    expect(currentVersionLabel).toBe("v0.13.1 手機遊玩 UI / UX 優化版");
+    expect(currentVersionLabel).toBe("v0.13.2 首頁與戰鬥視覺修正版");
     expect(howToSteps.map((step) => step.title)).toEqual([
       "選擇武將",
       "進入戰鬥",
@@ -50,6 +53,9 @@ describe("showcase and onboarding copy", () => {
       "手機遊玩優化：戰鬥 HUD、底部手牌操作區、紀錄與設定收合",
     );
     expect(currentFeatureHighlights).toContain(
+      "首頁互動修正：武將試聽登場語音、開場動畫入口上移、教學與特色收合",
+    );
+    expect(currentFeatureHighlights).toContain(
       "視覺資產 placeholder：角色、敵人、關卡、事件、路線與卡牌",
     );
   });
@@ -84,5 +90,22 @@ describe("showcase and onboarding copy", () => {
       "狀態與設定收合",
       "事件 / 獎勵 / 路線選擇優化",
     ]);
+  });
+
+  it("describes collapsible homepage sections", () => {
+    expect(homeCollapsibleSections.map((section) => section.id)).toEqual(["how-to", "features"]);
+    expect(homeCollapsibleSections.map((section) => section.title)).toEqual([
+      "怎麼玩？展開教學",
+      "查看目前版本特色",
+    ]);
+  });
+
+  it("maps homepage hero voice previews to ready intro audio", () => {
+    expect(getHeroIntroAudioKey("guan-yu")).toBe("guan-yu-intro");
+    expect(getHeroIntroAudioKey("zhao-yun")).toBe("zhao-yun-intro");
+    expect(getHeroIntroAudioKey("zhuge-liang")).toBe("zhuge-liang-intro");
+    expect(canPlayVoice("guan-yu-intro")).toBe(true);
+    expect(canPlayVoice("zhao-yun-intro")).toBe(true);
+    expect(canPlayVoice("zhuge-liang-intro")).toBe(true);
   });
 });

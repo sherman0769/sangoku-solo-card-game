@@ -450,9 +450,13 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
           enemyType={getEnemyTypeLabel(state.enemy.type)}
           enemyHealth={`${state.enemyHealth}/${state.enemy.maxHealth}`}
           enemyStatuses={enemyStatuses}
+          enemyPortrait={state.enemy.portrait.startsWith("/") ? state.enemy.portrait : undefined}
+          enemyPrompt={state.enemy.visualPrompt}
           playerName={state.player.name}
           playerHealth={`${state.player.health}/${state.player.maxHealth}`}
           playerStatuses={playerStatuses}
+          playerPortrait={currentHero.portrait}
+          playerPrompt={currentHero.visualPrompt}
         />
 
         {stageBackgroundSrc ? (
@@ -876,17 +880,25 @@ function MobileBattleHud({
   enemyType,
   enemyHealth,
   enemyStatuses,
+  enemyPortrait,
+  enemyPrompt,
   playerName,
   playerHealth,
   playerStatuses,
+  playerPortrait,
+  playerPrompt,
 }: {
   enemyName: string;
   enemyType: string;
   enemyHealth: string;
   enemyStatuses: string[];
+  enemyPortrait?: string;
+  enemyPrompt?: string;
   playerName: string;
   playerHealth: string;
   playerStatuses: string[];
+  playerPortrait?: string;
+  playerPrompt?: string;
 }) {
   return (
     <section className="mt-5 grid gap-3 md:hidden">
@@ -896,6 +908,9 @@ function MobileBattleHud({
         title={enemyName}
         health={enemyHealth}
         statuses={enemyStatuses}
+        portrait={enemyPortrait}
+        visualLabel={enemyName}
+        visualPrompt={enemyPrompt}
       />
       <MobileHudRow
         tone="player"
@@ -903,6 +918,9 @@ function MobileBattleHud({
         title={playerName}
         health={playerHealth}
         statuses={playerStatuses}
+        portrait={playerPortrait}
+        visualLabel={playerName}
+        visualPrompt={playerPrompt}
       />
     </section>
   );
@@ -914,12 +932,18 @@ function MobileHudRow({
   title,
   health,
   statuses,
+  portrait,
+  visualLabel,
+  visualPrompt,
 }: {
   tone: "enemy" | "player";
   eyebrow: string;
   title: string;
   health: string;
   statuses: string[];
+  portrait?: string;
+  visualLabel: string;
+  visualPrompt?: string;
 }) {
   const toneClass =
     tone === "enemy"
@@ -929,14 +953,27 @@ function MobileHudRow({
 
   return (
     <div className={`rounded-xl border p-3 shadow-[0_14px_34px_rgba(0,0,0,0.28)] ${toneClass}`}>
-      <div className="flex items-start justify-between gap-3">
+      <div className="flex items-start gap-3">
+        <GameImage
+          src={portrait}
+          alt={`${visualLabel}立繪`}
+          variant="portrait"
+          objectPosition="50% 22%"
+          className="h-20 w-16 shrink-0 rounded-md border border-white/10"
+          imageClassName="object-cover"
+          sizes="64px"
+          fallbackType={tone === "enemy" ? "enemy" : "hero"}
+          fallbackLabel={visualLabel}
+          fallbackPrompt={visualPrompt}
+          fallbackCompact
+        />
         <div className="min-w-0">
           <p className="text-[11px] font-black uppercase tracking-[0.16em] text-amber-200">
             {eyebrow}
           </p>
           <h2 className="mt-1 truncate text-xl font-black text-stone-50">{title}</h2>
         </div>
-        <p className={`shrink-0 text-lg font-black ${hpClass}`}>♥ {health}</p>
+        <p className={`ml-auto shrink-0 text-lg font-black ${hpClass}`}>♥ {health}</p>
       </div>
       <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
         {statuses.map((status) => (

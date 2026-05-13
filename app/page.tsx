@@ -1,29 +1,70 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { GameImage } from "@/components/GameImage";
 import { OpeningVideo } from "@/components/OpeningVideo";
+import { playSound } from "@/lib/game/audio";
 import { heroes } from "@/lib/game/heroes";
 import { getOpeningVideoConfig } from "@/lib/game/openingVideo";
 import {
+  getHeroIntroAudioKey,
+  homeCollapsibleSections,
   currentFeatureHighlights,
   currentVersionLabel,
   howToSteps,
 } from "@/lib/game/showcase";
 import { chapterOne } from "@/lib/game/stages";
+import {
+  isVoiceSupported,
+  playVoice,
+  readVoiceEnabledSetting,
+  writeVoiceEnabledSetting,
+} from "@/lib/game/voice";
 import { VISUAL_ASSET_MANIFEST } from "@/lib/game/visualAssetManifest";
 
 export default function Home() {
   const [selectedHeroId, setSelectedHeroId] = useState("guan-yu");
+  const [voiceEnabled, setVoiceEnabled] = useState(false);
+  const [voiceSupported, setVoiceSupported] = useState(false);
   const selectedHero = heroes.find((hero) => hero.id === selectedHeroId) ?? heroes[0];
   const homeHeroImage = VISUAL_ASSET_MANIFEST.find((asset) => asset.id === "home-hero")?.path;
   const openingVideo = getOpeningVideoConfig();
   const selectedHeroStartHref = `/game?hero=${selectedHeroId}`;
 
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setVoiceSupported(isVoiceSupported());
+      setVoiceEnabled(readVoiceEnabledSetting());
+    }, 0);
+
+    return () => window.clearTimeout(timer);
+  }, []);
+
+  function handleSelectHero(heroId: string) {
+    setSelectedHeroId(heroId);
+    playSound("reward");
+
+    if (voiceEnabled) {
+      const audioKey = getHeroIntroAudioKey(heroId);
+
+      if (audioKey) {
+        playVoice(audioKey);
+      }
+    }
+  }
+
+  function toggleVoicePreview() {
+    const nextEnabled = !voiceEnabled;
+    setVoiceEnabled(nextEnabled);
+    writeVoiceEnabledSetting(nextEnabled);
+  }
+
   return (
     <main className="min-h-screen bg-[#140c09] bg-[radial-gradient(circle_at_top_left,rgba(127,29,29,0.36),transparent_35%),linear-gradient(135deg,#1b100b_0%,#2a120d_48%,#090605_100%)] px-4 py-6 text-stone-100 sm:px-6 sm:py-10">
       <section className="mx-auto max-w-6xl">
+        <OpeningVideo config={openingVideo} startHref={selectedHeroStartHref} />
+
         <section className="relative overflow-hidden rounded-2xl border border-amber-700/45 bg-black/35 shadow-[0_24px_70px_rgba(0,0,0,0.42)]">
           <GameImage
             src={homeHeroImage}
@@ -86,6 +127,25 @@ export default function Home() {
               體力 {selectedHero.maxHp} / 技能：{selectedHero.skillName} / {selectedHero.role}
             </p>
           </div>
+          <div className="mt-4 flex flex-col gap-3 rounded-lg border border-purple-500/30 bg-purple-950/25 p-3 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm font-bold leading-6 text-purple-100">
+              點選武將可試聽登場語音；若語音關閉，仍會播放選擇音效。
+            </p>
+            <button
+              type="button"
+              onClick={toggleVoicePreview}
+              className={`h-10 rounded-md px-4 text-sm font-black transition ${
+                voiceEnabled
+                  ? "bg-purple-300 text-stone-950 hover:bg-purple-200"
+                  : "border border-purple-300/50 bg-stone-950/70 text-purple-50 hover:border-purple-100"
+              }`}
+            >
+              角色語音：{voiceEnabled ? "開" : "關"}
+            </button>
+            {!voiceSupported ? (
+              <p className="text-xs font-bold text-stone-400">此瀏覽器不支援語音播放。</p>
+            ) : null}
+          </div>
           <div className="mt-4 grid gap-3 lg:grid-cols-3">
             {heroes.map((hero) => {
               const isSelected = hero.id === selectedHeroId;
@@ -95,7 +155,7 @@ export default function Home() {
                 <button
                   key={hero.id}
                   type="button"
-                  onClick={() => setSelectedHeroId(hero.id)}
+                  onClick={() => handleSelectHero(hero.id)}
                   className={`rounded-lg border p-4 text-left transition hover:-translate-y-0.5 ${
                     isSelected
                       ? "border-amber-200 bg-amber-500/18 shadow-[0_0_0_2px_rgba(252,211,77,0.2),0_14px_34px_rgba(245,158,11,0.2)]"
@@ -150,10 +210,10 @@ export default function Home() {
           </div>
         </section>
 
-        <OpeningVideo config={openingVideo} startHref={selectedHeroStartHref} />
-
-        <section className="mt-14">
-          <h2 className="text-3xl font-black text-amber-50">怎麼玩？</h2>
+        <details className="mt-8 rounded-xl border border-amber-700/40 bg-black/30 p-5 shadow-[0_18px_45px_rgba(0,0,0,0.28)]">
+          <summary className="cursor-pointer text-2xl font-black text-amber-50">
+            {homeCollapsibleSections[0].title}
+          </summary>
           <div className="mt-5 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {howToSteps.map((step, index) => (
               <section
@@ -168,10 +228,13 @@ export default function Home() {
               </section>
             ))}
           </div>
-        </section>
+        </details>
 
-        <section className="mt-10 rounded-xl border border-amber-700/40 bg-black/30 p-5 shadow-[0_18px_45px_rgba(0,0,0,0.28)]">
-          <h2 className="text-3xl font-black text-amber-50">v0.13.1 目前特色</h2>
+        <details className="mt-5 rounded-xl border border-amber-700/40 bg-black/30 p-5 shadow-[0_18px_45px_rgba(0,0,0,0.28)]">
+          <summary className="cursor-pointer text-2xl font-black text-amber-50">
+            {homeCollapsibleSections[1].title}
+          </summary>
+          <h2 className="sr-only">v0.13.2 目前特色</h2>
           <ul className="mt-5 grid gap-3 text-sm leading-6 text-stone-300 md:grid-cols-2">
             {currentFeatureHighlights.map((feature) => (
               <li
@@ -182,7 +245,7 @@ export default function Home() {
               </li>
             ))}
           </ul>
-        </section>
+        </details>
 
         <div className="mt-14 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {[
