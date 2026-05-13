@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "三國單騎傳",
-  description: "v0.13.3 開場動畫體驗優化版：首頁點擊觀看開場動畫後會直接開啟全螢幕 9:16 modal 並嘗試播放，可關閉、略過、重播，並保留首頁武將選擇音效與登場語音試聽、手機戰鬥 HUD、底部手牌操作區、語音播放框架與 Web Audio API 提示音。",
+  description: "v0.13.4 首頁主流程修正版：首頁流程調整為觀看開場動畫、選擇武將、開始遊戲，移除選角前直接開始遊戲的主 CTA，並保留開場動畫 modal、武將語音試聽、手機戰鬥 HUD、語音播放框架與 Web Audio API 提示音。",
 };
 
 export default function RootLayout({

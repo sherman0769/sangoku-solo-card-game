@@ -1,6 +1,26 @@
 import type { GamePhase } from "./types";
 
-export const currentVersionLabel = "v0.13.3 開場動畫體驗優化版";
+export const currentVersionLabel = "v0.13.4 首頁主流程修正版";
+
+export const homeMainFlowSteps = [
+  "觀看開場動畫",
+  "選擇武將",
+  "開始遊戲",
+] as const;
+
+export const homeOpeningVideoEntry = {
+  title: "開場動畫",
+  description: "觀看第一章：黃巾亂起 的 20 秒直式開場動畫",
+  primaryAction: "觀看開場動畫",
+} as const;
+
+export const homeHeroSelectionCopy = "先選擇你的武將，再開始遊戲。";
+
+export const openingVideoModalActions = [
+  "略過動畫，開始遊戲",
+  "開始遊戲",
+  "重新播放",
+] as const;
 
 export const howToSteps = [
   {
@@ -48,6 +68,7 @@ export const currentFeatureHighlights = [
   "手機遊玩優化：戰鬥 HUD、底部手牌操作區、紀錄與設定收合",
   "首頁互動修正：武將試聽登場語音、開場動畫入口上移、教學與特色收合",
   "開場動畫體驗：一次點擊全螢幕播放、可略過、可關閉、可重播",
+  "首頁主流程：觀看開場動畫 → 選擇武將 → 開始遊戲",
   "視覺資產 placeholder：角色、敵人、關卡、事件、路線與卡牌",
   "Mini-boss 張梁 / 張寶",
   "隨機事件與路線選擇",
@@ -82,6 +103,10 @@ export const heroIntroAudioKeys = {
 
 export function getHeroIntroAudioKey(heroId: string) {
   return heroIntroAudioKeys[heroId as keyof typeof heroIntroAudioKeys];
+}
+
+export function getHeroStartLabel(heroName: string) {
+  return `以${heroName}開始遊戲`;
 }
 
 export const quickRules = [

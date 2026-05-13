@@ -89,7 +89,7 @@ export function OpeningVideo({ config, startHref }: OpeningVideoProps) {
           </p>
           <h2 className="mt-2 text-2xl font-black text-amber-50">{config.title}</h2>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-stone-300">
-            20 秒直式開場，點擊後全螢幕播放第一章：黃巾亂起。
+            觀看第一章：黃巾亂起 的 20 秒直式開場動畫。可先觀看開場動畫，接著選擇武將開始第一章。
           </p>
         </div>
         <div className="flex shrink-0 flex-col gap-3 sm:flex-row">
@@ -100,12 +100,6 @@ export function OpeningVideo({ config, startHref }: OpeningVideoProps) {
           >
             觀看開場動畫
           </button>
-          <Link
-            href={startHref}
-            className="inline-flex h-11 items-center justify-center rounded-md border border-amber-100/70 bg-amber-500 px-5 text-sm font-black text-stone-950 transition hover:bg-amber-300"
-          >
-            略過動畫，直接開始
-          </Link>
         </div>
       </div>
 

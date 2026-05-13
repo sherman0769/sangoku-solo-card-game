@@ -9,6 +9,8 @@ import { heroes } from "@/lib/game/heroes";
 import { getOpeningVideoConfig } from "@/lib/game/openingVideo";
 import {
   getHeroIntroAudioKey,
+  getHeroStartLabel,
+  homeHeroSelectionCopy,
   homeCollapsibleSections,
   currentFeatureHighlights,
   currentVersionLabel,
@@ -31,6 +33,7 @@ export default function Home() {
   const homeHeroImage = VISUAL_ASSET_MANIFEST.find((asset) => asset.id === "home-hero")?.path;
   const openingVideo = getOpeningVideoConfig();
   const selectedHeroStartHref = `/game?hero=${selectedHeroId}`;
+  const selectedHeroStartLabel = getHeroStartLabel(selectedHero.name);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -103,17 +106,17 @@ export default function Home() {
                 看穿敵人的攻勢，在隨機敵人池、事件、路線選擇與戰後三選一強化中養成流派，
                 最後於虎牢關前挑戰 Boss 呂布。
               </p>
-              <Link
-                href={selectedHeroStartHref}
+              <a
+                href="#hero-select"
                 className="mt-6 inline-flex h-12 items-center justify-center rounded-md border border-amber-100/70 bg-amber-500 px-6 text-sm font-black text-stone-950 shadow-[0_14px_34px_rgba(245,158,11,0.28)] ring-2 ring-amber-400/20 transition hover:bg-amber-300"
               >
-                開始遊戲
-              </Link>
+                先選擇武將
+              </a>
             </div>
           </div>
         </section>
 
-        <section className="mt-8 rounded-xl border border-amber-700/40 bg-black/30 p-5 shadow-[0_18px_45px_rgba(0,0,0,0.28)]">
+        <section id="hero-select" className="mt-8 scroll-mt-6 rounded-xl border border-amber-700/40 bg-black/30 p-5 shadow-[0_18px_45px_rgba(0,0,0,0.28)]">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.2em] text-amber-300">
@@ -122,11 +125,17 @@ export default function Home() {
               <h2 className="mt-2 text-2xl font-black text-amber-50">
                 {selectedHero.name}｜{selectedHero.title}
               </h2>
+              <p className="mt-2 text-sm font-bold leading-6 text-stone-300">
+                {homeHeroSelectionCopy}
+              </p>
             </div>
             <p className="text-sm font-bold text-stone-300">
               體力 {selectedHero.maxHp} / 技能：{selectedHero.skillName} / {selectedHero.role}
             </p>
           </div>
+          <p className="mt-3 inline-flex rounded-full border border-amber-300/40 bg-amber-500/12 px-3 py-1 text-sm font-black text-amber-100">
+            目前選擇：{selectedHero.name}
+          </p>
           <div className="mt-4 flex flex-col gap-3 rounded-lg border border-purple-500/30 bg-purple-950/25 p-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-sm font-bold leading-6 text-purple-100">
               點選武將可試聽登場語音；若語音關閉，仍會播放選擇音效。
@@ -199,14 +208,8 @@ export default function Home() {
               href={selectedHeroStartHref}
               className="inline-flex h-12 items-center justify-center rounded-md border border-amber-100/70 bg-amber-500 px-6 text-sm font-black text-stone-950 shadow-[0_14px_34px_rgba(245,158,11,0.22)] transition hover:bg-amber-300"
             >
-              開始遊戲
+              {selectedHeroStartLabel}
             </Link>
-            <a
-              href="#opening-video"
-              className="inline-flex h-12 items-center justify-center rounded-md border border-purple-300/60 bg-purple-950/55 px-6 text-sm font-black text-purple-50 transition hover:border-purple-100 hover:bg-purple-900"
-            >
-              觀看開場動畫
-            </a>
           </div>
         </section>
 
@@ -234,7 +237,7 @@ export default function Home() {
           <summary className="cursor-pointer text-2xl font-black text-amber-50">
             {homeCollapsibleSections[1].title}
           </summary>
-          <h2 className="sr-only">v0.13.2 目前特色</h2>
+          <h2 className="sr-only">v0.13.4 目前特色</h2>
           <ul className="mt-5 grid gap-3 text-sm leading-6 text-stone-300 md:grid-cols-2">
             {currentFeatureHighlights.map((feature) => (
               <li
@@ -266,6 +269,7 @@ export default function Home() {
             ["第一批 TTS 語音", "章節開場、三位武將登場與呂布登場語音已可在語音開啟後播放。"],
             ["開頭動畫", "以 AI 圖像、影片與音樂製作第一章開場，可觀看或略過後開始遊戲。"],
             ["手機遊玩優化", "戰鬥 HUD、底部手牌操作區、紀錄與狀態設定收合，降低直屏滑動負擔。"],
+            ["首頁主流程", "首頁改為觀看開場動畫、選擇武將、開始遊戲，避免選角前直接進入遊戲。"],
           ].map(([title, text]) => (
             <section
               key={title}

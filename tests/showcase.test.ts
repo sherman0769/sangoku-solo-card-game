@@ -4,16 +4,21 @@ import {
   currentVersionLabel,
   getPhaseHint,
   getHeroIntroAudioKey,
+  getHeroStartLabel,
   homeCollapsibleSections,
+  homeHeroSelectionCopy,
+  homeMainFlowSteps,
+  homeOpeningVideoEntry,
   howToSteps,
   mobileGameplaySections,
+  openingVideoModalActions,
   quickRules,
 } from "@/lib/game/showcase";
 import { canPlayVoice } from "@/lib/game/voice";
 
 describe("showcase and onboarding copy", () => {
   it("includes homepage how-to and current feature copy", () => {
-    expect(currentVersionLabel).toBe("v0.13.3 開場動畫體驗優化版");
+    expect(currentVersionLabel).toBe("v0.13.4 首頁主流程修正版");
     expect(howToSteps.map((step) => step.title)).toEqual([
       "選擇武將",
       "進入戰鬥",
@@ -59,8 +64,29 @@ describe("showcase and onboarding copy", () => {
       "開場動畫體驗：一次點擊全螢幕播放、可略過、可關閉、可重播",
     );
     expect(currentFeatureHighlights).toContain(
+      "首頁主流程：觀看開場動畫 → 選擇武將 → 開始遊戲",
+    );
+    expect(currentFeatureHighlights).toContain(
       "視覺資產 placeholder：角色、敵人、關卡、事件、路線與卡牌",
     );
+  });
+
+  it("describes the corrected homepage start flow", () => {
+    expect(homeMainFlowSteps).toEqual(["觀看開場動畫", "選擇武將", "開始遊戲"]);
+    expect(homeHeroSelectionCopy).toBe("先選擇你的武將，再開始遊戲。");
+    expect(homeOpeningVideoEntry).toMatchObject({
+      title: "開場動畫",
+      description: "觀看第一章：黃巾亂起 的 20 秒直式開場動畫",
+      primaryAction: "觀看開場動畫",
+    });
+    expect(Object.values(homeOpeningVideoEntry).join(" ")).not.toContain("略過動畫，直接開始");
+    expect(getHeroStartLabel("關羽")).toBe("以關羽開始遊戲");
+  });
+
+  it("keeps opening video modal start actions", () => {
+    expect(openingVideoModalActions).toContain("略過動畫，開始遊戲");
+    expect(openingVideoModalActions).toContain("開始遊戲");
+    expect(openingVideoModalActions).toContain("重新播放");
   });
 
   it("maps game phases to tutorial hints", () => {
