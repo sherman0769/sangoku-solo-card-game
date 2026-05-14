@@ -5,13 +5,14 @@ export type VisualAssetType =
   | "boss"
   | "stage-background"
   | "route"
-  | "route-event";
+  | "route-event"
+  | "card";
 
 export interface VisualAssetManifestItem {
   id: string;
   type: VisualAssetType;
   name: string;
-  aspectRatio: "16:9" | "3:4" | "9:16";
+  aspectRatio: "16:9" | "3:4" | "9:16" | "4:3";
   path: string;
   usage: string;
   promptZh: string;
@@ -428,5 +429,137 @@ export const VISUAL_ASSET_MANIFEST: VisualAssetManifestItem[] = [
       "夜襲敵營事件圖，夜色中營寨火光閃爍，遠處巡邏敵兵剪影，前景是壓低身形的突襲隊伍與暗色兵器，緊張豪賭氛圍但不血腥，手機直屏 9:16，東方史詩卡牌風，半寫實，無文字。",
     promptEn:
       "A night raid route event image, enemy camp fires flickering in darkness, patrol silhouettes in the distance, foreground raiding party crouching with dark weapons, tense high-risk mood without gore, mobile vertical 9:16, eastern epic card game style, semi-realistic, no text.",
+  },
+  {
+    id: "card-slash",
+    type: "card",
+    name: "斬",
+    aspectRatio: "4:3",
+    path: "/images/cards/slash.png",
+    usage: "手牌、戰鬥出牌、卡牌說明",
+    promptZh: "三國亂世卡牌插圖，赤金刀光破空斬向敵陣，煙塵戰場背景，主體清楚，東方史詩卡牌風，半寫實，適合手機小卡顯示，無文字。",
+    promptEn: "Three Kingdoms card illustration, red and gold blade light slashing through a battlefield, smoky war background, clear central subject, eastern epic card style, semi-realistic, readable on small mobile cards, no text.",
+    status: "ready",
+  },
+  {
+    id: "card-dodge",
+    type: "card",
+    name: "閃",
+    aspectRatio: "4:3",
+    path: "/images/cards/dodge.png",
+    usage: "手牌、敵人攻擊回應、卡牌說明",
+    promptZh: "三國武者側身閃避箭矢與刀光，藍鐵色速度殘影，防禦卡牌意象，主體明確，東方史詩卡牌風，半寫實，無文字。",
+    promptEn: "A Three Kingdoms warrior evading arrows and blade light, blue steel motion trails, defensive card imagery, clear central subject, eastern epic card style, semi-realistic, no text.",
+    status: "ready",
+  },
+  {
+    id: "card-wine",
+    type: "card",
+    name: "酒",
+    aspectRatio: "4:3",
+    path: "/images/cards/wine.png",
+    usage: "手牌、回復 / 強化攻擊、卡牌說明",
+    promptZh: "古代戰場中的酒壺與碗，綠金暖光象徵恢復與士氣，背景有模糊戰旗，主體清楚，三國卡牌插圖，半寫實，無文字。",
+    promptEn: "An ancient wine jar and cup on a battlefield, green and gold warm light symbolizing recovery and morale, blurred banners in the background, clear subject, Three Kingdoms card illustration, semi-realistic, no text.",
+    status: "ready",
+  },
+  {
+    id: "card-strategy-scroll",
+    type: "card",
+    name: "兵書",
+    aspectRatio: "4:3",
+    path: "/images/cards/strategy-scroll.png",
+    usage: "手牌、抽牌策略、卡牌說明",
+    promptZh: "竹簡兵書攤開，紫金與藍金策略光紋浮現，燭光軍帳背景，主體清楚，東方史詩卡牌風，半寫實，無文字。",
+    promptEn: "Open bamboo strategy scrolls with purple-gold and blue-gold tactical light patterns, candlelit war tent background, clear subject, eastern epic card style, semi-realistic, no text.",
+    status: "ready",
+  },
+  {
+    id: "card-armor-break",
+    type: "card",
+    name: "破甲",
+    aspectRatio: "4:3",
+    path: "/images/cards/armor-break.png",
+    usage: "手牌、破防攻擊、卡牌說明",
+    promptZh: "鋒刃擊碎古代甲片，紅金衝擊火花與破防氣勢，主體清楚，高辨識度小卡插圖，東方史詩卡牌風，半寫實，無文字。",
+    promptEn: "A sharp blade shattering ancient armor plates, red-gold impact sparks and armor-breaking force, clear subject, high-readability small card illustration, eastern epic card style, semi-realistic, no text.",
+    status: "ready",
+  },
+  {
+    id: "card-combo-slash",
+    type: "card",
+    name: "連斬",
+    aspectRatio: "4:3",
+    path: "/images/cards/combo-slash.png",
+    usage: "手牌、追擊攻擊、卡牌說明",
+    promptZh: "連續三道赤金刀光追擊敵陣，速度線與戰場煙塵，攻擊節奏強烈，主體清楚，三國戰術卡牌插圖，半寫實，無文字。",
+    promptEn: "Three consecutive red-gold blade arcs pursuing enemies through battlefield dust, strong attack rhythm and speed lines, clear subject, Three Kingdoms tactic card illustration, semi-realistic, no text.",
+    status: "ready",
+  },
+  {
+    id: "card-guard",
+    type: "card",
+    name: "固守",
+    aspectRatio: "4:3",
+    path: "/images/cards/guard.png",
+    usage: "手牌、防守減傷、卡牌說明",
+    promptZh: "古代盾陣固守，藍鐵色防護光幕與沉穩陣勢，主體清楚，防禦戰術卡牌插圖，東方史詩風，半寫實，無文字。",
+    promptEn: "Ancient shield formation holding the line, blue steel protective aura and steady formation, clear subject, defensive tactic card illustration, eastern epic style, semi-realistic, no text.",
+    status: "ready",
+  },
+  {
+    id: "card-inspire",
+    type: "card",
+    name: "激勵",
+    aspectRatio: "4:3",
+    path: "/images/cards/inspire.png",
+    usage: "手牌、回復與補牌、卡牌說明",
+    promptZh: "戰旗高舉，綠金光芒鼓舞士氣，遠方士兵剪影振奮，主體清楚，三國戰術卡牌插圖，半寫實，無文字。",
+    promptEn: "A raised war banner with green-gold morale light, distant soldier silhouettes inspired, clear subject, Three Kingdoms tactic card illustration, semi-realistic, no text.",
+    status: "ready",
+  },
+  {
+    id: "card-fire-attack",
+    type: "card",
+    name: "火攻",
+    aspectRatio: "4:3",
+    path: "/images/cards/fire-attack.png",
+    usage: "手牌、火攻打斷蓄力、卡牌說明",
+    promptZh: "紅橘火光席捲敵陣，火焰照亮戰場旗影，主體清楚，火攻戰術卡牌插圖，東方史詩卡牌風，半寫實，無文字。",
+    promptEn: "Red-orange flames sweeping through an enemy formation, firelight illuminating battlefield banners, clear subject, fire tactic card illustration, eastern epic card style, semi-realistic, no text.",
+    status: "ready",
+  },
+  {
+    id: "card-green-dragon-blade",
+    type: "card",
+    name: "青龍偃月刀",
+    aspectRatio: "4:3",
+    path: "/images/cards/green-dragon-blade.png",
+    usage: "手牌、裝備展示、玩家 HUD 摘要",
+    promptZh: "青龍偃月刀斜插於黑金戰場石地，青金龍影盤旋，裝備卡牌主體清楚，東方史詩卡牌風，半寫實，無文字。",
+    promptEn: "Green Dragon Crescent Blade planted in dark gold battlefield stones, teal-gold dragon aura curling around it, clear equipment card subject, eastern epic card style, semi-realistic, no text.",
+    status: "ready",
+  },
+  {
+    id: "card-dilu-horse",
+    type: "card",
+    name: "的盧馬",
+    aspectRatio: "4:3",
+    path: "/images/cards/dilu-horse.png",
+    usage: "手牌、裝備展示、玩家 HUD 摘要",
+    promptZh: "白色的盧馬踏煙奔馳，黑金戰場背景與藍鐵守護光，主體清楚，裝備卡牌插圖，東方史詩風，半寫實，無文字。",
+    promptEn: "A white Dilu horse galloping through smoke, dark gold battlefield background with blue steel protective light, clear subject, equipment card illustration, eastern epic style, semi-realistic, no text.",
+    status: "ready",
+  },
+  {
+    id: "card-taiping-manual",
+    type: "card",
+    name: "太平要術",
+    aspectRatio: "4:3",
+    path: "/images/cards/taiping-manual.png",
+    usage: "手牌、裝備展示、玩家 HUD 摘要",
+    promptZh: "古老道術卷軸懸浮，黑金底色與紫金符籙光芒，主體清楚，策略裝備卡牌插圖，東方史詩風，半寫實，無文字。",
+    promptEn: "An ancient Taoist manual floating, dark gold background with purple-gold talisman light, clear subject, strategy equipment card illustration, eastern epic style, semi-realistic, no text.",
+    status: "ready",
   },
 ];

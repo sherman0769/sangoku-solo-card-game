@@ -113,6 +113,7 @@ export interface Card {
   value: number;
   text: string;
   illustration: string;
+  image?: string;
   visualPrompt: string;
 }
 

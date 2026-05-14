@@ -1,6 +1,6 @@
 import type { GamePhase } from "./types";
 
-export const currentVersionLabel = "v0.24.0 完整體驗 QA 修正版";
+export const currentVersionLabel = "v0.24.1 卡牌圖片導入版";
 
 export const gameLoadingCopy = {
   title: "戰局準備中……",
@@ -20,7 +20,7 @@ export const homeOpeningVideoEntry = {
 } as const;
 
 export const homeHeroSelectionCopy =
-  "選擇一位角色，踏入第一章：黃巾之亂。第一章已完成文、圖、聲、影整合，後續將補齊卡牌插圖與挑戰模式。";
+  "選擇一位角色，踏入第一章：黃巾之亂。卡牌圖片已補齊：基礎卡、戰術卡與裝備卡皆導入正式插圖。";
 
 export const homeHeroPreviewCopy = "開啟角色語音後，點選武將可試聽專屬選角語音。";
 

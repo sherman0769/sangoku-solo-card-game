@@ -24,7 +24,7 @@ import { canPlayVoice } from "@/lib/game/voice";
 
 describe("showcase and onboarding copy", () => {
   it("includes homepage how-to copy without version feature lists", () => {
-    expect(currentVersionLabel).toBe("v0.24.0 完整體驗 QA 修正版");
+    expect(currentVersionLabel).toBe("v0.24.1 卡牌圖片導入版");
     expect(howToSteps.map((step) => step.title)).toEqual([
       "選擇武將",
       "進入戰鬥",
@@ -44,9 +44,9 @@ describe("showcase and onboarding copy", () => {
 
   it("describes the corrected homepage start flow", () => {
     expect(homeMainFlowSteps).toEqual(["觀看開場動畫", "選擇武將", "開始遊戲"]);
-    expect(homeHeroSelectionCopy).toContain("第一章已完成文、圖、聲、影整合");
-    expect(homeHeroSelectionCopy).toContain("卡牌插圖");
-    expect(homeHeroSelectionCopy).toContain("挑戰模式");
+    expect(homeHeroSelectionCopy).toContain("卡牌圖片已補齊");
+    expect(homeHeroSelectionCopy).toContain("基礎卡、戰術卡與裝備卡");
+    expect(homeHeroSelectionCopy).toContain("正式插圖");
     expect(homeHeroPreviewCopy).toBe("開啟角色語音後，點選武將可試聽專屬選角語音。");
     expect(homeOpeningVideoEntry).toMatchObject({
       title: "開場動畫",

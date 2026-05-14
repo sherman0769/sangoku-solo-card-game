@@ -1,4 +1,5 @@
 import type { Card } from "@/lib/game/types";
+import { GameImage } from "./GameImage";
 import { VisualPlaceholder } from "./VisualPlaceholder";
 
 interface CardViewProps {
@@ -33,12 +34,27 @@ export default function CardView({
           {style.label}
         </p>
         <div className="mt-3 sm:mt-4">
-          <VisualPlaceholder
-            type="card"
-            label={card.name}
-            prompt={card.visualPrompt}
-            compact
-          />
+          {card.image ? (
+            <GameImage
+              src={card.image}
+              alt={`${card.name}卡牌插圖`}
+              variant="card"
+              className="border border-white/10 bg-black/20"
+              imageClassName="object-cover"
+              sizes="(min-width: 768px) 220px, 160px"
+              fallbackType="card"
+              fallbackLabel={card.name}
+              fallbackPrompt={card.visualPrompt}
+              fallbackCompact
+            />
+          ) : (
+            <VisualPlaceholder
+              type="card"
+              label={card.name}
+              prompt={card.visualPrompt}
+              compact
+            />
+          )}
         </div>
       </div>
       <p className="mt-3 text-xs leading-5 text-stone-200 sm:mt-4 sm:text-sm sm:leading-6">

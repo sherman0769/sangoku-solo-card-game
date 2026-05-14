@@ -35,7 +35,7 @@ describe("PWA manifest and sharing", () => {
   it("documents the current PWA release in README", () => {
     const readme = readFileSync(readmePath, "utf-8");
 
-    expect(readme).toContain("v0.24.0 完整體驗 QA 修正版");
+    expect(readme).toContain("v0.24.1 卡牌圖片導入版");
     expect(readme).toContain("AI 協作開發：李詩民");
   });
 

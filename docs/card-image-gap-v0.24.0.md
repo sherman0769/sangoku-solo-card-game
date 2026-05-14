@@ -1,12 +1,12 @@
-# 《三國單騎傳》v0.24.0 卡牌圖片缺口清單
+# 《三國單騎傳》v0.24.1 卡牌圖片導入紀錄
 
 ## 1. 文件目的
 
-本文件整理目前尚未導入正式卡牌插圖的 12 張核心卡牌，作為下一階段 AI 圖像批量生成與導入依據。本版只建立缺口清單與結構化 manifest，不新增真實圖片，不將任何卡牌圖片標記為 ready。
+本文件整理 12 張核心卡牌正式插圖的導入狀態，保留原始 AI 圖像提示詞作為生成紀錄。v0.24.1 已完成基礎卡、戰術卡與裝備卡圖片導入，戰鬥中的 CardView 會顯示正式插圖，圖片載入失敗時仍 fallback 到卡牌插圖 placeholder。
 
 結構化資料來源：`lib/game/cardImageGapManifest.ts`
 
-目前所有卡牌圖片缺口皆為 `status: planned`。
+目前卡牌圖片缺口數量為 `0`；12 張卡牌圖片皆為 `status: ready`。
 
 ## 2. 統一美術風格
 
@@ -33,7 +33,7 @@
 文字、Logo、水印、UI 邊框、現代武器、科幻裝備、血腥畫面、畸形手指、重複物件、低清晰度
 ```
 
-## 3. 卡牌圖片缺口總覽
+## 3. 卡牌圖片導入總覽
 
 | 類別 | 數量 | 優先級 |
 |---|---:|---|
@@ -42,22 +42,24 @@
 | 裝備卡 | 3 | P1 |
 | 合計 | 12 | - |
 
-## 4. 缺口清單
+剩餘缺口：0。
+
+## 4. 已完成清單
 
 | cardId | cardName | cardType | usage | recommendedAspectRatio | suggestedPath | priority | status |
 |---|---|---|---|---|---|---|---|
-| slash | 斬 | 基礎卡 | 手牌、戰鬥出牌、卡牌說明 | 3:4 | public/images/cards/slash.png | P0 | planned |
-| dodge | 閃 | 基礎卡 | 手牌、敵人攻擊回應、卡牌說明 | 3:4 | public/images/cards/dodge.png | P0 | planned |
-| wine | 酒 | 基礎卡 | 手牌、回復 / 強化攻擊、卡牌說明 | 3:4 | public/images/cards/wine.png | P0 | planned |
-| strategy-scroll | 兵書 | 基礎卡 | 手牌、抽牌策略、卡牌說明 | 3:4 | public/images/cards/strategy-scroll.png | P0 | planned |
-| armor-break | 破甲 | 基礎卡 | 手牌、破防攻擊、卡牌說明 | 3:4 | public/images/cards/armor-break.png | P0 | planned |
-| combo-slash | 連斬 | 戰術卡 | 手牌、追擊攻擊、卡牌說明 | 3:4 | public/images/cards/combo-slash.png | P1 | planned |
-| guard | 固守 | 戰術卡 | 手牌、防守減傷、卡牌說明 | 3:4 | public/images/cards/guard.png | P1 | planned |
-| inspire | 激勵 | 戰術卡 | 手牌、回復與補牌、卡牌說明 | 3:4 | public/images/cards/inspire.png | P1 | planned |
-| fire-attack | 火攻 | 戰術卡 | 手牌、火攻打斷蓄力、卡牌說明 | 3:4 | public/images/cards/fire-attack.png | P1 | planned |
-| green-dragon-blade | 青龍偃月刀 | 裝備卡 | 手牌、裝備展示、玩家 HUD 摘要 | 3:4 | public/images/cards/green-dragon-blade.png | P1 | planned |
-| dilu-horse | 的盧馬 | 裝備卡 | 手牌、裝備展示、玩家 HUD 摘要 | 3:4 | public/images/cards/dilu-horse.png | P1 | planned |
-| taiping-manual | 太平要術 | 裝備卡 | 手牌、裝備展示、玩家 HUD 摘要 | 3:4 | public/images/cards/taiping-manual.png | P1 | planned |
+| slash | 斬 | 基礎卡 | 手牌、戰鬥出牌、卡牌說明 | 4:3 | public/images/cards/slash.png | P0 | ready |
+| dodge | 閃 | 基礎卡 | 手牌、敵人攻擊回應、卡牌說明 | 4:3 | public/images/cards/dodge.png | P0 | ready |
+| wine | 酒 | 基礎卡 | 手牌、回復 / 強化攻擊、卡牌說明 | 4:3 | public/images/cards/wine.png | P0 | ready |
+| strategy-scroll | 兵書 | 基礎卡 | 手牌、抽牌策略、卡牌說明 | 4:3 | public/images/cards/strategy-scroll.png | P0 | ready |
+| armor-break | 破甲 | 基礎卡 | 手牌、破防攻擊、卡牌說明 | 4:3 | public/images/cards/armor-break.png | P0 | ready |
+| combo-slash | 連斬 | 戰術卡 | 手牌、追擊攻擊、卡牌說明 | 4:3 | public/images/cards/combo-slash.png | P1 | ready |
+| guard | 固守 | 戰術卡 | 手牌、防守減傷、卡牌說明 | 4:3 | public/images/cards/guard.png | P1 | ready |
+| inspire | 激勵 | 戰術卡 | 手牌、回復與補牌、卡牌說明 | 4:3 | public/images/cards/inspire.png | P1 | ready |
+| fire-attack | 火攻 | 戰術卡 | 手牌、火攻打斷蓄力、卡牌說明 | 4:3 | public/images/cards/fire-attack.png | P1 | ready |
+| green-dragon-blade | 青龍偃月刀 | 裝備卡 | 手牌、裝備展示、玩家 HUD 摘要 | 4:3 | public/images/cards/green-dragon-blade.png | P1 | ready |
+| dilu-horse | 的盧馬 | 裝備卡 | 手牌、裝備展示、玩家 HUD 摘要 | 4:3 | public/images/cards/dilu-horse.png | P1 | ready |
+| taiping-manual | 太平要術 | 裝備卡 | 手牌、裝備展示、玩家 HUD 摘要 | 4:3 | public/images/cards/taiping-manual.png | P1 | ready |
 
 ## 5. 中文與英文提示詞
 
@@ -121,12 +123,12 @@
 - promptZh：古老道術卷軸懸浮，黑金底色與紫金符籙光芒，主體清楚，策略裝備卡牌插圖，東方史詩風，半寫實，無文字。
 - promptEn：An ancient Taoist manual floating, dark gold background with purple-gold talisman light, clear subject, strategy equipment card illustration, eastern epic style, semi-realistic, no text.
 
-## 6. 後續導入檢查表
+## 6. 導入檢查表
 
-- [ ] 依照本文件生成 12 張卡牌圖片。
-- [ ] 檔案放入 `public/images/cards/`。
-- [ ] 新增 ready image manifest 或更新既有 visual manifest。
-- [ ] 確認 CardView 可以顯示正式卡牌插圖。
-- [ ] 若圖片載入失敗，仍保留 fallback。
-- [ ] 手機版確認小尺寸可辨識，不因細節過多變得模糊。
-- [ ] 新增測試確認 12 張卡牌圖片由 planned 改為 ready。
+- [x] 依照本文件生成 12 張卡牌圖片。
+- [x] 檔案放入 `public/images/cards/`。
+- [x] 新增 `CARD_IMAGE_READY_MANIFEST` 並更新 `VISUAL_ASSET_MANIFEST`。
+- [x] 確認 CardView 可以顯示正式卡牌插圖。
+- [x] 若圖片載入失敗，仍保留 fallback。
+- [x] 手機版以 4:3 卡牌圖片比例控制高度。
+- [x] 新增測試確認 12 張卡牌圖片為 ready，且缺口歸零。

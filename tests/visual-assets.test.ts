@@ -13,7 +13,7 @@ import { VISUAL_ASSET_MANIFEST } from "@/lib/game/visualAssetManifest";
 
 describe("visual asset manifest", () => {
   it("contains the imported visual assets", () => {
-    expect(VISUAL_ASSET_MANIFEST).toHaveLength(34);
+    expect(VISUAL_ASSET_MANIFEST).toHaveLength(46);
   });
 
   it("includes required fields for every asset", () => {
@@ -91,6 +91,23 @@ describe("visual asset manifest", () => {
       "route-cliff-ambush",
       "route-battlefield-relic",
       "route-night-raid",
+    ]);
+  });
+
+  it("includes all twelve card image assets", () => {
+    expect(getAssetIdsByType("card")).toEqual([
+      "card-slash",
+      "card-dodge",
+      "card-wine",
+      "card-strategy-scroll",
+      "card-armor-break",
+      "card-combo-slash",
+      "card-guard",
+      "card-inspire",
+      "card-fire-attack",
+      "card-green-dragon-blade",
+      "card-dilu-horse",
+      "card-taiping-manual",
     ]);
   });
 
@@ -251,6 +268,7 @@ describe("visual asset manifest", () => {
     expect(getGameImageVariantClass("cover")).toContain("aspect-[16/9]");
     expect(getGameImageVariantClass("background")).toContain("aspect-[16/9]");
     expect(getGameImageVariantClass("portrait")).toContain("aspect-[3/4]");
+    expect(getGameImageVariantClass("card")).toContain("aspect-[4/3]");
     expect(getGameImageVariantClass("vertical")).toContain("aspect-[9/16]");
     expect(getGameImageObjectPositionStyle("50% 18%")).toEqual({
       objectPosition: "50% 18%",

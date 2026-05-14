@@ -6,53 +6,65 @@ export const equipmentEffects = {
   taipingManual: "每回合第一次兵書額外抽 1 張",
 } as const;
 
-const cardVisuals: Record<string, Pick<Card, "illustration" | "visualPrompt">> = {
+const cardVisuals: Record<string, Pick<Card, "illustration" | "image" | "visualPrompt">> = {
   斬: {
     illustration: "card-slash",
+    image: "/images/cards/slash.png",
     visualPrompt: "刀光破空，古代戰場攻擊卡牌插圖，紅色能量，三國卡牌風",
   },
   閃: {
     illustration: "card-dodge",
+    image: "/images/cards/dodge.png",
     visualPrompt: "武將側身閃避箭矢與刀光，藍色速度殘影，三國防禦卡牌插圖",
   },
   酒: {
     illustration: "card-wine",
+    image: "/images/cards/wine.png",
     visualPrompt: "古代酒壺與熱烈戰意，暖色光芒恢復體力，三國卡牌插圖",
   },
   兵書: {
     illustration: "card-manual",
+    image: "/images/cards/strategy-scroll.png",
     visualPrompt: "竹簡兵書攤開，墨色策略紋路與燭光，三國策略卡牌插圖",
   },
   破甲: {
     illustration: "card-pierce",
+    image: "/images/cards/armor-break.png",
     visualPrompt: "鋒刃擊碎甲片，橘色衝擊光，古代戰場破防卡牌插圖",
   },
   青龍偃月刀: {
     illustration: "card-green-dragon-blade",
+    image: "/images/cards/green-dragon-blade.png",
     visualPrompt: "青龍偃月刀泛起青金龍影，關羽武器裝備卡，東方史詩卡牌插圖",
   },
   的盧馬: {
     illustration: "card-dilu-horse",
+    image: "/images/cards/dilu-horse.png",
     visualPrompt: "白色的盧馬踏煙奔馳，戰場閃避與守護意象，三國裝備卡牌插圖",
   },
   太平要術: {
     illustration: "card-taiping-manual",
+    image: "/images/cards/taiping-manual.png",
     visualPrompt: "古老道術卷軸，符籙與金色術法光芒，三國策略裝備卡牌插圖",
   },
   連斬: {
     illustration: "card-combo-slash",
+    image: "/images/cards/combo-slash.png",
     visualPrompt: "連續刀光追擊敵陣，深紅速度線與破勢感，三國攻擊卡牌插圖",
   },
   固守: {
     illustration: "card-guard",
+    image: "/images/cards/guard.png",
     visualPrompt: "盾陣穩住陣腳，青藍防護光幕，古代戰場防禦卡牌插圖",
   },
   激勵: {
     illustration: "card-rally",
+    image: "/images/cards/inspire.png",
     visualPrompt: "戰旗高舉鼓舞士氣，綠金光芒恢復與補牌意象，三國策略卡牌插圖",
   },
   火攻: {
     illustration: "card-fire-attack",
+    image: "/images/cards/fire-attack.png",
     visualPrompt: "火焰席捲敵陣，橘紅烈焰打斷蓄力，三國火攻策略卡牌插圖",
   },
 };

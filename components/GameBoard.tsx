@@ -904,7 +904,7 @@ function GameBoardContent({
               <section className={`selectable-card-glow rounded-xl border p-5 shadow-[0_18px_45px_rgba(0,0,0,0.35)] ${getEventFrameClass(state.currentEvent.type)}`}>
                 <ChoicePhaseHeader eyebrow="事件" title={choicePhasePrompt ?? "請處理事件"} />
                 <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                  <div>
+                  <div className="min-w-0">
                     <h2 className="text-2xl font-black text-stone-50">
                       {state.currentEvent.name}
                     </h2>
@@ -1066,7 +1066,7 @@ function GameBoardContent({
 
             <section className="bottom-action-safe-area fixed inset-x-0 bottom-0 z-40 border-t border-amber-700/50 bg-stone-950/95 p-3 shadow-[0_-18px_45px_rgba(0,0,0,0.45)] backdrop-blur md:static md:rounded-xl md:border md:border-amber-700/40 md:bg-black/25 md:p-4 md:shadow-[0_18px_45px_rgba(0,0,0,0.3)] md:backdrop-blur-none">
               <div className="mx-auto max-w-7xl md:mx-0 md:max-w-none">
-                <div className="flex items-center justify-between gap-3">
+                <div className="flex flex-wrap items-center justify-start gap-3">
                   <div>
                     <h2 className="text-base font-black text-amber-50 sm:text-xl">
                       {showMobileChoiceHint ? "目前選擇" : "手牌"}
@@ -1078,18 +1078,18 @@ function GameBoardContent({
                     </p>
                   </div>
                   {state.phase === "defense" && state.pendingDefense ? (
-                    <div className="flex gap-2">
+                    <div className="flex shrink-0 gap-2">
                       <button
                         type="button"
                         onClick={() => handleResolveDefense(true)}
-                        className="h-10 rounded-md bg-sky-600 px-4 text-sm font-black text-white transition hover:bg-sky-500 disabled:cursor-not-allowed disabled:opacity-45"
+                        className="h-10 shrink-0 rounded-md bg-sky-600 px-4 text-sm font-black text-white transition hover:bg-sky-500 disabled:cursor-not-allowed disabled:opacity-45"
                       >
                         {getDefenseButtonLabel(state)}
                       </button>
                       <button
                         type="button"
                         onClick={() => handleResolveDefense(false)}
-                        className="h-10 rounded-md border border-red-300/70 px-4 text-sm font-black text-red-50 transition hover:bg-red-800"
+                        className="h-10 shrink-0 rounded-md border border-red-300/70 px-4 text-sm font-black text-red-50 transition hover:bg-red-800"
                       >
                         承受傷害
                       </button>
@@ -1103,7 +1103,7 @@ function GameBoardContent({
                       type="button"
                       disabled={state.status !== "playing" || state.phase !== "player"}
                       onClick={handleEndTurn}
-                      className="h-10 rounded-md bg-amber-500 px-5 text-sm font-black text-stone-950 transition hover:bg-amber-300 disabled:cursor-not-allowed disabled:bg-stone-700 disabled:text-stone-400 sm:h-11"
+                      className="h-10 shrink-0 rounded-md bg-amber-500 px-5 text-sm font-black text-stone-950 transition hover:bg-amber-300 disabled:cursor-not-allowed disabled:bg-stone-700 disabled:text-stone-400 sm:h-11"
                     >
                       結束回合
                     </button>
