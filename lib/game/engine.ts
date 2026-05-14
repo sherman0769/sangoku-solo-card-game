@@ -77,6 +77,7 @@ function createStartingPlayer(hero: Hero) {
     maxMorale: 3,
     guardActive: false,
     slashUsedThisTurn: false,
+    architectureInferenceUsedThisTurn: false,
     wineBonus: 0,
     equippedItems: [],
     equipmentUsageThisTurn: {
@@ -101,6 +102,7 @@ const fallbackPlayer = {
   maxMorale: 3,
   guardActive: false,
   slashUsedThisTurn: false,
+  architectureInferenceUsedThisTurn: false,
   wineBonus: 0,
   equippedItems: [],
   equipmentUsageThisTurn: {
@@ -181,6 +183,7 @@ export function createGame(heroId?: string, enemyOptions?: EnemySelectionOptions
     bossTraitUsage: {},
     bossTraitHistory: [],
     routeEventHistory: [],
+    routeEventRecentlyProcessed: false,
     status: "playing",
     log: [firstEnemy.intro, firstStage.flavorText],
     currentDialogue: getHeroDialogue(hero.id, "hero_intro"),
@@ -581,6 +584,7 @@ export function resolveRouteEventOption(
       phase: "player",
       currentRouteEvent: undefined,
       routeEventHistory: [...next.routeEventHistory, event.id],
+      routeEventRecentlyProcessed: true,
       log: [
         `${next.player.name}體力歸零，戰敗。`,
         ...effectMessages,
@@ -596,6 +600,7 @@ export function resolveRouteEventOption(
       enemyIndex: next.enemyIndex + 1,
       currentRouteEvent: undefined,
       routeEventHistory: [...next.routeEventHistory, event.id],
+      routeEventRecentlyProcessed: true,
       log: [
         ...effectMessages,
         `你選擇了「${option.label}」。`,
@@ -719,6 +724,8 @@ function applyCardEffect(state: GameState, card: Card) {
   }
 
   if (card.kind === "draw") {
+    applyArchitectureInference(state, card);
+
     const notes: string[] = [];
     let drawCount = card.value + state.playerUpgrades.strategyDrawBonus;
 
@@ -769,6 +776,8 @@ function applyCardEffect(state: GameState, card: Card) {
   }
 
   if (card.kind === "rally") {
+    applyArchitectureInference(state, card);
+
     const drawn = drawCards(state, 1);
     state.deck = drawn.deck;
     state.hand = drawn.hand;
@@ -782,6 +791,8 @@ function applyCardEffect(state: GameState, card: Card) {
   }
 
   if (card.kind === "fire") {
+    applyArchitectureInference(state, card);
+
     if (state.enemyCharged) {
       state.enemyCharged = false;
       const bossTraitMessages = applyEnemyDamage(state, 2);
@@ -923,9 +934,11 @@ function startNextTurn(state: GameState): GameState {
   next.player.morale = next.player.maxMorale;
   next.player.guardActive = false;
   next.player.slashUsedThisTurn = false;
+  next.player.architectureInferenceUsedThisTurn = false;
   next.player.wineBonus = 0;
   next.player.equipmentUsageThisTurn = createTurnEquipmentUsage();
   next.enemyArmorBroken = false;
+  next.routeEventRecentlyProcessed = false;
 
   if (next.player.heroId === "zhuge-liang") {
     return startObservation(next, zhugeLiangTurnDraw);
@@ -965,6 +978,7 @@ function startNextStage(
   next.player.morale = next.player.maxMorale;
   next.player.guardActive = false;
   next.player.slashUsedThisTurn = false;
+  next.player.architectureInferenceUsedThisTurn = false;
   next.player.wineBonus = 0;
   next.player.equipmentUsageThisTurn = createTurnEquipmentUsage();
   next.player.equipmentUsageThisBattle = createBattleEquipmentUsage();
@@ -1006,7 +1020,48 @@ function applyCardDialogue(state: GameState, card: Card) {
     ["draw", "pierce", "rally", "fire"].includes(card.kind)
   ) {
     setDialogue(state, getHeroDialogue(state.player.heroId, "use_strategy"));
+    return;
   }
+
+  if (
+    state.player.heroId === "li-shimin-ai-architect" &&
+    isArchitectureStrategyCard(card) &&
+    state.player.architectureInferenceUsedThisTurn
+  ) {
+    setDialogue(state, getHeroDialogue(state.player.heroId, "use_strategy"));
+  }
+}
+
+function applyArchitectureInference(state: GameState, card: Card) {
+  if (
+    state.player.heroId !== "li-shimin-ai-architect" ||
+    !isArchitectureStrategyCard(card) ||
+    state.player.architectureInferenceUsedThisTurn
+  ) {
+    return;
+  }
+
+  const notes = ["李詩民發動架構推演，抽 1 張牌。"];
+  const drawn = drawCards(state, 1);
+  state.deck = drawn.deck;
+  state.hand = drawn.hand;
+  state.discard = drawn.discard;
+  state.player.architectureInferenceUsedThisTurn = true;
+
+  if (state.routeEventRecentlyProcessed && state.player.health < state.player.maxHealth) {
+    state.player.health = Math.min(state.player.maxHealth, state.player.health + 1);
+    notes.push("路線資訊已納入推演，李詩民回復 1 點體力。");
+  } else if (state.routeEventRecentlyProcessed) {
+    notes.push("路線資訊已納入推演，李詩民體力已滿。");
+  }
+
+  state.routeEventRecentlyProcessed = false;
+  setDialogue(state, getHeroDialogue(state.player.heroId, "use_strategy"));
+  state.log = [...notes, ...state.log].slice(0, logLimit);
+}
+
+function isArchitectureStrategyCard(card: Card) {
+  return ["draw", "rally", "fire"].includes(card.kind);
 }
 
 function applyReward(state: GameState, reward: Reward): GameState {
@@ -1370,6 +1425,7 @@ function cloneState(state: GameState): GameState {
     bossTraitUsage: { ...(state.bossTraitUsage ?? {}) },
     bossTraitHistory: [...(state.bossTraitHistory ?? [])],
     routeEventHistory: [...(state.routeEventHistory ?? [])],
+    routeEventRecentlyProcessed: state.routeEventRecentlyProcessed ?? false,
     log: [...state.log],
     currentDialogue: state.currentDialogue ? cloneDialogue(state.currentDialogue) : undefined,
     dialogueHistory: (state.dialogueHistory ?? []).map((line) => cloneDialogue(line)),

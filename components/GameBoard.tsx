@@ -752,7 +752,7 @@ function GameBoardContent({
               playerHealth={`${state.player.health}/${state.player.maxHealth}`}
               playerStatuses={playerStatuses}
               playerEquipmentBadges={mobileEquipmentLabels}
-              playerPortrait={currentHero.portrait}
+              playerPortrait={currentHero.portrait || undefined}
               playerPrompt={currentHero.visualPrompt}
               playerFeedback={panelFeedback?.target === "player" ? panelFeedback : undefined}
             />
@@ -832,7 +832,7 @@ function GameBoardContent({
                 badge={state.player.title}
                 health={`♥ ${state.player.health} / ${state.player.maxHealth}`}
                 percent={playerPercent}
-                visualSrc={currentHero.portrait}
+                visualSrc={currentHero.portrait || undefined}
                 visualType="hero"
                 visualLabel={state.player.name}
                 visualPrompt={currentHero.visualPrompt}
@@ -1929,6 +1929,10 @@ function getHeroObjectPosition(heroId: string) {
 
   if (heroId === "zhuge-liang") {
     return "50% 16%";
+  }
+
+  if (heroId === "li-shimin-ai-architect") {
+    return "50% 20%";
   }
 
   return "50% 24%";

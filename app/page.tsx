@@ -239,7 +239,7 @@ export default function Home() {
                 選擇武將，闖過 8 關，挑戰呂布。
               </p>
               <p className="mt-5 hidden max-w-2xl text-sm leading-7 text-stone-200 sm:block sm:text-base sm:leading-8">
-                選擇關羽、趙雲或諸葛亮，以斬、閃、酒、兵書、破甲與戰術卡迎戰第一章 8 關。
+                選擇關羽、趙雲、諸葛亮或彩蛋角色李詩民，以斬、閃、酒、兵書、破甲與戰術卡迎戰第一章 8 關。
                 看穿敵人的攻勢，在隨機敵人池、事件、路線選擇與戰後三選一強化中養成流派，
                 最後於虎牢關前挑戰 Boss 呂布。
               </p>
@@ -302,7 +302,7 @@ export default function Home() {
               <p className="text-xs font-bold text-stone-400">此瀏覽器不支援語音播放。</p>
             ) : null}
           </div>
-          <div className="mt-4 grid gap-3 lg:grid-cols-3">
+          <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             {heroes.map((hero) => {
               const isSelected = hero.id === selectedHeroId;
               const heroImagePosition = getHeroObjectPosition(hero.id);
@@ -319,7 +319,7 @@ export default function Home() {
                   }`}
                 >
                   <GameImage
-                    src={hero.portrait}
+                    src={hero.portrait || undefined}
                     alt={`${hero.name}立繪`}
                     variant="portrait"
                     objectPosition={heroImagePosition}
@@ -404,6 +404,10 @@ function getHeroObjectPosition(heroId: string) {
 
   if (heroId === "zhuge-liang") {
     return "50% 16%";
+  }
+
+  if (heroId === "li-shimin-ai-architect") {
+    return "50% 20%";
   }
 
   return "50% 24%";

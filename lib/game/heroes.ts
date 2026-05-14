@@ -37,6 +37,21 @@ export const heroes: Hero[] = [
     avatar: "/images/heroes/zhuge-liang.png",
     visualPrompt: "三國軍師諸葛亮，羽扇綸巾，星象與軍帳，沉著睿智，東方史詩卡牌風格",
   },
+  {
+    id: "li-shimin-ai-architect",
+    name: "李詩民",
+    title: "AI 架構師",
+    maxHp: 4,
+    skillName: "架構推演",
+    skillDescription:
+      "每回合第一次使用策略牌時，抽 1 張牌；處理路線事件後，下一場戰鬥第一回合內首次策略牌額外回復 1 點體力。",
+    role: "系統調度",
+    portrait: "",
+    avatar: "",
+    placeholderKey: "hero-li-shimin-ai-architect",
+    visualPrompt:
+      "東方亂世中的 AI 架構師軍師，身穿深色東方長袍，帶有藍金色資料光紋，手持卷軸或玉簡，背後浮現戰略圖、星盤與資料節點，半寫實三國卡牌風，電影感光影，不要文字，不要 Logo",
+  },
 ];
 
 export function resolveHero(heroId?: string): Hero {

@@ -24,7 +24,7 @@ import { canPlayVoice } from "@/lib/game/voice";
 
 describe("showcase and onboarding copy", () => {
   it("includes homepage how-to copy without version feature lists", () => {
-    expect(currentVersionLabel).toBe("v0.22.2 首頁精簡版");
+    expect(currentVersionLabel).toBe("v0.23.0 第四位彩蛋角色版");
     expect(howToSteps.map((step) => step.title)).toEqual([
       "選擇武將",
       "進入戰鬥",
@@ -44,7 +44,8 @@ describe("showcase and onboarding copy", () => {
 
   it("describes the corrected homepage start flow", () => {
     expect(homeMainFlowSteps).toEqual(["觀看開場動畫", "選擇武將", "開始遊戲"]);
-    expect(homeHeroSelectionCopy).toBe("先選擇你的武將，再開始遊戲。");
+    expect(homeHeroSelectionCopy).toContain("李詩民｜AI 架構師");
+    expect(homeHeroSelectionCopy).toContain("系統調度");
     expect(homeHeroPreviewCopy).toBe("開啟角色語音後，點選武將可試聽專屬選角語音。");
     expect(homeOpeningVideoEntry).toMatchObject({
       title: "開場動畫",
@@ -129,6 +130,7 @@ describe("showcase and onboarding copy", () => {
     expect(getHeroPreviewAudioKey("guan-yu")).toBe("guan-yu-preview");
     expect(getHeroPreviewAudioKey("zhao-yun")).toBe("zhao-yun-preview");
     expect(getHeroPreviewAudioKey("zhuge-liang")).toBe("zhuge-liang-preview");
+    expect(getHeroPreviewAudioKey("li-shimin-ai-architect")).toBe("li-shimin-preview");
     expect(getHeroPreviewAudioKey("guan-yu")).not.toBe("guan-yu-intro");
     expect(getHeroPreviewAudioKey("zhao-yun")).not.toBe("zhao-yun-intro");
     expect(getHeroPreviewAudioKey("zhuge-liang")).not.toBe("zhuge-liang-intro");
@@ -141,6 +143,7 @@ describe("showcase and onboarding copy", () => {
     expect(getHeroIntroAudioKey("guan-yu")).toBe("guan-yu-intro");
     expect(getHeroIntroAudioKey("zhao-yun")).toBe("zhao-yun-intro");
     expect(getHeroIntroAudioKey("zhuge-liang")).toBe("zhuge-liang-intro");
+    expect(getHeroIntroAudioKey("li-shimin-ai-architect")).toBe("li-shimin-intro");
     expect(canPlayVoice("guan-yu-intro")).toBe(true);
     expect(canPlayVoice("zhao-yun-intro")).toBe(true);
     expect(canPlayVoice("zhuge-liang-intro")).toBe(true);

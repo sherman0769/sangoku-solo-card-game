@@ -32,6 +32,13 @@ export function getPlayerCombatBadges(state: GameState) {
     state.player.heroId === "guan-yu" && !state.player.slashUsedThisTurn ? "武聖待發" : null,
     state.player.heroId === "zhao-yun" ? "龍膽可用" : null,
     state.player.heroId === "zhuge-liang" && state.phase === "observe" ? "觀星" : null,
+    state.player.heroId === "li-shimin-ai-architect" &&
+    !state.player.architectureInferenceUsedThisTurn
+      ? "架構待推演"
+      : null,
+    state.player.heroId === "li-shimin-ai-architect" && state.routeEventRecentlyProcessed
+      ? "路線資訊"
+      : null,
     state.player.wineBonus > 0 ? `酒勢 +${state.player.wineBonus}` : null,
     state.phase === "defense" ? "等待防禦" : null,
   ].filter((badge): badge is string => Boolean(badge));

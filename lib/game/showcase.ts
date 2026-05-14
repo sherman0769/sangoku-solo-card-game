@@ -1,6 +1,6 @@
 import type { GamePhase } from "./types";
 
-export const currentVersionLabel = "v0.22.2 首頁精簡版";
+export const currentVersionLabel = "v0.23.0 第四位彩蛋角色版";
 
 export const gameLoadingCopy = {
   title: "戰局準備中……",
@@ -19,7 +19,8 @@ export const homeOpeningVideoEntry = {
   primaryAction: "觀看開場動畫",
 } as const;
 
-export const homeHeroSelectionCopy = "先選擇你的武將，再開始遊戲。";
+export const homeHeroSelectionCopy =
+  "選擇一位角色，踏入第一章：黃巾之亂。彩蛋角色李詩民｜AI 架構師以系統調度與路線事件推演穩定戰局。";
 
 export const homeHeroPreviewCopy = "開啟角色語音後，點選武將可試聽專屬選角語音。";
 
@@ -40,7 +41,7 @@ export const openingVideoModalActions = [
 export const howToSteps = [
   {
     title: "選擇武將",
-    text: "關羽、趙雲、諸葛亮，各有不同玩法。",
+    text: "關羽、趙雲、諸葛亮與彩蛋角色李詩民，各有不同玩法。",
   },
   {
     title: "進入戰鬥",
@@ -83,12 +84,14 @@ export const heroIntroAudioKeys = {
   "guan-yu": "guan-yu-intro",
   "zhao-yun": "zhao-yun-intro",
   "zhuge-liang": "zhuge-liang-intro",
+  "li-shimin-ai-architect": "li-shimin-intro",
 } as const;
 
 export const heroPreviewAudioKeys = {
   "guan-yu": "guan-yu-preview",
   "zhao-yun": "zhao-yun-preview",
   "zhuge-liang": "zhuge-liang-preview",
+  "li-shimin-ai-architect": "li-shimin-preview",
 } as const;
 
 export function getHeroIntroAudioKey(heroId: string) {

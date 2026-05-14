@@ -61,7 +61,7 @@ export type RewardId =
   | "strategy-draw"
   | "armor-break-damage";
 
-export type HeroId = "guan-yu" | "zhao-yun" | "zhuge-liang";
+export type HeroId = "guan-yu" | "zhao-yun" | "zhuge-liang" | "li-shimin-ai-architect";
 
 export type GameEventId = "village-supply" | "strategist-advice" | "ambush";
 
@@ -101,6 +101,7 @@ export interface Hero {
   role: string;
   portrait: string;
   avatar: string;
+  placeholderKey?: string;
   visualPrompt: string;
 }
 
@@ -242,6 +243,7 @@ export interface PlayerState {
   maxMorale: number;
   guardActive: boolean;
   slashUsedThisTurn: boolean;
+  architectureInferenceUsedThisTurn: boolean;
   wineBonus: number;
   equippedItems: Card[];
   equipmentUsageThisTurn: {
@@ -300,6 +302,7 @@ export interface GameState {
   rewardOptionBonus: number;
   rewardOptions: Reward[];
   routeEventHistory: string[];
+  routeEventRecentlyProcessed: boolean;
   status: GameStatus;
   log: string[];
   currentDialogue?: DialogueLine;

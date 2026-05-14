@@ -4,6 +4,7 @@ const heroNames: Record<string, string> = {
   "guan-yu": "關羽",
   "zhao-yun": "趙雲",
   "zhuge-liang": "諸葛亮",
+  "li-shimin-ai-architect": "李詩民",
 };
 
 export interface BalanceReportOptions {

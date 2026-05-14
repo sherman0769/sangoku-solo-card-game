@@ -105,6 +105,10 @@ function getSuggestedVoice(line: DialogueLine) {
     return "諸葛亮：沉著、智慧、溫和";
   }
 
+  if (line.speakerId === "li-shimin-ai-architect") {
+    return "李詩民：沉穩、自信、理性、具教學感";
+  }
+
   if (line.speakerId === "lu-bu") {
     return "呂布：低沉、強勢、壓迫感";
   }
@@ -141,6 +145,10 @@ function getSuggestedFilePath(line: DialogueLine, audioKey: string) {
 
   if (line.speakerId === "zhuge-liang") {
     return `public/audio/voices/zhuge-liang/${audioKey}.mp3`;
+  }
+
+  if (line.speakerId === "li-shimin-ai-architect") {
+    return `public/audio/voices/li-shimin/${audioKey}.mp3`;
   }
 
   if (line.speakerId === "lu-bu") {

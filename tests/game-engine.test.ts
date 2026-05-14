@@ -296,7 +296,14 @@ describe("game engine", () => {
   });
 
   it("adds visual prompts to core game data", () => {
-    expect(heroes.every((hero) => hero.visualPrompt && hero.portrait && hero.avatar)).toBe(true);
+    expect(
+      heroes.every(
+        (hero) =>
+          hero.visualPrompt &&
+          (hero.portrait || hero.placeholderKey) &&
+          (hero.avatar || hero.placeholderKey),
+      ),
+    ).toBe(true);
     expect(enemyPool.every((enemy) => enemy.visualPrompt && enemy.portrait)).toBe(true);
     expect(chapterStages.every((stage) => stage.visualPrompt && stage.backgroundImage)).toBe(true);
     expect(gameEvents.every((event) => event.visualPrompt && event.image)).toBe(true);

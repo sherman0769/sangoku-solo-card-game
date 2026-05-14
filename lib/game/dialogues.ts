@@ -4,6 +4,7 @@ const heroPortraits: Record<HeroId, string> = {
   "guan-yu": "/images/heroes/guan-yu.png",
   "zhao-yun": "/images/heroes/zhao-yun.png",
   "zhuge-liang": "/images/heroes/zhuge-liang.png",
+  "li-shimin-ai-architect": "",
 };
 
 const enemyPortraits: Record<string, string> = {
@@ -126,6 +127,55 @@ export const dialogueLines: DialogueLine[] = [
     "zhuge-liang-low-hp",
   ),
   createHeroDialogue("zhuge-liang", "諸葛亮", "victory", "此局，尚在掌中。", "自信", "zhuge-liang-victory"),
+
+  createHeroDialogue(
+    "li-shimin-ai-architect",
+    "李詩民",
+    "hero_preview",
+    "我是李詩民，用架構思維，重構這場亂世。",
+    "沉穩、自信、教學感",
+    "li-shimin-preview",
+  ),
+  createHeroDialogue(
+    "li-shimin-ai-architect",
+    "李詩民",
+    "hero_intro",
+    "問題先拆解，戰局再推演。",
+    "沉穩、理性",
+    "li-shimin-intro",
+  ),
+  createHeroDialogue(
+    "li-shimin-ai-architect",
+    "李詩民",
+    "use_strategy",
+    "不是硬打，是重構局面。",
+    "冷靜、系統化",
+    "li-shimin-strategy",
+  ),
+  createHeroDialogue(
+    "li-shimin-ai-architect",
+    "李詩民",
+    "take_damage",
+    "系統有波動，但尚未崩潰。",
+    "穩住局勢",
+    "li-shimin-damage",
+  ),
+  createHeroDialogue(
+    "li-shimin-ai-architect",
+    "李詩民",
+    "low_hp",
+    "進入高風險狀態，必須重新規劃。",
+    "警覺、冷靜",
+    "li-shimin-low-hp",
+  ),
+  createHeroDialogue(
+    "li-shimin-ai-architect",
+    "李詩民",
+    "victory",
+    "亂世不是靠蠻力破解，而是靠系統設計。",
+    "沉穩、總結感",
+    "li-shimin-victory",
+  ),
 
   createEnemyDialogue(
     "yellow-turban-soldier",

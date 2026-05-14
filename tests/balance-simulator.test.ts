@@ -32,18 +32,19 @@ describe("battle balance simulator", () => {
 
   it("summarizes multiple runs for all heroes", () => {
     const summary = simulateManyRuns({
-      heroIds: ["guan-yu", "zhao-yun", "zhuge-liang"],
+      heroIds: ["guan-yu", "zhao-yun", "zhuge-liang", "li-shimin-ai-architect"],
       runsPerHero: 2,
       seed: "summary-test",
       maxTurns: 180,
       strategy: "basic-safe-strategy",
     });
 
-    expect(summary.totalRuns).toBe(6);
+    expect(summary.totalRuns).toBe(8);
     expect(Object.keys(summary.perHeroStats)).toEqual([
       "guan-yu",
       "zhao-yun",
       "zhuge-liang",
+      "li-shimin-ai-architect",
     ]);
     expect(summary.overallWinRate).toBeGreaterThanOrEqual(0);
     expect(summary.averageTurns).toBeGreaterThan(0);
@@ -54,7 +55,7 @@ describe("battle balance simulator", () => {
 
   it("generates a Traditional Chinese Markdown report", () => {
     const summary = simulateManyRuns({
-      heroIds: ["guan-yu", "zhao-yun", "zhuge-liang"],
+      heroIds: ["guan-yu", "zhao-yun", "zhuge-liang", "li-shimin-ai-architect"],
       runsPerHero: 2,
       seed: "report-test",
       maxTurns: 180,
@@ -69,7 +70,7 @@ describe("battle balance simulator", () => {
 
   it("generates the v0.17.1 boss presentation balance report sections", () => {
     const summary = simulateManyRuns({
-      heroIds: ["guan-yu", "zhao-yun", "zhuge-liang"],
+      heroIds: ["guan-yu", "zhao-yun", "zhuge-liang", "li-shimin-ai-architect"],
       runsPerHero: 2,
       seed: "report-v0171-test",
       maxTurns: 180,
