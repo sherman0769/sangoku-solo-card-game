@@ -21,6 +21,10 @@ const existingReadyVoiceAssets = [
   ["zhuge-liang-intro", "/audio/voices/zhuge-liang/zhuge-liang-intro.mp3"],
   ["li-shimin-preview", "/audio/voices/li-shimin/li-shimin-preview.mp3"],
   ["li-shimin-intro", "/audio/voices/li-shimin/li-shimin-intro.mp3"],
+  ["li-shimin-strategy", "/audio/voices/li-shimin/li-shimin-strategy.mp3"],
+  ["li-shimin-damage", "/audio/voices/li-shimin/li-shimin-damage.mp3"],
+  ["li-shimin-low-hp", "/audio/voices/li-shimin/li-shimin-low-hp.mp3"],
+  ["li-shimin-victory", "/audio/voices/li-shimin/li-shimin-victory.mp3"],
   ["lu-bu-intro", "/audio/voices/lu-bu/lu-bu-intro.mp3"],
 ] as const;
 
@@ -86,7 +90,7 @@ describe("voice playback framework", () => {
     });
     expect(getVoiceAssetByAudioKey("li-shimin-strategy")).toMatchObject({
       speakerName: "李詩民",
-      status: "planned",
+      status: "ready",
     });
   });
 
@@ -97,7 +101,7 @@ describe("voice playback framework", () => {
 
   it("supports voice lifecycle statuses while keeping non-imported assets planned", () => {
     expect(ttsAssetStatuses).toEqual(["planned", "generated", "ready"]);
-    expect(TTS_DIALOGUE_MANIFEST.filter((asset) => asset.status === "ready")).toHaveLength(48);
+    expect(TTS_DIALOGUE_MANIFEST.filter((asset) => asset.status === "ready")).toHaveLength(52);
     expect(
       TTS_DIALOGUE_MANIFEST.filter((asset) => !readyVoiceAssets.some(([audioKey]) => audioKey === asset.audioKey))
         .every((asset) => asset.status === "planned"),

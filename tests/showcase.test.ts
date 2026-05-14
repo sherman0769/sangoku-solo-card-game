@@ -24,7 +24,7 @@ import { canPlayVoice } from "@/lib/game/voice";
 
 describe("showcase and onboarding copy", () => {
   it("includes homepage how-to copy without version feature lists", () => {
-    expect(currentVersionLabel).toBe("v0.23.1 李詩民角色資產導入版");
+    expect(currentVersionLabel).toBe("v0.23.2 李詩民戰鬥語音導入版");
     expect(howToSteps.map((step) => step.title)).toEqual([
       "選擇武將",
       "進入戰鬥",
@@ -45,8 +45,7 @@ describe("showcase and onboarding copy", () => {
   it("describes the corrected homepage start flow", () => {
     expect(homeMainFlowSteps).toEqual(["觀看開場動畫", "選擇武將", "開始遊戲"]);
     expect(homeHeroSelectionCopy).toContain("李詩民｜AI 架構師");
-    expect(homeHeroSelectionCopy).toContain("正式立繪");
-    expect(homeHeroSelectionCopy).toContain("系統調度");
+    expect(homeHeroSelectionCopy).toContain("完整角色語音閉環");
     expect(homeHeroPreviewCopy).toBe("開啟角色語音後，點選武將可試聽專屬選角語音。");
     expect(homeOpeningVideoEntry).toMatchObject({
       title: "開場動畫",

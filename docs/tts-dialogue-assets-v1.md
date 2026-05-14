@@ -84,10 +84,10 @@
 | zhuge-liang-victory | 諸葛亮 | hero | victory | 此局，尚在掌中。 | 自信 | 諸葛亮：沉著、智慧、溫和 | 中慢速 | public/audio/voices/zhuge-liang/zhuge-liang-victory.mp3 | 擊敗敵人後播放 |
 | li-shimin-preview | 李詩民 | hero | hero_preview | 我是李詩民，用架構思維，重構這場亂世。 | 沉穩、自信、教學感 | 李詩民：沉穩、自信、理性、具教學感 | 中慢速 | /audio/voices/li-shimin/li-shimin-preview.mp3 | 首頁武將選擇試聽語音，不同於遊戲內登場台詞 |
 | li-shimin-intro | 李詩民 | hero | hero_intro | 問題先拆解，戰局再推演。 | 沉穩、理性 | 李詩民：沉穩、自信、理性、具教學感 | 中慢速 | /audio/voices/li-shimin/li-shimin-intro.mp3 | 選擇武將並建立遊戲時播放 |
-| li-shimin-strategy | 李詩民 | hero | use_strategy | 不是硬打，是重構局面。 | 冷靜、系統化 | 李詩民：沉穩、自信、理性、具教學感 | 中慢速 | public/audio/voices/li-shimin/li-shimin-strategy.mp3 | 觀星或策略行為時播放 |
-| li-shimin-damage | 李詩民 | hero | take_damage | 系統有波動，但尚未崩潰。 | 穩住局勢 | 李詩民：沉穩、自信、理性、具教學感 | 中慢速 | public/audio/voices/li-shimin/li-shimin-damage.mp3 | 玩家受到傷害時播放 |
-| li-shimin-low-hp | 李詩民 | hero | low_hp | 進入高風險狀態，必須重新規劃。 | 警覺、冷靜 | 李詩民：沉穩、自信、理性、具教學感 | 中慢速 | public/audio/voices/li-shimin/li-shimin-low-hp.mp3 | 每場戰鬥首次低血量時播放 |
-| li-shimin-victory | 李詩民 | hero | victory | 亂世不是靠蠻力破解，而是靠系統設計。 | 沉穩、總結感 | 李詩民：沉穩、自信、理性、具教學感 | 中慢速 | public/audio/voices/li-shimin/li-shimin-victory.mp3 | 擊敗敵人後播放 |
+| li-shimin-strategy | 李詩民 | hero | use_strategy | 不是硬打，是重構局面。 | 冷靜、系統化 | 李詩民：沉穩、自信、理性、具教學感 | 中慢速 | /audio/voices/li-shimin/li-shimin-strategy.mp3 | 觀星或策略行為時播放 |
+| li-shimin-damage | 李詩民 | hero | take_damage | 系統有波動，但尚未崩潰。 | 穩住局勢 | 李詩民：沉穩、自信、理性、具教學感 | 中慢速 | /audio/voices/li-shimin/li-shimin-damage.mp3 | 玩家受到傷害時播放 |
+| li-shimin-low-hp | 李詩民 | hero | low_hp | 進入高風險狀態，必須重新規劃。 | 警覺、冷靜 | 李詩民：沉穩、自信、理性、具教學感 | 中慢速 | /audio/voices/li-shimin/li-shimin-low-hp.mp3 | 每場戰鬥首次低血量時播放 |
+| li-shimin-victory | 李詩民 | hero | victory | 亂世不是靠蠻力破解，而是靠系統設計。 | 沉穩、總結感 | 李詩民：沉穩、自信、理性、具教學感 | 中慢速 | /audio/voices/li-shimin/li-shimin-victory.mp3 | 擊敗敵人後播放 |
 | yellow-turban-soldier-intro | 黃巾兵 | enemy | enemy_intro | 蒼天已死，黃天當立！ | 狂熱 | 敵人：粗獷、緊張、戰場感 | 中慢速 | public/audio/voices/enemies/yellow-turban-soldier-intro.mp3 | 一般敵人登場時播放 |
 | bandit-leader-intro | 山賊頭目 | enemy | enemy_intro | 此山是我開，想過此路，留下性命！ | 兇狠 | 敵人：粗獷、緊張、戰場感 | 中慢速 | public/audio/voices/enemies/bandit-leader-intro.mp3 | 一般敵人登場時播放 |
 | xiliang-cavalry-intro | 西涼騎兵 | enemy | enemy_intro | 西涼鐵騎至，誰敢擋路！ | 壓迫 | 敵人：粗獷、緊張、戰場感 | 中慢速 | public/audio/voices/enemies/xiliang-cavalry-intro.mp3 | 一般敵人登場時播放 |
@@ -107,7 +107,8 @@
 - v0.20.2 已將 9 筆 `route_event` 路線事件旁白語音標記為 `ready`，用途為 routeEvent phase 遇到山道、官道、險道事件時播放。
 - v0.23.0 新增彩蛋角色李詩民 6 筆語音規劃，全部維持 `planned`，尚未導入真實 MP3。
 - v0.23.1 已將 `li-shimin-preview` 與 `li-shimin-intro` 標記為 `ready`；其餘李詩民戰鬥語音仍維持 `planned`。
-- 武將戰鬥語音仍維持 `planned`。
+- v0.23.2 已將 `li-shimin-strategy`、`li-shimin-damage`、`li-shimin-low-hp`、`li-shimin-victory` 標記為 `ready`，李詩民語音閉環完成。
+- 關羽、趙雲、諸葛亮的補充戰鬥語音仍維持 `planned`。
 - 生成後音檔建議使用 MP3，放入上表的 `suggestedFilePath`。
 - 不要在音檔中加入背景音樂、Logo 音、水印或額外口白。
 - 角色語音應保留清楚斷句，避免過度戲劇化。
@@ -121,16 +122,16 @@
 | zhao-yun-preview | ready | /audio/voices/zhao-yun/zhao-yun-preview.mp3 | 首頁武將選擇試聽語音 |
 | zhuge-liang-preview | ready | /audio/voices/zhuge-liang/zhuge-liang-preview.mp3 | 首頁武將選擇試聽語音 |
 
-## v0.23.0 李詩民彩蛋角色語音狀態
+## v0.23.2 李詩民彩蛋角色語音狀態
 
 | audioKey | status | filePath | usage |
 |---|---|---|---|
 | li-shimin-preview | ready | /audio/voices/li-shimin/li-shimin-preview.mp3 | 首頁彩蛋角色試聽語音 |
 | li-shimin-intro | ready | /audio/voices/li-shimin/li-shimin-intro.mp3 | 遊戲內登場語音 |
-| li-shimin-strategy | planned | public/audio/voices/li-shimin/li-shimin-strategy.mp3 | 架構推演 / 策略牌台詞 |
-| li-shimin-damage | planned | public/audio/voices/li-shimin/li-shimin-damage.mp3 | 受傷台詞 |
-| li-shimin-low-hp | planned | public/audio/voices/li-shimin/li-shimin-low-hp.mp3 | 低血量台詞 |
-| li-shimin-victory | planned | public/audio/voices/li-shimin/li-shimin-victory.mp3 | 勝利台詞 |
+| li-shimin-strategy | ready | /audio/voices/li-shimin/li-shimin-strategy.mp3 | 架構推演 / 策略牌台詞 |
+| li-shimin-damage | ready | /audio/voices/li-shimin/li-shimin-damage.mp3 | 受傷台詞 |
+| li-shimin-low-hp | ready | /audio/voices/li-shimin/li-shimin-low-hp.mp3 | 低血量台詞 |
+| li-shimin-victory | ready | /audio/voices/li-shimin/li-shimin-victory.mp3 | 勝利台詞 |
 
 ## v0.20.1 敵人擊敗語音狀態
 

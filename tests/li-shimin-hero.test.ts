@@ -12,6 +12,8 @@ import { VISUAL_ASSET_MANIFEST } from "@/lib/game/visualAssetManifest";
 
 const liShiminId = "li-shimin-ai-architect";
 const liShiminAudioKeys = [
+  "li-shimin-preview",
+  "li-shimin-intro",
   "li-shimin-strategy",
   "li-shimin-damage",
   "li-shimin-low-hp",
@@ -133,34 +135,23 @@ describe("Li Shimin AI architect hero", () => {
     expect(ended.routeEventRecentlyProcessed).toBe(false);
   });
 
-  it("adds Li Shimin dialogues and imports preview plus intro voices", () => {
+  it("adds Li Shimin dialogues and imports the full voice loop", () => {
     expect(getHeroDialogue(liShiminId, "hero_preview")?.audioKey).toBe("li-shimin-preview");
     expect(getHeroDialogue(liShiminId, "hero_intro")?.audioKey).toBe("li-shimin-intro");
-    expect(getHeroDialogue(liShiminId, "use_strategy")?.text).toBe(
-      "不是硬打，是重構局面。",
-    );
+    expect(getHeroDialogue(liShiminId, "use_strategy")?.audioKey).toBe("li-shimin-strategy");
+    expect(getHeroDialogue(liShiminId, "take_damage")?.audioKey).toBe("li-shimin-damage");
+    expect(getHeroDialogue(liShiminId, "low_hp")?.audioKey).toBe("li-shimin-low-hp");
+    expect(getHeroDialogue(liShiminId, "victory")?.audioKey).toBe("li-shimin-victory");
+    expect(getHeroDialogue(liShiminId, "use_strategy")?.text).toBe("不是硬打，是重構局面。");
 
-    expect(getTtsAssetByAudioKey("li-shimin-preview")).toMatchObject({
-      audioKey: "li-shimin-preview",
-      filePath: "/audio/voices/li-shimin/li-shimin-preview.mp3",
-      speakerName: "李詩民",
-      status: "ready",
-    });
-    expect(getTtsAssetByAudioKey("li-shimin-intro")).toMatchObject({
-      audioKey: "li-shimin-intro",
-      filePath: "/audio/voices/li-shimin/li-shimin-intro.mp3",
-      speakerName: "李詩民",
-      status: "ready",
-    });
-    expect(canPlayVoice("li-shimin-preview")).toBe(true);
-    expect(canPlayVoice("li-shimin-intro")).toBe(true);
     liShiminAudioKeys.forEach((audioKey) => {
       expect(getTtsAssetByAudioKey(audioKey)).toMatchObject({
         audioKey,
+        filePath: `/audio/voices/li-shimin/${audioKey}.mp3`,
         speakerName: "李詩民",
-        status: "planned",
+        status: "ready",
       });
-      expect(canPlayVoice(audioKey)).toBe(false);
+      expect(canPlayVoice(audioKey)).toBe(true);
     });
     expect(existsSync(join(process.cwd(), "public", "audio", "voices", "li-shimin"))).toBe(
       true,
