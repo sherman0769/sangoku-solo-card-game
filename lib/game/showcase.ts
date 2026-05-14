@@ -1,6 +1,6 @@
 import type { GamePhase } from "./types";
 
-export const currentVersionLabel = "v0.24.0-pre 整體體驗評估與優化建議版";
+export const currentVersionLabel = "v0.24.0 完整體驗 QA 修正版";
 
 export const gameLoadingCopy = {
   title: "戰局準備中……",
@@ -20,7 +20,7 @@ export const homeOpeningVideoEntry = {
 } as const;
 
 export const homeHeroSelectionCopy =
-  "選擇一位角色，踏入第一章：黃巾之亂。李詩民｜AI 架構師 已補齊戰鬥語音，具備完整角色語音閉環。";
+  "選擇一位角色，踏入第一章：黃巾之亂。第一章已完成文、圖、聲、影整合，後續將補齊卡牌插圖與挑戰模式。";
 
 export const homeHeroPreviewCopy = "開啟角色語音後，點選武將可試聽專屬選角語音。";
 
