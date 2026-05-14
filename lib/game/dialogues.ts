@@ -438,6 +438,10 @@ export function getBossRecoveryDialogue(enemyId: string) {
   return findDialogue(enemyId, "boss_recovery");
 }
 
+export function getEnemyDefeatedDialogue(enemyId: string) {
+  return findDialogue(`${enemyId}-defeated`, "enemy_defeated");
+}
+
 export function getChapterIntroDialogue() {
   return findDialogue("chapter-1-intro", "chapter_intro");
 }

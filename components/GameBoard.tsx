@@ -12,9 +12,14 @@ import { equipmentEffects } from "@/lib/game/cards";
 import {
   getBossTraitAlert,
   getBossTraitDescription,
-  getBossTraitHudLabels,
   getBossTraitName,
 } from "@/lib/game/bossTraits";
+import {
+  getEnemyCombatBadges,
+  getEnemyDefeatedFeedbackText,
+  getHpStatus,
+  getPlayerCombatBadges,
+} from "@/lib/game/combatStatus";
 import {
   isAudioSupported,
   playSound,
@@ -82,6 +87,12 @@ interface BossTraitAlertState {
   tone: "pressure" | "recovery";
 }
 
+interface DefeatedAlertState {
+  id: number;
+  text: string;
+  boss: boolean;
+}
+
 interface StageNotice {
   id: number;
   title: string;
@@ -143,6 +154,7 @@ function GameBoardContent({
   const [eventToast, setEventToast] = useState<EventToast | null>(null);
   const [panelFeedback, setPanelFeedback] = useState<PanelFeedback | null>(null);
   const [bossTraitAlert, setBossTraitAlert] = useState<BossTraitAlertState | null>(null);
+  const [defeatedAlert, setDefeatedAlert] = useState<DefeatedAlertState | null>(null);
   const [stageNotice, setStageNotice] = useState<StageNotice | null>(null);
   const [soundEnabled, setSoundEnabled] = useState(false);
   const [audioSupported, setAudioSupported] = useState(false);
@@ -151,6 +163,8 @@ function GameBoardContent({
   const eventTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const panelTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const bossTraitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const defeatedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const outcomeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const stageTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastVoiceKeyRef = useRef<string | null>(null);
   const feedbackIdRef = useRef(0);
@@ -163,25 +177,8 @@ function GameBoardContent({
     Math.round((state.player.health / state.player.maxHealth) * 100),
   );
   const nextEnemyAction = getCurrentEnemyAction(state);
-  const playerStatuses = getPlayerStatuses({
-    heroId: state.player.heroId,
-    slashUsedThisTurn: state.player.slashUsedThisTurn,
-    guardActive: state.player.guardActive,
-    wineBonus: state.player.wineBonus,
-    enemyArmorBroken: state.enemyArmorBroken,
-    phase: state.phase,
-  });
-  const bossTraitHudLabels = getBossTraitHudLabels(
-    state.enemy.bossTraits,
-    state.bossTraitUsage,
-  );
-  const enemyStatuses = getEnemyStatuses({
-    guarding: state.enemyGuarding,
-    charged: state.enemyCharged,
-    phase: state.phase,
-    nextAction: nextEnemyAction.label,
-    bossTraitLabels: bossTraitHudLabels,
-  });
+  const playerStatuses = getPlayerCombatBadges(state);
+  const enemyStatuses = getEnemyCombatBadges(state, nextEnemyAction.label);
   const enemyBossTraitDetails = state.enemy.bossTraits.map(
     (traitId) => `Boss 特性｜${getBossTraitName(traitId)}：${getBossTraitDescription(traitId)}`,
   );
@@ -223,7 +220,13 @@ function GameBoardContent({
 
   useEffect(() => {
     if (state.status === "won" || state.status === "lost") {
-      router.push(`/result?outcome=${state.status}`);
+      if (outcomeTimerRef.current) {
+        clearTimeout(outcomeTimerRef.current);
+      }
+
+      outcomeTimerRef.current = setTimeout(() => {
+        router.push(`/result?outcome=${state.status}`);
+      }, 1450);
     }
   }, [router, state.status]);
 
@@ -252,6 +255,19 @@ function GameBoardContent({
 
     setPanelFeedback({ id: nextFeedbackId(), target, tone, text });
     panelTimerRef.current = setTimeout(() => setPanelFeedback(null), tone === "boss" ? 980 : 760);
+  }
+
+  function showDefeatedAlert(enemyName: string, boss = false) {
+    if (defeatedTimerRef.current) {
+      clearTimeout(defeatedTimerRef.current);
+    }
+
+    setDefeatedAlert({
+      id: nextFeedbackId(),
+      text: getEnemyDefeatedFeedbackText(enemyName),
+      boss,
+    });
+    defeatedTimerRef.current = setTimeout(() => setDefeatedAlert(null), boss ? 1750 : 1350);
   }
 
   function showBossTraitAlert(alert: BossTraitAlertState) {
@@ -343,6 +359,12 @@ function GameBoardContent({
       if (bossTraitTimerRef.current) {
         clearTimeout(bossTraitTimerRef.current);
       }
+      if (defeatedTimerRef.current) {
+        clearTimeout(defeatedTimerRef.current);
+      }
+      if (outcomeTimerRef.current) {
+        clearTimeout(outcomeTimerRef.current);
+      }
       if (stageTimerRef.current) {
         clearTimeout(stageTimerRef.current);
       }
@@ -361,8 +383,19 @@ function GameBoardContent({
       playCardSound(card.id, { enabled: soundEnabled });
 
       if (next.enemyHealth < beforeEnemyHealth) {
-        showPanelFeedback("enemy", "hit", "受到傷害");
+        const enemyHpStatus = getHpStatus(next.enemyHealth, state.enemy.maxHealth);
+        showPanelFeedback(
+          "enemy",
+          "hit",
+          enemyHpStatus === "critical" ? "敵人重傷！" : "造成傷害",
+        );
         emitSound("hit");
+      }
+
+      if (beforeEnemyHealth > 0 && next.enemyHealth <= 0) {
+        showDefeatedAlert(state.enemy.name, state.enemy.type === "boss");
+        showEventToast(getEnemyDefeatedFeedbackText(state.enemy.name), "reward");
+        emitSound("victory");
       }
 
       if (next.player.health > beforePlayerHealth) {
@@ -385,8 +418,9 @@ function GameBoardContent({
     const next = endTurn(state);
 
     if (next.player.health < beforePlayerHealth) {
-      showEventToast("☠ 受到傷害！", "danger");
-      showPanelFeedback("player", "hit", "受到傷害");
+      const text = next.player.health === 1 ? "瀕死！" : "受到傷害";
+      showEventToast(text, "danger");
+      showPanelFeedback("player", "hit", text);
       emitSound("hit");
     }
 
@@ -409,8 +443,9 @@ function GameBoardContent({
     }
 
     if (next.player.health < beforePlayerHealth) {
-      showEventToast("☠ 受到傷害！", "danger");
-      showPanelFeedback("player", "hit", "受到傷害");
+      const text = next.player.health === 1 ? "瀕死！" : "受到傷害";
+      showEventToast(text, "danger");
+      showPanelFeedback("player", "hit", text);
       emitSound("hit");
     }
 
@@ -478,7 +513,8 @@ function GameBoardContent({
       }
 
       if (next.player.health < beforePlayerHealth) {
-        showPanelFeedback("player", "hit", "受到傷害");
+        const text = next.player.health === 1 ? "瀕死！" : "受到傷害";
+        showPanelFeedback("player", "hit", text);
         emitSound("hit");
       }
 
@@ -517,7 +553,8 @@ function GameBoardContent({
       }
 
       if (next.player.health < beforePlayerHealth) {
-        showPanelFeedback("player", "hit", "受到傷害");
+        const text = next.player.health === 1 ? "瀕死！" : "受到傷害";
+        showPanelFeedback("player", "hit", text);
         emitSound("hit");
       }
 
@@ -609,6 +646,7 @@ function GameBoardContent({
 
         <DialoguePanel dialogue={state.currentDialogue} />
         <BossTraitAlertOverlay alert={bossTraitAlert} />
+        <DefeatedAlertOverlay alert={defeatedAlert} />
 
         <MobileBattleHud
           enemyName={state.enemy.name}
@@ -617,11 +655,13 @@ function GameBoardContent({
           enemyStatuses={enemyStatuses}
           enemyPortrait={state.enemy.portrait.startsWith("/") ? state.enemy.portrait : undefined}
           enemyPrompt={state.enemy.visualPrompt}
+          enemyFeedback={panelFeedback?.target === "enemy" ? panelFeedback : undefined}
           playerName={state.player.name}
           playerHealth={`${state.player.health}/${state.player.maxHealth}`}
           playerStatuses={playerStatuses}
           playerPortrait={currentHero.portrait}
           playerPrompt={currentHero.visualPrompt}
+          playerFeedback={panelFeedback?.target === "player" ? panelFeedback : undefined}
         />
 
         {stageBackgroundSrc ? (
@@ -1109,11 +1149,13 @@ function MobileBattleHud({
   enemyStatuses,
   enemyPortrait,
   enemyPrompt,
+  enemyFeedback,
   playerName,
   playerHealth,
   playerStatuses,
   playerPortrait,
   playerPrompt,
+  playerFeedback,
 }: {
   enemyName: string;
   enemyType: string;
@@ -1121,11 +1163,13 @@ function MobileBattleHud({
   enemyStatuses: string[];
   enemyPortrait?: string;
   enemyPrompt?: string;
+  enemyFeedback?: PanelFeedback;
   playerName: string;
   playerHealth: string;
   playerStatuses: string[];
   playerPortrait?: string;
   playerPrompt?: string;
+  playerFeedback?: PanelFeedback;
 }) {
   return (
     <section className="mt-5 grid gap-3 md:hidden">
@@ -1138,6 +1182,7 @@ function MobileBattleHud({
         portrait={enemyPortrait}
         visualLabel={enemyName}
         visualPrompt={enemyPrompt}
+        feedback={enemyFeedback}
       />
       <MobileHudRow
         tone="player"
@@ -1148,6 +1193,7 @@ function MobileBattleHud({
         portrait={playerPortrait}
         visualLabel={playerName}
         visualPrompt={playerPrompt}
+        feedback={playerFeedback}
       />
     </section>
   );
@@ -1181,6 +1227,29 @@ function BossTraitAlertOverlay({ alert }: { alert: BossTraitAlertState | null })
   );
 }
 
+function DefeatedAlertOverlay({ alert }: { alert: DefeatedAlertState | null }) {
+  if (!alert) {
+    return null;
+  }
+
+  const toneClass = alert.boss
+    ? "border-red-200/80 bg-[radial-gradient(circle_at_center,rgba(248,113,113,0.34),rgba(69,10,10,0.88)_56%,rgba(8,5,4,0.95))] text-red-50 shadow-[0_0_64px_rgba(248,113,113,0.34)]"
+    : "border-amber-200/75 bg-[radial-gradient(circle_at_center,rgba(251,191,36,0.32),rgba(120,53,15,0.78)_56%,rgba(8,5,4,0.94))] text-amber-50 shadow-[0_0_56px_rgba(251,191,36,0.26)]";
+
+  return (
+    <div
+      key={alert.id}
+      className="pointer-events-none fixed inset-x-4 top-[32vh] z-40 flex justify-center"
+      aria-live="polite"
+    >
+      <div className={`animate-defeated-pop min-w-[240px] max-w-[90vw] rounded-xl border px-6 py-5 text-center ${toneClass}`}>
+        <p className="text-3xl font-black tracking-[0.08em] sm:text-5xl">{alert.text}</p>
+        <p className="mt-3 text-sm font-bold text-stone-100">戰場局勢已定</p>
+      </div>
+    </div>
+  );
+}
+
 function MobileHudRow({
   tone,
   eyebrow,
@@ -1190,6 +1259,7 @@ function MobileHudRow({
   portrait,
   visualLabel,
   visualPrompt,
+  feedback,
 }: {
   tone: "enemy" | "player";
   eyebrow: string;
@@ -1199,6 +1269,7 @@ function MobileHudRow({
   portrait?: string;
   visualLabel: string;
   visualPrompt?: string;
+  feedback?: PanelFeedback;
 }) {
   const toneClass =
     tone === "enemy"
@@ -1206,8 +1277,25 @@ function MobileHudRow({
       : "border-emerald-400/45 bg-emerald-950/35";
   const hpClass = tone === "enemy" ? "text-red-100" : "text-emerald-100";
 
+  const feedbackClass =
+    feedback?.tone === "heal"
+      ? "animate-pulse-heal"
+      : feedback?.tone === "boss"
+        ? "animate-boss-panel-flash animate-shake-hit"
+        : feedback
+          ? "animate-damage-flash animate-shake-hit"
+          : "";
+
   return (
-    <div className={`rounded-xl border p-3 shadow-[0_14px_34px_rgba(0,0,0,0.28)] ${toneClass}`}>
+    <div className={`relative rounded-xl border p-3 shadow-[0_14px_34px_rgba(0,0,0,0.28)] ${toneClass} ${feedbackClass}`}>
+      {feedback ? (
+        <span
+          key={feedback.id}
+          className="absolute right-3 top-3 rounded-full border border-red-200/70 bg-red-500/25 px-2 py-0.5 text-[11px] font-black text-red-50"
+        >
+          {feedback.text}
+        </span>
+      ) : null}
       <div className="flex items-start gap-3">
         <GameImage
           src={portrait}
@@ -1234,7 +1322,7 @@ function MobileHudRow({
         {statuses.map((status) => (
           <span
             key={status}
-            className="shrink-0 rounded-full border border-amber-300/30 bg-black/25 px-3 py-1 text-xs font-bold text-amber-100"
+            className={`shrink-0 rounded-full border px-3 py-1 text-xs font-bold ${getStatusBadgeClass(status)}`}
           >
             {status}
           </span>
@@ -1441,6 +1529,9 @@ function CombatantPanel({
   const visualFrameClass = visualEmphasis
     ? "rounded-md border border-red-200/70 shadow-[0_0_34px_rgba(248,113,113,0.24)] ring-2 ring-red-500/30"
     : "rounded-md border border-white/10";
+  const criticalClass = statuses.some((status) => status === "瀕死" || status === "重傷")
+    ? "animate-critical-pulse"
+    : "";
 
   const feedbackClass =
     feedback?.tone === "heal"
@@ -1448,11 +1539,11 @@ function CombatantPanel({
       : feedback?.tone === "boss"
         ? "animate-boss-panel-flash animate-shake-hit"
         : feedback
-          ? "animate-shake-hit animate-pulse-hit"
+          ? "animate-shake-hit animate-damage-flash animate-pulse-hit"
           : "";
 
   return (
-    <section className={`relative rounded-xl border p-5 shadow-[0_18px_45px_rgba(0,0,0,0.35)] ${frameClass} ${feedbackClass}`}>
+    <section className={`relative rounded-xl border p-5 shadow-[0_18px_45px_rgba(0,0,0,0.35)] ${frameClass} ${feedbackClass} ${criticalClass}`}>
       {feedback ? (
         <div
           key={feedback.id}
@@ -1509,7 +1600,7 @@ function CombatantPanel({
             {statuses.map((status) => (
               <span
                 key={status}
-                className="rounded-full border border-amber-300/30 bg-black/25 px-3 py-1 text-xs font-bold text-amber-100"
+                className={`rounded-full border px-3 py-1 text-xs font-bold ${getStatusBadgeClass(status)}`}
               >
                 {status}
               </span>
@@ -1697,92 +1788,28 @@ function InfoPanel({ title, children }: { title: string; children: React.ReactNo
   );
 }
 
-function getPlayerStatuses({
-  heroId,
-  slashUsedThisTurn,
-  guardActive,
-  wineBonus,
-  enemyArmorBroken,
-  phase,
-}: {
-  heroId: string;
-  slashUsedThisTurn: boolean;
-  guardActive: boolean;
-  wineBonus: number;
-  enemyArmorBroken: boolean;
-  phase: string;
-}) {
-  const skillStatus = getSkillStatus(heroId, slashUsedThisTurn, phase);
-
-  return [
-    skillStatus,
-    guardActive ? "固守中：下一次受到傷害 -1" : null,
-    wineBonus > 0 ? `酒勢 +${wineBonus}` : null,
-    enemyArmorBroken ? "破甲中" : null,
-    phase === "defense" ? "等待防禦" : null,
-  ].filter((status): status is string => Boolean(status));
-}
-
-function getSkillStatus(heroId: string, slashUsedThisTurn: boolean, phase: string) {
-  if (heroId === "guan-yu") {
-    return slashUsedThisTurn ? "已使用武聖" : "武聖待發";
+function getStatusBadgeClass(status: string) {
+  if (status === "瀕死" || status === "重傷") {
+    return "animate-status-badge-pulse border-red-200/70 bg-red-500/25 text-red-50";
   }
 
-  if (heroId === "zhao-yun") {
-    return "龍膽可用";
+  if (status === "受創" || status === "受到傷害") {
+    return "border-orange-200/60 bg-orange-500/20 text-orange-50";
   }
 
-  return phase === "observe" ? "觀星中" : "觀星已定";
-}
-
-function getEnemyStatuses({
-  guarding,
-  charged,
-  phase,
-  nextAction,
-  bossTraitLabels = [],
-}: {
-  guarding: boolean;
-  charged: boolean;
-  phase: string;
-  nextAction: string;
-  bossTraitLabels?: string[];
-}) {
-  const [bossTraitStatus, ...triggeredBossTraits] = bossTraitLabels;
-
-  if (phase === "reward") {
-    return ["戰後整備", bossTraitStatus, ...triggeredBossTraits].filter(
-      (status): status is string => Boolean(status),
-    );
+  if (status === "固守中" || status === "防守中") {
+    return "border-sky-200/60 bg-sky-500/18 text-sky-50";
   }
 
-  if (phase === "route") {
-    return ["等待選路", bossTraitStatus, ...triggeredBossTraits].filter(
-      (status): status is string => Boolean(status),
-    );
+  if (status === "蓄力中" || status === "Boss" || status.includes("觸發")) {
+    return "border-amber-200/70 bg-amber-500/20 text-amber-50";
   }
 
-  if (phase === "event") {
-    return ["事件中", bossTraitStatus, ...triggeredBossTraits].filter(
-      (status): status is string => Boolean(status),
-    );
+  if (status === "破甲中" || status === "武聖已用" || status === "觀星") {
+    return "border-purple-200/60 bg-purple-500/18 text-purple-50";
   }
 
-  if (phase === "observe") {
-    return ["等待觀星", bossTraitStatus, ...triggeredBossTraits, `預告：${nextAction}`].filter(
-      (status): status is string => Boolean(status),
-    );
-  }
-
-  return [
-    guarding ? "防守" : null,
-    charged ? "蓄力" : null,
-    phase === "defense" ? "攻擊中" : null,
-    !guarding && !charged && phase === "player" ? "普通" : null,
-    bossTraitStatus,
-    ...triggeredBossTraits,
-    `預告：${nextAction}`,
-  ].filter((status): status is string => Boolean(status));
+  return "border-amber-300/30 bg-black/25 text-amber-100";
 }
 
 function getUpgradeLabels(upgrades: PlayerUpgrades) {

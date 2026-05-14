@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "三國單騎傳",
-  description: "v0.19.2 路線事件圖片導入版：第一章敵人、關卡背景、路線與路線事件皆有正式圖像。",
+  description: "v0.20.0 即時戰鬥狀態版：玩家與敵人的重傷、蓄力、擊敗等狀態更清楚可見。",
 };
 
 export default function RootLayout({

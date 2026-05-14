@@ -534,7 +534,9 @@ describe("game engine", () => {
     expect(next.enemy.name).toBe("黃巾兵");
     expect(next.enemyHealth).toBe(0);
     expect(next.rewardOptions).toHaveLength(3);
-    expect(next.log[0]).toBe("擊敗黃巾兵，選擇一項通關獎勵。");
+    expect(next.log[0]).toBe("敵將敗退：黃巾兵");
+    expect(next.log[1]).toBe("擊敗黃巾兵，選擇一項通關獎勵。");
+    expect(next.currentDialogue?.trigger).toBe("enemy_defeated");
   });
 
   it("does not enter old random event phase after defeating the first enemy", () => {
@@ -554,7 +556,8 @@ describe("game engine", () => {
     expect(next.phase).toBe("reward");
     expect(next.currentEvent).toBeUndefined();
     expect(next.rewardOptions).toHaveLength(3);
-    expect(next.log[0]).toBe("擊敗黃巾兵，選擇一項通關獎勵。");
+    expect(next.log[0]).toBe("敵將敗退：黃巾兵");
+    expect(next.log[1]).toBe("擊敗黃巾兵，選擇一項通關獎勵。");
   });
 
   it("can deterministically select Yellow Turban Archer for stage one", () => {
@@ -1561,8 +1564,9 @@ describe("game engine", () => {
     expect(next.status).toBe("won");
     expect(next.phase).toBe("player");
     expect(next.currentEvent).toBeUndefined();
-    expect(next.log[0]).toBe("你突破虎牢關前的考驗，第一章：黃巾亂起 已完成。");
-    expect(next.currentDialogue?.trigger).toBe("game_win");
+    expect(next.log[0]).toBe("敵將敗退：呂布");
+    expect(next.currentDialogue?.trigger).toBe("enemy_defeated");
+    expect(next.currentDialogue?.text).toBe("虎牢關前，戰神退去，第一章至此落幕。");
   });
 
   it("loses when Guan Yu takes lethal enemy damage", () => {

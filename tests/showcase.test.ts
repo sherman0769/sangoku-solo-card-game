@@ -22,7 +22,7 @@ import { canPlayVoice } from "@/lib/game/voice";
 
 describe("showcase and onboarding copy", () => {
   it("includes homepage how-to and current feature copy", () => {
-    expect(currentVersionLabel).toBe("v0.19.2 路線事件圖片導入版");
+    expect(currentVersionLabel).toBe("v0.20.0 即時戰鬥狀態版");
     expect(howToSteps.map((step) => step.title)).toEqual([
       "選擇武將",
       "進入戰鬥",
@@ -65,7 +65,7 @@ describe("showcase and onboarding copy", () => {
       "第一章 P0 語音已導入：八關旁白、敵人登場、Boss 特性與勝敗語音陸續完成。",
     );
     expect(currentFeatureHighlights).toContain(
-      "第一章圖片資產已補齊：敵人、關卡背景、路線與路線事件皆有正式圖像。",
+      "即時戰鬥狀態：玩家與敵人的重傷、蓄力、擊敗等狀態更清楚可見。",
     );
     expect(currentFeatureHighlights).toContain(
       "開頭動畫：以 AI 圖像、影片與音樂製作第一章開場",

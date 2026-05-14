@@ -4,6 +4,7 @@ import {
   getChapterIntroDialogue,
   getBossRecoveryDialogue,
   getBossTraitDialogue,
+  getEnemyDefeatedDialogue,
   getEnemyIntroDialogue,
   getGameResultDialogue,
   getHeroDialogue,
@@ -823,18 +824,18 @@ function advanceEnemy(state: GameState): GameState {
   if (nextEnemyIndex >= totalStages) {
     return appendLog(
       {
-        ...setDialogue(state, getGameResultDialogue("won")),
+        ...setDialogue(state, getEnemyDefeatedDialogue(state.enemy.id) ?? getGameResultDialogue("won")),
         status: "won",
         enemyHealth: 0,
         phase: "player",
         availableRoutes: [],
       },
-      "你突破虎牢關前的考驗，第一章：黃巾亂起 已完成。",
+      `敵將敗退：${state.enemy.name}`,
     );
   }
 
   return {
-    ...setDialogue(state, getHeroDialogue(state.player.heroId, "victory")),
+    ...setDialogue(state, getEnemyDefeatedDialogue(state.enemy.id) ?? getHeroDialogue(state.player.heroId, "victory")),
     enemyActionIndex: 0,
     enemyGuarding: false,
     enemyCharged: false,
@@ -854,6 +855,7 @@ function advanceEnemy(state: GameState): GameState {
       equipmentUsageThisTurn: createTurnEquipmentUsage(),
     },
     log: createRewardLog(state.rewardOptionBonus, [
+      `敵將敗退：${state.enemy.name}`,
       `擊敗${state.enemy.name}，選擇一項通關獎勵。`,
       ...state.log,
     ]),

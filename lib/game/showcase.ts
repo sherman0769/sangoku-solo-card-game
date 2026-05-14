@@ -1,6 +1,6 @@
 import type { GamePhase } from "./types";
 
-export const currentVersionLabel = "v0.19.2 路線事件圖片導入版";
+export const currentVersionLabel = "v0.20.0 即時戰鬥狀態版";
 
 export const gameLoadingCopy = {
   title: "戰局準備中……",
@@ -70,7 +70,7 @@ export const currentFeatureHighlights = [
   "第一批 AI 圖像：首頁主視覺、關羽、趙雲、諸葛亮",
   "第二批敵人圖像：黃巾兵、山賊頭目、西涼騎兵、呂布",
   "第一批關卡背景：荒村初戰、虎牢關前",
-  "第一章圖片資產已補齊：敵人、關卡背景、路線與路線事件皆有正式圖像。",
+  "即時戰鬥狀態：玩家與敵人的重傷、蓄力、擊敗等狀態更清楚可見。",
   "視覺呈現優化：首頁、武將、敵人、Boss 與關卡背景手機版顯示",
   "人物台詞系統：武將台詞、敵人登場、章節旁白與勝敗旁白",
   "第一版音效系統：Web Audio API 提示音、手動開關與本機設定保存",
