@@ -7,7 +7,7 @@ import { InstallPrompt } from "@/components/InstallPrompt";
 import { OpeningVideo } from "@/components/OpeningVideo";
 import { ShareGameButton } from "@/components/ShareGameButton";
 import {
-  createBgmPlayer,
+  getSharedBgmPlayer,
   getBgmPlaybackFailureMessage,
   getBgmEnabled,
   getBgmVolume,
@@ -16,6 +16,7 @@ import {
   setBgmActivated,
   setBgmPlaybackStateFromResult,
   setBgmVolume,
+  shouldAutoResumeStoredBgm,
   type BgmPlayer,
 } from "@/lib/game/bgm";
 import { playSound } from "@/lib/game/audio";
@@ -68,12 +69,15 @@ export default function Home() {
         getBgmEnabled() ? "點擊開啟 BGM，以啟用首頁主題音樂。" : null,
       );
       setHomeBgmVolume(getBgmVolume());
-      homeBgmPlayerRef.current = createBgmPlayer();
+      homeBgmPlayerRef.current = getSharedBgmPlayer();
     }, 0);
 
     return () => {
       window.clearTimeout(timer);
-      homeBgmPlayerRef.current?.stop();
+
+      if (!shouldAutoResumeStoredBgm()) {
+        homeBgmPlayerRef.current?.stop();
+      }
     };
   }, []);
 
@@ -97,7 +101,7 @@ export default function Home() {
   }
 
   async function toggleHomeBgm() {
-    const player = homeBgmPlayerRef.current ?? createBgmPlayer();
+    const player = homeBgmPlayerRef.current ?? getSharedBgmPlayer();
     homeBgmPlayerRef.current = player;
 
     if (bgmEnabled) {

@@ -28,18 +28,16 @@ import {
   writeSoundEnabledSetting,
 } from "@/lib/game/audio";
 import {
-  createBgmPlayer,
+  getSharedBgmPlayer,
   getBgmPlaybackFailureMessage,
-  getBgmEnabled,
-  getBgmActivated,
   getGameBgmTrackId,
-  getBgmVolume,
+  getBgmResumeIntent,
   isBgmSupported,
   setBgmActivated,
   setBgmEnabled,
   setBgmPlaybackStateFromResult,
   setBgmVolume,
-  shouldAutoResumeBgm,
+  shouldAutoResumeStoredBgm,
   type BgmPlayer,
 } from "@/lib/game/bgm";
 import {
@@ -192,6 +190,7 @@ function GameBoardContent({
   const [bgmSupported, setBattleBgmSupported] = useState(false);
   const [bgmVolume, setBattleBgmVolume] = useState(0.35);
   const [bgmPlaybackMessage, setBattleBgmPlaybackMessage] = useState<string | null>(null);
+  const [bgmInitialized, setBgmInitialized] = useState(false);
   const eventTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const panelTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const bossTraitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -200,7 +199,7 @@ function GameBoardContent({
   const stageTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastVoiceKeyRef = useRef<string | null>(null);
   const bgmPlayerRef = useRef<BgmPlayer | null>(null);
-  const initialBgmTrackIdRef = useRef(getGameBgmTrackId(initialState.enemy.id));
+  const initialBgmTrackIdRef = useRef(getGameBgmTrackId(initialState));
   const feedbackIdRef = useRef(0);
   const enemyPercent = useMemo(
     () => Math.max(0, Math.round((state.enemyHealth / state.enemy.maxHealth) * 100)),
@@ -229,7 +228,7 @@ function GameBoardContent({
   const stageBackgroundSrc = state.stageConfig.backgroundImage.startsWith("/")
     ? state.stageConfig.backgroundImage
     : undefined;
-  const activeBgmTrackId = getGameBgmTrackId(state.enemy.id);
+  const activeBgmTrackId = getGameBgmTrackId(state);
   const enemyDefeated = state.enemyHealth <= 0 || state.status === "won";
   const enemyDefeatedStamp = getEnemyDefeatedStampLabel(state.enemy.type === "boss");
   const choicePhasePrompt = getChoicePhasePrompt(state.phase);
@@ -245,21 +244,18 @@ function GameBoardContent({
       setVoiceSupported(isVoiceSupported());
       setVoiceEnabled(readVoiceEnabledSetting());
       setBattleBgmSupported(isBgmSupported());
-      const storedBgmEnabled = getBgmEnabled();
-      const storedBgmActivated = getBgmActivated();
-      const storedBgmVolume = getBgmVolume();
-      const shouldResumeBgm = shouldAutoResumeBgm(storedBgmEnabled, storedBgmActivated);
-      const player = createBgmPlayer();
+      const resumeIntent = getBgmResumeIntent();
+      const player = getSharedBgmPlayer();
 
       setBattleBgmEnabled(false);
       setBattleBgmPlaybackMessage(
-        storedBgmEnabled ? getBgmPlaybackFailureMessage() : null,
+        resumeIntent.enabled ? getBgmPlaybackFailureMessage() : null,
       );
-      setBattleBgmVolume(storedBgmVolume);
+      setBattleBgmVolume(resumeIntent.volume);
       bgmPlayerRef.current = player;
 
-      if (shouldResumeBgm) {
-        void player.play(initialBgmTrackIdRef.current, { volume: storedBgmVolume }).then((played) => {
+      if (resumeIntent.shouldResume) {
+        void player.play(initialBgmTrackIdRef.current, { volume: resumeIntent.volume }).then((played) => {
           if (cancelled) {
             return;
           }
@@ -267,19 +263,29 @@ function GameBoardContent({
           setBattleBgmEnabled(played);
           setBgmPlaybackStateFromResult(played);
           setBattleBgmPlaybackMessage(played ? null : getBgmPlaybackFailureMessage());
+          setBgmInitialized(true);
         });
+      } else {
+        setBgmInitialized(true);
       }
     }, 0);
 
     return () => {
       cancelled = true;
       window.clearTimeout(timer);
-      bgmPlayerRef.current?.stop();
+
+      if (!shouldAutoResumeStoredBgm()) {
+        bgmPlayerRef.current?.stop();
+      }
     };
   }, []);
 
   useEffect(() => {
-    const player = bgmPlayerRef.current ?? createBgmPlayer();
+    if (!bgmInitialized) {
+      return;
+    }
+
+    const player = bgmPlayerRef.current ?? getSharedBgmPlayer();
     bgmPlayerRef.current = player;
     player.setVolume(bgmVolume);
 
@@ -296,6 +302,7 @@ function GameBoardContent({
       if (!played && !cancelled) {
         setBattleBgmEnabled(false);
         setBgmEnabled(false);
+        setBgmActivated(false);
         setBattleBgmPlaybackMessage(getBgmPlaybackFailureMessage());
       }
     }
@@ -305,7 +312,7 @@ function GameBoardContent({
     return () => {
       cancelled = true;
     };
-  }, [activeBgmTrackId, bgmEnabled, bgmVolume]);
+  }, [activeBgmTrackId, bgmEnabled, bgmInitialized, bgmVolume]);
 
   useEffect(() => {
     const audioKey = state.currentDialogue?.audioKey;
@@ -441,7 +448,7 @@ function GameBoardContent({
   }
 
   async function toggleBattleBgm() {
-    const player = bgmPlayerRef.current ?? createBgmPlayer();
+    const player = bgmPlayerRef.current ?? getSharedBgmPlayer();
     bgmPlayerRef.current = player;
 
     if (bgmEnabled) {

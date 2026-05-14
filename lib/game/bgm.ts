@@ -18,6 +18,18 @@ export interface BgmPlayer {
   getCurrentTrackId: () => string | null;
 }
 
+type GameBgmTrackInput =
+  | string
+  | {
+      enemy?: { id?: string; type?: string };
+      currentEnemy?: { id?: string; type?: string };
+      enemyId?: string;
+      stage?: number;
+      stageConfig?: { stage?: number };
+    };
+
+let sharedBgmPlayer: BgmPlayer | null = null;
+
 export function getBgmTrack(trackId: string): BgmTrack | undefined {
   return BGM_TRACKS.find((track) => track.id === trackId);
 }
@@ -40,17 +52,23 @@ export function createBgmPlayer(): BgmPlayer {
       return null;
     }
 
-    if (!audio || currentTrackId !== track.id) {
-      if (audio) {
-        try {
-          audio.pause();
-        } catch {
-          // no-op: playback failures should never break gameplay.
-        }
-      }
-
+    if (!audio) {
       audio = new window.Audio(track.filePath);
       currentTrackId = track.id;
+      return audio;
+    }
+
+    if (currentTrackId !== track.id) {
+      try {
+        audio.pause();
+        audio.src = track.filePath;
+        audio.currentTime = 0;
+        audio.load();
+        currentTrackId = track.id;
+      } catch {
+        audio = new window.Audio(track.filePath);
+        currentTrackId = track.id;
+      }
     }
 
     return audio;
@@ -90,8 +108,12 @@ export function createBgmPlayer(): BgmPlayer {
     stop() {
       try {
         if (audio) {
-          audio.pause();
-          audio.currentTime = 0;
+          try {
+            audio.pause();
+            audio.currentTime = 0;
+          } catch {
+            // no-op
+          }
         }
       } catch {
         // no-op
@@ -117,6 +139,16 @@ export function createBgmPlayer(): BgmPlayer {
   };
 }
 
+export function getSharedBgmPlayer() {
+  sharedBgmPlayer ??= createBgmPlayer();
+  return sharedBgmPlayer;
+}
+
+export function resetSharedBgmPlayerForTests() {
+  sharedBgmPlayer?.stop();
+  sharedBgmPlayer = null;
+}
+
 export function playBgm(trackId: string, options: BgmPlaybackOptions = {}) {
   const player = createBgmPlayer();
   void player.play(trackId, options);
@@ -138,8 +170,20 @@ export function shouldAutoResumeBgm(enabled: boolean, activated: boolean) {
   return enabled && activated;
 }
 
-export function getGameBgmTrackId(enemyId: string) {
-  return enemyId === "lu-bu" ? "boss-theme" : "battle-theme";
+export function getGameBgmTrackId(input: GameBgmTrackInput) {
+  if (typeof input === "string") {
+    return input === "lu-bu" ? "boss-theme" : "battle-theme";
+  }
+
+  const enemy = input.enemy ?? input.currentEnemy;
+  const enemyId = input.enemyId ?? enemy?.id;
+  const stage = input.stage ?? input.stageConfig?.stage;
+
+  if (enemyId === "lu-bu" || enemy?.type === "boss" || stage === 8) {
+    return "boss-theme";
+  }
+
+  return "battle-theme";
 }
 
 export function getBgmPlaybackFailureMessage() {
@@ -191,12 +235,30 @@ export function shouldAutoResumeStoredBgm() {
   return shouldAutoResumeBgm(getBgmEnabled(), getBgmActivated());
 }
 
+export function getBgmResumeIntent() {
+  const enabled = getBgmEnabled();
+  const activated = getBgmActivated();
+
+  return {
+    enabled,
+    activated,
+    volume: getBgmVolume(),
+    shouldResume: shouldAutoResumeBgm(enabled, activated),
+  };
+}
+
 export function getBgmVolume() {
   if (typeof window === "undefined") {
     return defaultBgmVolume;
   }
 
-  const storedVolume = Number(window.localStorage.getItem(bgmVolumeStorageKey));
+  const storedValue = window.localStorage.getItem(bgmVolumeStorageKey);
+
+  if (storedValue === null) {
+    return defaultBgmVolume;
+  }
+
+  const storedVolume = Number(storedValue);
 
   if (!Number.isFinite(storedVolume)) {
     return defaultBgmVolume;

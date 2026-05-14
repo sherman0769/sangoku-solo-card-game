@@ -1,6 +1,6 @@
 import type { GamePhase } from "./types";
 
-export const currentVersionLabel = "v0.24.3 卡牌寬度與 BGM 延續修正版";
+export const currentVersionLabel = "v0.24.4 BGM 跨頁延續實機修正版";
 
 export const gameLoadingCopy = {
   title: "戰局準備中……",

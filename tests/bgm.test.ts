@@ -9,12 +9,15 @@ import {
   getBgmEnabled,
   getBgmEnabledStorageKey,
   getBgmPersistedPlaybackState,
+  getBgmResumeIntent,
   getGameBgmTrackId,
   getBgmTrack,
   getBgmVolume,
   getBgmVolumeStorageKey,
   getBgmPlaybackFailureMessage,
   getDefaultBgmVolume,
+  getSharedBgmPlayer,
+  resetSharedBgmPlayerForTests,
   setBgmActivated,
   setBgmEnabled,
   setBgmPlaybackStateFromResult,
@@ -94,6 +97,58 @@ describe("BGM manifest and playback helpers", () => {
     expect(shouldAutoResumeBgm(false, false)).toBe(false);
     expect(getGameBgmTrackId("yellow-turban-soldier")).toBe("battle-theme");
     expect(getGameBgmTrackId("lu-bu")).toBe("boss-theme");
+    expect(getGameBgmTrackId({ enemy: { id: "zhang-bao", type: "mini-boss" }, stage: 7 })).toBe(
+      "battle-theme",
+    );
+    expect(getGameBgmTrackId({ enemy: { id: "zhang-bao", type: "boss" }, stage: 7 })).toBe(
+      "boss-theme",
+    );
+    expect(getGameBgmTrackId({ enemy: { id: "yellow-turban-soldier" }, stageConfig: { stage: 8 } })).toBe(
+      "boss-theme",
+    );
+  });
+
+  it("persists enabled and activated state after successful BGM playback", () => {
+    withMockWindowStorage(() => {
+      const successState = setBgmPlaybackStateFromResult(true);
+
+      expect(successState).toEqual({
+        enabled: true,
+        activated: true,
+      });
+      expect(getBgmEnabled()).toBe(true);
+      expect(getBgmActivated()).toBe(true);
+      expect(getBgmResumeIntent()).toMatchObject({
+        enabled: true,
+        activated: true,
+        volume: 0.35,
+        shouldResume: true,
+      });
+
+      const failedState = setBgmPlaybackStateFromResult(false);
+
+      expect(failedState).toEqual({
+        enabled: false,
+        activated: false,
+      });
+      expect(getBgmEnabled()).toBe(false);
+      expect(getBgmActivated()).toBe(false);
+      expect(getBgmResumeIntent()).toMatchObject({
+        enabled: false,
+        activated: false,
+        volume: 0.35,
+        shouldResume: false,
+      });
+    });
+  });
+
+  it("uses a shared player so home activation can continue into the game page", () => {
+    resetSharedBgmPlayerForTests();
+    const homePlayer = getSharedBgmPlayer();
+    const gamePlayer = getSharedBgmPlayer();
+
+    expect(gamePlayer).toBe(homePlayer);
+    resetSharedBgmPlayerForTests();
   });
 
   it("keeps BGM settings separate from sound and voice settings", () => {
@@ -105,3 +160,31 @@ describe("BGM manifest and playback helpers", () => {
     expect(getBgmVolumeStorageKey()).not.toBe(getVoiceEnabledStorageKey());
   });
 });
+
+function withMockWindowStorage(assertions: () => void) {
+  const storage = new Map<string, string>();
+  const previousWindow = Object.getOwnPropertyDescriptor(globalThis, "window");
+  const windowLike = {
+    localStorage: {
+      getItem: (key: string) => storage.get(key) ?? null,
+      setItem: (key: string, value: string) => {
+        storage.set(key, value);
+      },
+    },
+  };
+
+  Object.defineProperty(globalThis, "window", {
+    configurable: true,
+    value: windowLike,
+  });
+
+  try {
+    assertions();
+  } finally {
+    if (previousWindow) {
+      Object.defineProperty(globalThis, "window", previousWindow);
+    } else {
+      Reflect.deleteProperty(globalThis, "window");
+    }
+  }
+}
