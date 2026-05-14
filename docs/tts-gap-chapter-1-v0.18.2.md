@@ -2,7 +2,7 @@
 
 ## 1. 文件目的
 
-本文件整理《三國單騎傳》第一章「黃巾亂起」目前尚未導入真實音檔、但值得補齊的 TTS 台詞。v0.18.2 先建立缺口文件與結構化清單；v0.18.3 已導入 P0 批次 MP3，剩餘缺口以 P1 / P2 為主。
+本文件整理《三國單騎傳》第一章「黃巾亂起」目前尚未導入真實音檔、但值得補齊的 TTS 台詞。v0.18.2 先建立缺口文件與結構化清單；v0.18.3 已導入 P0 批次 MP3；v0.20.1 已導入 9 筆敵人擊敗旁白，剩餘缺口以路線事件與武將戰鬥補充台詞為主。
 
 結構化資料位於 `lib/game/ttsGapManifest.ts` 的 `CHAPTER_1_TTS_GAP_MANIFEST`。後續可依照本文件與 batch 文件繼續生成剩餘 P1 / P2 MP3，放入建議路徑後，再逐筆將 status 改為 `ready`。
 
@@ -18,6 +18,15 @@
 | zhao-yun-intro | 趙雲 | 常山趙子龍，願護此路周全。 | /audio/voices/zhao-yun/zhao-yun-intro.mp3 | ready |
 | zhuge-liang-intro | 諸葛亮 | 觀天時，察地利，方能制勝。 | /audio/voices/zhuge-liang/zhuge-liang-intro.mp3 | ready |
 | lu-bu-intro | 呂布 | 吾乃呂布，誰敢與我一戰？ | /audio/voices/lu-bu/lu-bu-intro.mp3 | ready |
+| yellow-turban-soldier-defeated | 旁白 | 黃巾餘眾潰散，荒村暫得片刻安寧。 | /audio/voices/enemies/yellow-turban-soldier-defeated.mp3 | ready |
+| yellow-turban-archer-defeated | 旁白 | 箭雨止息，山道重新露出前路。 | /audio/voices/enemies/yellow-turban-archer-defeated.mp3 | ready |
+| yellow-turban-brute-defeated | 旁白 | 力士轟然倒地，黃巾軍勢為之一挫。 | /audio/voices/enemies/yellow-turban-brute-defeated.mp3 | ready |
+| bandit-leader-defeated | 旁白 | 山賊首領敗退，黑山之路終於打開。 | /audio/voices/enemies/bandit-leader-defeated.mp3 | ready |
+| black-mountain-general-defeated | 旁白 | 黑山賊將敗下陣來，寨中士氣潰散。 | /audio/voices/enemies/black-mountain-general-defeated.mp3 | ready |
+| xiliang-cavalry-defeated | 旁白 | 鐵騎衝勢已斷，塵煙中只餘殘旗。 | /audio/voices/enemies/xiliang-cavalry-defeated.mp3 | ready |
+| zhang-liang-defeated | 旁白 | 張梁怒吼未息，黃巾祭壇的火光卻已黯淡。 | /audio/voices/enemies/zhang-liang-defeated.mp3 | ready |
+| zhang-bao-defeated | 旁白 | 妖風散去，張寶的術法終究難逆天命。 | /audio/voices/enemies/zhang-bao-defeated.mp3 | ready |
+| lu-bu-defeated | 旁白 | 虎牢關前，戰神退去，第一章至此落幕。 | /audio/voices/enemies/lu-bu-defeated.mp3 | ready |
 
 ## 3. 尚未完成語音清單
 
@@ -59,19 +68,19 @@
 | game-win | 旁白 | 你突破虎牢關前的考驗，第一章：黃巾亂起，至此落幕。 | /audio/narration/game-win.mp3 | ready |
 | game-lose | 旁白 | 亂世無情，英雄亦有敗時。重整旗鼓，再入戰場。 | /audio/narration/game-lose.mp3 | ready |
 
-### P1：敵人被擊敗旁白
+### P1：敵人被擊敗旁白（v0.20.1 已導入）
 
 | audioKey | speakerName | text | 建議路徑 | status |
 |---|---|---|---|---|
-| yellow-turban-soldier-defeated | 旁白 | 黃巾餘眾潰散，荒村暫得片刻安寧。 | public/audio/narration/yellow-turban-soldier-defeated.mp3 | planned |
-| yellow-turban-archer-defeated | 旁白 | 箭雨止息，山道重新露出前路。 | public/audio/narration/yellow-turban-archer-defeated.mp3 | planned |
-| yellow-turban-brute-defeated | 旁白 | 力士轟然倒地，黃巾軍勢為之一挫。 | public/audio/narration/yellow-turban-brute-defeated.mp3 | planned |
-| bandit-leader-defeated | 旁白 | 山賊首領敗退，黑山之路終於打開。 | public/audio/narration/bandit-leader-defeated.mp3 | planned |
-| black-mountain-general-defeated | 旁白 | 黑山賊將敗下陣來，寨中士氣潰散。 | public/audio/narration/black-mountain-general-defeated.mp3 | planned |
-| xiliang-cavalry-defeated | 旁白 | 鐵騎衝勢已斷，塵煙中只餘殘旗。 | public/audio/narration/xiliang-cavalry-defeated.mp3 | planned |
-| zhang-liang-defeated | 旁白 | 張梁怒吼未息，黃巾祭壇的火光卻已黯淡。 | public/audio/narration/zhang-liang-defeated.mp3 | planned |
-| zhang-bao-defeated | 旁白 | 妖風散去，張寶的術法終究難逆天命。 | public/audio/narration/zhang-bao-defeated.mp3 | planned |
-| lu-bu-defeated | 旁白 | 虎牢關前，戰神退去，第一章至此落幕。 | public/audio/narration/lu-bu-defeated.mp3 | planned |
+| yellow-turban-soldier-defeated | 旁白 | 黃巾餘眾潰散，荒村暫得片刻安寧。 | /audio/voices/enemies/yellow-turban-soldier-defeated.mp3 | ready |
+| yellow-turban-archer-defeated | 旁白 | 箭雨止息，山道重新露出前路。 | /audio/voices/enemies/yellow-turban-archer-defeated.mp3 | ready |
+| yellow-turban-brute-defeated | 旁白 | 力士轟然倒地，黃巾軍勢為之一挫。 | /audio/voices/enemies/yellow-turban-brute-defeated.mp3 | ready |
+| bandit-leader-defeated | 旁白 | 山賊首領敗退，黑山之路終於打開。 | /audio/voices/enemies/bandit-leader-defeated.mp3 | ready |
+| black-mountain-general-defeated | 旁白 | 黑山賊將敗下陣來，寨中士氣潰散。 | /audio/voices/enemies/black-mountain-general-defeated.mp3 | ready |
+| xiliang-cavalry-defeated | 旁白 | 鐵騎衝勢已斷，塵煙中只餘殘旗。 | /audio/voices/enemies/xiliang-cavalry-defeated.mp3 | ready |
+| zhang-liang-defeated | 旁白 | 張梁怒吼未息，黃巾祭壇的火光卻已黯淡。 | /audio/voices/enemies/zhang-liang-defeated.mp3 | ready |
+| zhang-bao-defeated | 旁白 | 妖風散去，張寶的術法終究難逆天命。 | /audio/voices/enemies/zhang-bao-defeated.mp3 | ready |
+| lu-bu-defeated | 旁白 | 虎牢關前，戰神退去，第一章至此落幕。 | /audio/voices/enemies/lu-bu-defeated.mp3 | ready |
 
 ### P1：路線事件旁白
 
@@ -110,10 +119,10 @@
 ## 4. 生成優先級
 
 - P0：v0.18.3 已導入八關開場旁白、敵人登場、呂布 Boss 特性、通關與戰敗旁白；不再列入 `CHAPTER_1_TTS_GAP_MANIFEST` 缺口。
-- P1：補齊敵人被擊敗旁白與路線事件旁白，強化戰鬥後與路線選擇的敘事回饋。
+- P1：v0.20.1 已導入敵人被擊敗旁白；剩餘需補齊路線事件旁白，強化路線選擇的敘事回饋。
 - P2：補齊武將戰鬥補充台詞，提升出牌、受傷、低血量與勝利時的角色感。
 
-v0.18.3 後，`CHAPTER_1_TTS_GAP_MANIFEST` 目前共有 33 筆：P1 18 筆、P2 15 筆。P0 20 筆已導入並改為 `ready`。
+v0.20.1 後，`CHAPTER_1_TTS_GAP_MANIFEST` 目前共有 24 筆：P1 9 筆、P2 15 筆。P0 20 筆與敵人擊敗旁白 9 筆已導入並改為 `ready`。
 
 ## 5. 建議聲線
 
@@ -140,10 +149,11 @@ v0.18.3 後，`CHAPTER_1_TTS_GAP_MANIFEST` 目前共有 33 筆：P1 18 筆、P2 
 - [x] 已從 `CHAPTER_1_TTS_GAP_MANIFEST` 匯出 P0 清單並於 v0.18.3 導入。
 - [ ] 依 speakerName 與 suggestedVoice 分批生成 MP3。
 - [ ] 確認檔名完全等於 `audioKey.mp3`。
-- [ ] 繼續將 P1 / P2 旁白與路線事件放入 `public/audio/narration`。
+- [x] 已將 P1 敵人擊敗旁白放入 `public/audio/voices/enemies`，並於 v0.20.1 導入。
+- [ ] 繼續將 P1 路線事件旁白放入 `public/audio/narration`。
 - [ ] 將武將語音放入各自的 `public/audio/voices/{hero}` 資料夾。
 - [x] 已將 P0 一般敵人登場語音放入 `public/audio/voices/enemies`。
 - [x] 已將 P0 呂布 Boss 特性語音放入 `public/audio/voices/lu-bu`。
-- [ ] P1 / P2 實際檔案存在後，才把對應 audioKey 加入 ready 清單。
+- [ ] P1 路線事件與 P2 武將補充語音實際檔案存在後，才把對應 audioKey 加入 ready 清單。
 - [ ] 執行 `npm run lint`、`npm test`、`npm run build`。
 - [ ] 到首頁與遊戲流程抽查語音開關不會影響音效、卡牌音效、開場動畫與 Boss 特性。

@@ -51,7 +51,7 @@ const routeEventAudioKeys = [
 
 describe("chapter one TTS gap manifest", () => {
   it("contains planned chapter one TTS gaps", () => {
-    expect(CHAPTER_1_TTS_GAP_MANIFEST).toHaveLength(33);
+    expect(CHAPTER_1_TTS_GAP_MANIFEST).toHaveLength(24);
     expect(CHAPTER_1_TTS_GAP_MANIFEST.every((item) => item.status === "planned")).toBe(true);
   });
 
@@ -81,8 +81,15 @@ describe("chapter one TTS gap manifest", () => {
     );
   });
 
-  it("includes nine enemy defeated narration gaps", () => {
-    expect(CHAPTER_1_TTS_GAP_MANIFEST.map((item) => item.audioKey)).toEqual(
+  it("excludes imported enemy defeated narration from the remaining gaps", () => {
+    enemyDefeatedAudioKeys.forEach((audioKey) => {
+      expect(getTtsAssetByAudioKey(audioKey)).toMatchObject({
+        audioKey,
+        status: "ready",
+      });
+    });
+
+    expect(CHAPTER_1_TTS_GAP_MANIFEST.map((item) => item.audioKey)).not.toEqual(
       expect.arrayContaining([...enemyDefeatedAudioKeys]),
     );
   });
@@ -133,6 +140,7 @@ describe("chapter one TTS gap manifest", () => {
         "lu-bu-warlord-recovery",
         "game-win",
         "game-lose",
+        ...enemyDefeatedAudioKeys,
       ]),
     );
   });
@@ -144,7 +152,7 @@ describe("chapter one TTS gap manifest", () => {
     }, {});
 
     expect(countByPriority).toEqual({
-      P1: 18,
+      P1: 9,
       P2: 15,
     });
   });

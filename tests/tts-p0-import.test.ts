@@ -59,7 +59,7 @@ describe("chapter one P0 TTS voice import", () => {
   });
 
   it("keeps P1 and P2 gaps planned", () => {
-    expect(CHAPTER_1_TTS_GAP_MANIFEST).toHaveLength(33);
+    expect(CHAPTER_1_TTS_GAP_MANIFEST).toHaveLength(24);
     expect(CHAPTER_1_TTS_GAP_MANIFEST.every((item) => item.status === "planned")).toBe(true);
     expect(CHAPTER_1_TTS_GAP_MANIFEST.every((item) => item.priority === "P1" || item.priority === "P2")).toBe(true);
     CHAPTER_1_TTS_GAP_MANIFEST.forEach((gap) => {

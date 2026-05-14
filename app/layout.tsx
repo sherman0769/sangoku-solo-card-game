@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "三國單騎傳",
-  description: "v0.20.0 即時戰鬥狀態版：玩家與敵人的重傷、蓄力、擊敗等狀態更清楚可見。",
+  description: "v0.20.1 敵人擊敗 TTS 導入版：敵將敗退時會有旁白與音效回饋。",
 };
 
 export default function RootLayout({

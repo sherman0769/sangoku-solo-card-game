@@ -25,7 +25,16 @@ const existingReadyVoiceAssets = [
 const readyVoiceAssets = [
   ...existingReadyVoiceAssets,
   ...CHAPTER_1_TTS_P0_BATCH_MANIFEST.map((asset) => [asset.audioKey, asset.filePath] as const),
-];
+  ["yellow-turban-soldier-defeated", "/audio/voices/enemies/yellow-turban-soldier-defeated.mp3"],
+  ["yellow-turban-archer-defeated", "/audio/voices/enemies/yellow-turban-archer-defeated.mp3"],
+  ["yellow-turban-brute-defeated", "/audio/voices/enemies/yellow-turban-brute-defeated.mp3"],
+  ["bandit-leader-defeated", "/audio/voices/enemies/bandit-leader-defeated.mp3"],
+  ["black-mountain-general-defeated", "/audio/voices/enemies/black-mountain-general-defeated.mp3"],
+  ["xiliang-cavalry-defeated", "/audio/voices/enemies/xiliang-cavalry-defeated.mp3"],
+  ["zhang-liang-defeated", "/audio/voices/enemies/zhang-liang-defeated.mp3"],
+  ["zhang-bao-defeated", "/audio/voices/enemies/zhang-bao-defeated.mp3"],
+  ["lu-bu-defeated", "/audio/voices/enemies/lu-bu-defeated.mp3"],
+] as const;
 
 describe("voice playback framework", () => {
   it("checks voice support safely without browser APIs", () => {
@@ -69,7 +78,7 @@ describe("voice playback framework", () => {
 
   it("supports voice lifecycle statuses while keeping non-imported assets planned", () => {
     expect(ttsAssetStatuses).toEqual(["planned", "generated", "ready"]);
-    expect(TTS_DIALOGUE_MANIFEST.filter((asset) => asset.status === "ready")).toHaveLength(28);
+    expect(TTS_DIALOGUE_MANIFEST.filter((asset) => asset.status === "ready")).toHaveLength(37);
     expect(
       TTS_DIALOGUE_MANIFEST.filter((asset) => !readyVoiceAssets.some(([audioKey]) => audioKey === asset.audioKey))
         .every((asset) => asset.status === "planned"),

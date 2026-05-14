@@ -34,6 +34,15 @@ const readyVoiceFilePaths: Record<string, string> = {
   "zhang-bao-intro": "/audio/voices/enemies/zhang-bao-intro.mp3",
   "lu-bu-unmatched-pressure": "/audio/voices/lu-bu/lu-bu-unmatched-pressure.mp3",
   "lu-bu-warlord-recovery": "/audio/voices/lu-bu/lu-bu-warlord-recovery.mp3",
+  "yellow-turban-soldier-defeated": "/audio/voices/enemies/yellow-turban-soldier-defeated.mp3",
+  "yellow-turban-archer-defeated": "/audio/voices/enemies/yellow-turban-archer-defeated.mp3",
+  "yellow-turban-brute-defeated": "/audio/voices/enemies/yellow-turban-brute-defeated.mp3",
+  "bandit-leader-defeated": "/audio/voices/enemies/bandit-leader-defeated.mp3",
+  "black-mountain-general-defeated": "/audio/voices/enemies/black-mountain-general-defeated.mp3",
+  "xiliang-cavalry-defeated": "/audio/voices/enemies/xiliang-cavalry-defeated.mp3",
+  "zhang-liang-defeated": "/audio/voices/enemies/zhang-liang-defeated.mp3",
+  "zhang-bao-defeated": "/audio/voices/enemies/zhang-bao-defeated.mp3",
+  "lu-bu-defeated": "/audio/voices/enemies/lu-bu-defeated.mp3",
 };
 
 export interface TtsDialogueAsset {
