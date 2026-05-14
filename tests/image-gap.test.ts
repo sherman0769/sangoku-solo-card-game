@@ -5,15 +5,12 @@ import {
   CHAPTER_1_READY_IMAGE_MANIFEST,
 } from "@/lib/game/imageGapManifest";
 
-const enemyGapIds = [
+const importedP0ImageIds = [
   "enemy-yellow-turban-archer",
   "enemy-yellow-turban-brute",
   "enemy-black-mountain-general",
   "enemy-zhang-liang",
   "enemy-zhang-bao",
-] as const;
-
-const stageGapIds = [
   "stage-mountain-ambush",
   "stage-ruined-temple-night",
   "stage-black-mountain-camp",
@@ -42,24 +39,32 @@ const routeEventGapIds = [
 
 describe("chapter one image gap manifest", () => {
   it("contains planned chapter one image gaps", () => {
-    expect(CHAPTER_1_IMAGE_GAP_MANIFEST).toHaveLength(23);
+    expect(CHAPTER_1_IMAGE_GAP_MANIFEST).toHaveLength(12);
     expect(CHAPTER_1_IMAGE_GAP_MANIFEST.every((item) => item.status === "planned")).toBe(true);
   });
 
-  it("contains five enemy image gaps", () => {
+  it("moves imported enemy and stage P0 images out of the gap manifest", () => {
+    const gapIds = CHAPTER_1_IMAGE_GAP_MANIFEST.map((item) => item.id);
+    const readyIds = CHAPTER_1_READY_IMAGE_MANIFEST.map((item) => item.id);
+
+    importedP0ImageIds.forEach((id) => {
+      expect(gapIds).not.toContain(id);
+      expect(readyIds).toContain(id);
+    });
+  });
+
+  it("contains no enemy image gaps", () => {
     const enemyGaps = CHAPTER_1_IMAGE_GAP_MANIFEST.filter(
       (item) => item.type === "enemy" || item.type === "mini-boss",
     );
 
-    expect(enemyGaps).toHaveLength(5);
-    expect(enemyGaps.map((item) => item.id)).toEqual(enemyGapIds);
+    expect(enemyGaps).toHaveLength(0);
   });
 
-  it("contains six stage background gaps", () => {
+  it("contains no stage background gaps", () => {
     const stageGaps = CHAPTER_1_IMAGE_GAP_MANIFEST.filter((item) => item.type === "stage-background");
 
-    expect(stageGaps).toHaveLength(6);
-    expect(stageGaps.map((item) => item.id)).toEqual(stageGapIds);
+    expect(stageGaps).toHaveLength(0);
   });
 
   it("contains three route image gaps", () => {
@@ -92,7 +97,7 @@ describe("chapter one image gap manifest", () => {
     });
   });
 
-  it("lists the ready homepage, hero, enemy, boss, and stage images", () => {
+  it("lists the ready homepage, hero, enemy, boss, and all stage images", () => {
     expect(CHAPTER_1_READY_IMAGE_MANIFEST.map((item) => item.id)).toEqual(
       expect.arrayContaining([
         "home-hero",
@@ -100,13 +105,25 @@ describe("chapter one image gap manifest", () => {
         "hero-zhao-yun",
         "hero-zhuge-liang",
         "enemy-yellow-turban-soldier",
+        "enemy-yellow-turban-archer",
+        "enemy-yellow-turban-brute",
         "enemy-bandit-leader",
+        "enemy-black-mountain-general",
         "enemy-xiliang-cavalry",
+        "enemy-zhang-liang",
+        "enemy-zhang-bao",
         "enemy-lu-bu",
         "stage-abandoned-village",
+        "stage-mountain-ambush",
+        "stage-ruined-temple-night",
+        "stage-black-mountain-camp",
+        "stage-xiliang-charge",
+        "stage-ancient-battlefield",
+        "stage-yellow-turban-altar",
         "stage-hulao-gate",
       ]),
     );
+    expect(CHAPTER_1_READY_IMAGE_MANIFEST).toHaveLength(21);
     expect(CHAPTER_1_READY_IMAGE_MANIFEST.every((item) => item.status === "ready")).toBe(true);
   });
 

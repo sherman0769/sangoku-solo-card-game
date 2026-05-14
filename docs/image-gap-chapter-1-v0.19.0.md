@@ -1,8 +1,10 @@
-# 第一章圖片缺口清單 v0.19.0-pre
+# 第一章圖片缺口清單 v0.19.0
 
 ## 1. 文件目的
 
-本文件整理《三國單騎傳》第一章「黃巾亂起」目前已完成與尚未完成的圖片資產，作為後續 AI 圖像批量生成清單。v0.19.0-pre 只建立文件與結構化 manifest，不新增真實圖片，也不把不存在的圖片標記為 ready。
+本文件整理《三國單騎傳》第一章「黃巾亂起」目前已完成與尚未完成的圖片資產，作為後續 AI 圖像批量生成與導入清單。
+
+v0.19.0 已導入 P0 圖片：5 張敵人 / mini-boss 立繪與 6 張關卡背景。第一章所有敵人圖與 8 個關卡背景圖已補齊。剩餘缺口只包含 3 張路線圖片與 9 張路線事件圖片。
 
 結構化資料位於 `lib/game/imageGapManifest.ts`：
 
@@ -40,36 +42,26 @@
 | hero-zhao-yun | 趙雲 | hero | /images/heroes/zhao-yun.png | 武將選擇、遊戲玩家面板 | ready |
 | hero-zhuge-liang | 諸葛亮 | hero | /images/heroes/zhuge-liang.png | 武將選擇、遊戲玩家面板 | ready |
 | enemy-yellow-turban-soldier | 黃巾兵 | enemy | /images/enemies/yellow-turban-soldier.png | 敵人面板 | ready |
+| enemy-yellow-turban-archer | 黃巾弓手 | enemy | /images/enemies/yellow-turban-archer.png | 敵人面板 | ready |
+| enemy-yellow-turban-brute | 黃巾力士 | enemy | /images/enemies/yellow-turban-brute.png | 敵人面板 | ready |
 | enemy-bandit-leader | 山賊頭目 | enemy | /images/enemies/bandit-leader.png | 敵人面板 | ready |
+| enemy-black-mountain-general | 黑山賊將 | enemy | /images/enemies/black-mountain-general.png | 敵人面板 | ready |
 | enemy-xiliang-cavalry | 西涼騎兵 | enemy | /images/enemies/xiliang-cavalry.png | 敵人面板 | ready |
+| enemy-zhang-liang | 張梁 | mini-boss | /images/enemies/zhang-liang.png | 第 7 關 mini-boss | ready |
+| enemy-zhang-bao | 張寶 | mini-boss | /images/enemies/zhang-bao.png | 第 7 關 mini-boss | ready |
 | enemy-lu-bu | 呂布 | boss | /images/enemies/lu-bu.png | Boss 敵人面板 | ready |
 | stage-abandoned-village | 荒村初戰背景 | stage-background | /images/stages/abandoned-village.png | 第 1 關背景 | ready |
+| stage-mountain-ambush | 山道伏兵 | stage-background | /images/stages/mountain-ambush.png | 第 2 關背景 | ready |
+| stage-ruined-temple-night | 破廟夜戰 | stage-background | /images/stages/ruined-temple-night.png | 第 3 關背景 | ready |
+| stage-black-mountain-camp | 黑山賊寨 | stage-background | /images/stages/black-mountain-camp.png | 第 4 關背景 | ready |
+| stage-xiliang-charge | 西涼突騎 | stage-background | /images/stages/xiliang-charge.png | 第 5 關背景 | ready |
+| stage-ancient-battlefield | 古戰場遺跡 | stage-background | /images/stages/ancient-battlefield.png | 第 6 關背景 | ready |
+| stage-yellow-turban-altar | 黃巾祭壇 | stage-background | /images/stages/yellow-turban-altar.png | 第 7 關背景 | ready |
 | stage-hulao-gate | 虎牢關前背景 | stage-background | /images/stages/hulao-gate.png | 第 8 關背景 | ready |
 
 ## 4. 尚未完成圖片清單
 
-### P0：敵人圖片缺口
-
-| id | name | type | 建議比例 | 建議路徑 | 使用位置 | 優先級 | status |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| enemy-yellow-turban-archer | 黃巾弓手 | enemy | 3:4 | public/images/enemies/yellow-turban-archer.png | 敵人面板 | P0 | planned |
-| enemy-yellow-turban-brute | 黃巾力士 | enemy | 3:4 | public/images/enemies/yellow-turban-brute.png | 敵人面板 | P0 | planned |
-| enemy-black-mountain-general | 黑山賊將 | enemy | 3:4 | public/images/enemies/black-mountain-general.png | 敵人面板 | P0 | planned |
-| enemy-zhang-liang | 張梁 | mini-boss | 3:4 | public/images/enemies/zhang-liang.png | 第 7 關 mini-boss | P0 | planned |
-| enemy-zhang-bao | 張寶 | mini-boss | 3:4 | public/images/enemies/zhang-bao.png | 第 7 關 mini-boss | P0 | planned |
-
-### P0：關卡背景缺口
-
-| id | name | type | 建議比例 | 建議路徑 | 使用位置 | 優先級 | status |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| stage-mountain-ambush | 山道伏兵 | stage-background | 9:16 或 16:9 | public/images/stages/mountain-ambush.png | 第 2 關背景 | P0 | planned |
-| stage-ruined-temple-night | 破廟夜戰 | stage-background | 9:16 或 16:9 | public/images/stages/ruined-temple-night.png | 第 3 關背景 | P0 | planned |
-| stage-black-mountain-camp | 黑山賊寨 | stage-background | 9:16 或 16:9 | public/images/stages/black-mountain-camp.png | 第 4 關背景 | P0 | planned |
-| stage-xiliang-charge | 西涼突騎 | stage-background | 9:16 或 16:9 | public/images/stages/xiliang-charge.png | 第 5 關背景 | P0 | planned |
-| stage-ancient-battlefield | 古戰場遺跡 | stage-background | 9:16 或 16:9 | public/images/stages/ancient-battlefield.png | 第 6 關背景 | P0 | planned |
-| stage-yellow-turban-altar | 黃巾祭壇 | stage-background | 9:16 或 16:9 | public/images/stages/yellow-turban-altar.png | 第 7 關背景 | P0 | planned |
-
-荒村初戰與虎牢關前已完成，不列為缺口。
+P0 敵人圖片與 P0 關卡背景已於 v0.19.0 完成。剩餘缺口只保留 P1 路線圖片與 P2 路線事件圖片。
 
 ### P1：路線圖片缺口
 
@@ -95,22 +87,21 @@
 
 ## 5. 生成優先級
 
-- P0：先補齊敵人與關卡背景。這些會直接影響第一章戰鬥辨識與關卡沉浸感，共 11 筆。
+- P0：已完成，包含 5 張敵人 / mini-boss 立繪與 6 張關卡背景。
 - P1：補齊三條路線選擇圖，強化路線風格差異，共 3 筆。
 - P2：補齊 9 個路線事件圖，用於後續事件展示強化。
 
-`CHAPTER_1_IMAGE_GAP_MANIFEST` 目前共有 23 筆：P0 11 筆、P1 3 筆、P2 9 筆。
+`CHAPTER_1_IMAGE_GAP_MANIFEST` 目前共有 12 筆：P1 3 筆、P2 9 筆。
 
 ## 6. 建議比例
 
-- 敵人與 mini-boss：3:4，適合敵人面板與卡牌式立繪。
-- 關卡背景：9:16 或 16:9。若要優先服務手機直屏，可先產 9:16；若要沿用現有關卡背景容器，可產 16:9。
-- 路線與路線事件：9:16，適合手機直屏與未來事件卡展示。
+- 路線圖片：9:16，適合手機直屏與路線選擇卡。
+- 路線事件：9:16，適合手機直屏與未來事件卡展示。
+- 已完成敵人與 mini-boss：3:4。
+- 已完成關卡背景：以目前 UI 容器顯示為主，保留 fallback 防護。
 
 ## 7. 建議檔案路徑
 
-- 敵人與 mini-boss：`public/images/enemies/{id-without-enemy-prefix}.png`
-- 關卡背景：`public/images/stages/{stage-key}.png`
 - 路線圖片：`public/images/routes/{route-key}.png`
 - 路線事件：`public/images/events/{route-event-key}.png`
 
@@ -120,17 +111,6 @@
 
 | id | promptZh |
 | --- | --- |
-| enemy-yellow-turban-archer | 三國亂世中的黃巾弓手，身穿破舊黃布甲，手持長弓，站在煙塵戰場邊緣，背後有殘破黃巾旗幟，東方史詩卡牌風，半寫實，電影感光影，無文字 |
-| enemy-yellow-turban-brute | 黃巾力士，高大壯碩的亂軍戰士，粗布甲與黃巾符布，雙手握著沉重木槌，踏在泥濘戰場上，東方史詩卡牌風，半寫實，壓迫感光影，無文字 |
-| enemy-black-mountain-general | 黑山賊將，深色皮甲與鐵片護肩，手持大刀與盾牌，身後是山寨木柵與黑旗，沉穩兇悍的賊將氣勢，東方史詩卡牌風，半寫實，無文字 |
-| enemy-zhang-liang | 張梁，黃巾軍人公將軍，黃巾戰甲與符咒披帶，手持長兵器站在祭壇火光前，狂熱威壓，三國亂世 mini-boss 立繪，東方史詩卡牌風，半寫實，無文字 |
-| enemy-zhang-bao | 張寶，黃巾軍地公將軍，術士將領造型，手持法杖與符紙，身後妖風與祭壇火盆，詭譎沉著，三國亂世 mini-boss 立繪，東方史詩卡牌風，半寫實，無文字 |
-| stage-mountain-ambush | 狹窄山道伏兵場景，兩側密林與霧氣，遠處黃巾旗影若隱若現，地面有車轍與落葉，緊張伏擊氛圍，東方史詩卡牌風，半寫實場景，電影感光影，無文字 |
-| stage-ruined-temple-night | 破敗古廟夜戰背景，殘破神像、斷裂樑柱與搖曳火光，門外敵影逼近，夜色壓迫而不血腥，東方史詩卡牌風，半寫實，電影感光影，無文字 |
-| stage-black-mountain-camp | 黑山賊寨背景，山間木柵高牆、黑旗、巡邏火把與簡陋哨塔，遠處山霧壓低天空，賊寨守備森嚴，東方史詩卡牌風，半寫實場景，無文字 |
-| stage-xiliang-charge | 西涼突騎戰場背景，荒原塵土飛揚，遠方鐵騎隊形衝鋒，長槍與旌旗形成壓迫線條，三國亂世戰場，東方史詩卡牌風，半寫實，電影感，無文字 |
-| stage-ancient-battlefield | 古戰場遺跡背景，斷戟殘旗、荒草、破碎戰車與黃昏雲層，地面散落舊甲片，史詩荒涼感，東方史詩卡牌風，半寫實場景，電影感光影，無文字 |
-| stage-yellow-turban-altar | 黃巾祭壇背景，符咒飄動、火盆環繞、破舊黃巾旗與詭異雲光，祭壇中央留出戰鬥空間，神秘危險但不恐怖血腥，東方史詩卡牌風，半寫實，無文字 |
 | route-mountain-path | 三國亂世山道路線圖，崎嶇小徑穿過深林與山霧，遠處有清泉微光與隱約軍旗，生存補給感，手機直屏 9:16，東方史詩卡牌風，半寫實，無文字 |
 | route-official-road | 三國亂世官道路線圖，古代大道延伸遠方，車轍、驛站旗幟與殘存軍令木牌，穩定情報與主線推進感，手機直屏 9:16，東方史詩卡牌風，半寫實，無文字 |
 | route-dangerous-pass | 三國亂世險道路線圖，絕壁山隘、破碎古戰場遺跡與遠處伏兵火光，危險與奇遇並存，手機直屏 9:16，東方史詩卡牌風，半寫實，電影感光影，無文字 |
@@ -148,17 +128,6 @@
 
 | id | promptEn |
 | --- | --- |
-| enemy-yellow-turban-archer | A Yellow Turban archer in the chaotic Three Kingdoms era, wearing worn yellow cloth armor, holding a longbow at the edge of a smoky battlefield, torn Yellow Turban banners behind, eastern epic card game style, semi-realistic, cinematic lighting, no text. |
-| enemy-yellow-turban-brute | A Yellow Turban brute, a massive rebel warrior with rough cloth armor and yellow talisman cloth, gripping a heavy wooden maul with both hands on a muddy battlefield, eastern epic card game style, semi-realistic, imposing cinematic lighting, no text. |
-| enemy-black-mountain-general | A Black Mountain bandit general in dark leather armor with iron shoulder plates, holding a broad blade and shield, wooden mountain fort and black banners behind, calm but fierce commander presence, eastern epic card game style, semi-realistic, no text. |
-| enemy-zhang-liang | Zhang Liang, a Yellow Turban general, wearing yellow rebel armor with talisman sashes, holding a polearm before altar flames, fanatical and intimidating mini-boss portrait in the Three Kingdoms chaos, eastern epic card game style, semi-realistic, no text. |
-| enemy-zhang-bao | Zhang Bao, a Yellow Turban sorcerer general, holding a ritual staff and talisman papers, eerie wind and altar braziers behind him, mysterious and composed mini-boss portrait in the Three Kingdoms chaos, eastern epic card game style, semi-realistic, no text. |
-| stage-mountain-ambush | A narrow mountain road ambush scene, dense forest and mist on both sides, faint Yellow Turban banners in the distance, wheel tracks and fallen leaves on the ground, tense ambush atmosphere, eastern epic card game style, semi-realistic environment, cinematic lighting, no text. |
-| stage-ruined-temple-night | A ruined ancient temple at night for a battle scene, broken statues, cracked beams and flickering firelight, enemy silhouettes approaching outside, oppressive but non-gory atmosphere, eastern epic card game style, semi-realistic, cinematic lighting, no text. |
-| stage-black-mountain-camp | A Black Mountain bandit camp background, wooden palisades in the mountains, black banners, patrol torches and rough watchtowers, mountain mist under a heavy sky, heavily guarded bandit stronghold, eastern epic card game style, semi-realistic environment, no text. |
-| stage-xiliang-charge | A Xiliang cavalry charge battlefield background, dust rising across a wasteland, distant armored riders charging in formation, spears and banners creating strong pressure lines, Three Kingdoms chaotic battlefield, eastern epic card game style, semi-realistic, cinematic, no text. |
-| stage-ancient-battlefield | An ancient battlefield ruin background, broken halberds, torn banners, wild grass, shattered war carts and dusk clouds, old armor fragments scattered on the ground, epic desolate mood, eastern epic card game style, semi-realistic environment, cinematic lighting, no text. |
-| stage-yellow-turban-altar | A Yellow Turban altar background, talismans fluttering, braziers around the altar, worn yellow banners and eerie cloud light, clear central space for battle composition, mysterious and dangerous without gore, eastern epic card game style, semi-realistic, no text. |
 | route-mountain-path | A mountain path route image in the chaotic Three Kingdoms era, rugged trail through deep forest and mist, faint spring glow and distant banners, survival and supply mood, mobile vertical 9:16, eastern epic card game style, semi-realistic, no text. |
 | route-official-road | An official road route image in the chaotic Three Kingdoms era, ancient road stretching into the distance, wheel tracks, relay station banners and remnant military order markers, stable intelligence and main-route feeling, mobile vertical 9:16, eastern epic card game style, semi-realistic, no text. |
 | route-dangerous-pass | A dangerous pass route image in the chaotic Three Kingdoms era, cliffside mountain pass, broken ancient battlefield relics and distant ambush firelight, danger and rare opportunity together, mobile vertical 9:16, eastern epic card game style, semi-realistic, cinematic lighting, no text. |
@@ -174,12 +143,13 @@
 
 ## 10. 批量生成檢查表
 
-- [ ] 先生成 P0：5 張敵人 / mini-boss 立繪與 6 張關卡背景。
+- [x] P0 敵人 / mini-boss 立繪已導入。
+- [x] P0 關卡背景已導入。
+- [ ] 生成 P1：3 張路線圖片。
+- [ ] 生成 P2：9 張路線事件圖片。
 - [ ] 確認所有圖都沒有文字、水印、Logo。
 - [ ] 確認所有圖都沒有模仿現有影視 / 遊戲 / 動漫 IP。
 - [ ] 確認所有圖都不使用受版權保護角色造型。
 - [ ] 確認所有圖避免血腥暴力，適合教學展示。
-- [ ] 確認敵人與 mini-boss 為 3:4，關卡背景可用 9:16 或 16:9。
 - [ ] 檔名與建議路徑完全一致。
-- [ ] 放入 `public/images` 後，再逐筆更新遊戲資料路徑，不要一次改動無檔案項目。
 - [ ] 導入時確認 fallback 仍可在圖片缺失或載入失敗時正常顯示。

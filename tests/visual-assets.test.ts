@@ -10,8 +10,8 @@ import { getStageConfig } from "@/lib/game/stages";
 import { VISUAL_ASSET_MANIFEST } from "@/lib/game/visualAssetManifest";
 
 describe("visual asset manifest", () => {
-  it("contains the first ten planned visual assets", () => {
-    expect(VISUAL_ASSET_MANIFEST).toHaveLength(10);
+  it("contains the imported visual assets", () => {
+    expect(VISUAL_ASSET_MANIFEST).toHaveLength(21);
   });
 
   it("includes required fields for every asset", () => {
@@ -56,9 +56,15 @@ describe("visual asset manifest", () => {
     );
   });
 
-  it("includes two stage background assets", () => {
+  it("includes all eight stage background assets", () => {
     expect(getAssetIdsByType("stage-background")).toEqual([
       "stage-abandoned-village",
+      "stage-mountain-ambush",
+      "stage-ruined-temple-night",
+      "stage-black-mountain-camp",
+      "stage-xiliang-charge",
+      "stage-ancient-battlefield",
+      "stage-yellow-turban-altar",
       "stage-hulao-gate",
     ]);
   });
@@ -69,12 +75,23 @@ describe("visual asset manifest", () => {
     expect(getHeroPortrait("zhuge-liang")).toBe("/images/heroes/zhuge-liang.png");
   });
 
-  it("uses imported PNG portraits for the second enemy image batch", () => {
+  it("uses imported PNG portraits for all chapter one enemies", () => {
     expect(getEnemyPortrait("yellow-turban-soldier")).toBe(
       "/images/enemies/yellow-turban-soldier.png",
     );
+    expect(getEnemyPortrait("yellow-turban-archer")).toBe(
+      "/images/enemies/yellow-turban-archer.png",
+    );
+    expect(getEnemyPortrait("yellow-turban-brute")).toBe(
+      "/images/enemies/yellow-turban-brute.png",
+    );
     expect(getEnemyPortrait("bandit-leader")).toBe("/images/enemies/bandit-leader.png");
+    expect(getEnemyPortrait("black-mountain-general")).toBe(
+      "/images/enemies/black-mountain-general.png",
+    );
     expect(getEnemyPortrait("xiliang-cavalry")).toBe("/images/enemies/xiliang-cavalry.png");
+    expect(getEnemyPortrait("zhang-liang")).toBe("/images/enemies/zhang-liang.png");
+    expect(getEnemyPortrait("zhang-bao")).toBe("/images/enemies/zhang-bao.png");
     expect(getEnemyPortrait("lu-bu")).toBe("/images/enemies/lu-bu.png");
   });
 
@@ -82,36 +99,50 @@ describe("visual asset manifest", () => {
     expect(getAssetPath("enemy-yellow-turban-soldier")).toBe(
       "/images/enemies/yellow-turban-soldier.png",
     );
+    expect(getAssetPath("enemy-yellow-turban-archer")).toBe(
+      "/images/enemies/yellow-turban-archer.png",
+    );
+    expect(getAssetPath("enemy-yellow-turban-brute")).toBe(
+      "/images/enemies/yellow-turban-brute.png",
+    );
     expect(getAssetPath("enemy-bandit-leader")).toBe("/images/enemies/bandit-leader.png");
+    expect(getAssetPath("enemy-black-mountain-general")).toBe(
+      "/images/enemies/black-mountain-general.png",
+    );
     expect(getAssetPath("enemy-xiliang-cavalry")).toBe("/images/enemies/xiliang-cavalry.png");
+    expect(getAssetPath("enemy-zhang-liang")).toBe("/images/enemies/zhang-liang.png");
+    expect(getAssetPath("enemy-zhang-bao")).toBe("/images/enemies/zhang-bao.png");
     expect(getAssetPath("enemy-lu-bu")).toBe("/images/enemies/lu-bu.png");
   });
 
-  it("keeps non-imported enemies on placeholder fallback keys", () => {
-    expect(getEnemyPortrait("yellow-turban-archer")).toBe("enemy-yellow-turban-archer");
-    expect(getEnemyPortrait("yellow-turban-brute")).toBe("enemy-yellow-turban-brute");
-    expect(getEnemyPortrait("black-mountain-general")).toBe("enemy-black-mountain-general");
-    expect(getEnemyPortrait("zhang-liang")).toBe("enemy-zhang-liang");
-    expect(getEnemyPortrait("zhang-bao")).toBe("enemy-zhang-bao");
-  });
-
-  it("uses imported PNG backgrounds for the first stage background batch", () => {
+  it("uses imported PNG backgrounds for all chapter one stages", () => {
     expect(getStageConfig(1).backgroundImage).toBe("/images/stages/abandoned-village.png");
+    expect(getStageConfig(2).backgroundImage).toBe("/images/stages/mountain-ambush.png");
+    expect(getStageConfig(3).backgroundImage).toBe("/images/stages/ruined-temple-night.png");
+    expect(getStageConfig(4).backgroundImage).toBe("/images/stages/black-mountain-camp.png");
+    expect(getStageConfig(5).backgroundImage).toBe("/images/stages/xiliang-charge.png");
+    expect(getStageConfig(6).backgroundImage).toBe("/images/stages/ancient-battlefield.png");
+    expect(getStageConfig(7).backgroundImage).toBe("/images/stages/yellow-turban-altar.png");
     expect(getStageConfig(8).backgroundImage).toBe("/images/stages/hulao-gate.png");
   });
 
   it("updates imported stage manifest paths to PNG", () => {
     expect(getAssetPath("stage-abandoned-village")).toBe("/images/stages/abandoned-village.png");
+    expect(getAssetPath("stage-mountain-ambush")).toBe("/images/stages/mountain-ambush.png");
+    expect(getAssetPath("stage-ruined-temple-night")).toBe(
+      "/images/stages/ruined-temple-night.png",
+    );
+    expect(getAssetPath("stage-black-mountain-camp")).toBe(
+      "/images/stages/black-mountain-camp.png",
+    );
+    expect(getAssetPath("stage-xiliang-charge")).toBe("/images/stages/xiliang-charge.png");
+    expect(getAssetPath("stage-ancient-battlefield")).toBe(
+      "/images/stages/ancient-battlefield.png",
+    );
+    expect(getAssetPath("stage-yellow-turban-altar")).toBe(
+      "/images/stages/yellow-turban-altar.png",
+    );
     expect(getAssetPath("stage-hulao-gate")).toBe("/images/stages/hulao-gate.png");
-  });
-
-  it("keeps non-imported stages on placeholder fallback keys", () => {
-    expect(getStageConfig(2).backgroundImage).toBe("stage-mountain-ambush");
-    expect(getStageConfig(3).backgroundImage).toBe("stage-ruined-temple-night");
-    expect(getStageConfig(4).backgroundImage).toBe("stage-black-mountain-fort");
-    expect(getStageConfig(5).backgroundImage).toBe("stage-xiliang-cavalry");
-    expect(getStageConfig(6).backgroundImage).toBe("stage-ancient-battlefield");
-    expect(getStageConfig(7).backgroundImage).toBe("stage-yellow-turban-altar");
   });
 
   it("uses image paths when available and falls back when missing or failed", () => {

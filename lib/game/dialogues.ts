@@ -8,13 +8,13 @@ const heroPortraits: Record<HeroId, string> = {
 
 const enemyPortraits: Record<string, string> = {
   "yellow-turban-soldier": "/images/enemies/yellow-turban-soldier.png",
-  "yellow-turban-archer": "enemy-yellow-turban-archer",
-  "yellow-turban-brute": "enemy-yellow-turban-brute",
+  "yellow-turban-archer": "/images/enemies/yellow-turban-archer.png",
+  "yellow-turban-brute": "/images/enemies/yellow-turban-brute.png",
   "bandit-leader": "/images/enemies/bandit-leader.png",
-  "black-mountain-general": "enemy-black-mountain-general",
+  "black-mountain-general": "/images/enemies/black-mountain-general.png",
   "xiliang-cavalry": "/images/enemies/xiliang-cavalry.png",
-  "zhang-liang": "enemy-zhang-liang",
-  "zhang-bao": "enemy-zhang-bao",
+  "zhang-liang": "/images/enemies/zhang-liang.png",
+  "zhang-bao": "/images/enemies/zhang-bao.png",
   "lu-bu": "/images/enemies/lu-bu.png",
 };
 

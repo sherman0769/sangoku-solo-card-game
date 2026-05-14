@@ -9,7 +9,13 @@ export type ImageGapAssetType =
   | "route"
   | "route-event";
 
-export type ReadyImageAssetType = "cover" | "hero" | "enemy" | "boss" | "stage-background";
+export type ReadyImageAssetType =
+  | "cover"
+  | "hero"
+  | "enemy"
+  | "mini-boss"
+  | "boss"
+  | "stage-background";
 
 export interface ReadyImageAsset {
   id: string;
@@ -118,174 +124,97 @@ export const CHAPTER_1_READY_IMAGE_MANIFEST: ReadyImageAsset[] = [
     usage: "第 8 關背景",
     status: "ready",
   },
-];
-
-export const CHAPTER_1_IMAGE_GAP_MANIFEST: ImageGapAsset[] = [
   {
     id: "enemy-yellow-turban-archer",
     name: "黃巾弓手",
     type: "enemy",
-    priority: "P0",
-    aspectRatio: "3:4",
-    path: "public/images/enemies/yellow-turban-archer.png",
+    path: "/images/enemies/yellow-turban-archer.png",
     usage: "敵人面板",
-    promptZh:
-      "三國亂世中的黃巾弓手，身穿破舊黃布甲，手持長弓，站在煙塵戰場邊緣，背後有殘破黃巾旗幟，東方史詩卡牌風，半寫實，電影感光影，無文字",
-    promptEn:
-      "A Yellow Turban archer in the chaotic Three Kingdoms era, wearing worn yellow cloth armor, holding a longbow at the edge of a smoky battlefield, torn Yellow Turban banners behind, eastern epic card game style, semi-realistic, cinematic lighting, no text.",
-    negativePrompt: sharedNegativePrompt,
-    status: "planned",
+    status: "ready",
   },
   {
     id: "enemy-yellow-turban-brute",
     name: "黃巾力士",
     type: "enemy",
-    priority: "P0",
-    aspectRatio: "3:4",
-    path: "public/images/enemies/yellow-turban-brute.png",
+    path: "/images/enemies/yellow-turban-brute.png",
     usage: "敵人面板",
-    promptZh:
-      "黃巾力士，高大壯碩的亂軍戰士，粗布甲與黃巾符布，雙手握著沉重木槌，踏在泥濘戰場上，東方史詩卡牌風，半寫實，壓迫感光影，無文字",
-    promptEn:
-      "A Yellow Turban brute, a massive rebel warrior with rough cloth armor and yellow talisman cloth, gripping a heavy wooden maul with both hands on a muddy battlefield, eastern epic card game style, semi-realistic, imposing cinematic lighting, no text.",
-    negativePrompt: sharedNegativePrompt,
-    status: "planned",
+    status: "ready",
   },
   {
     id: "enemy-black-mountain-general",
     name: "黑山賊將",
     type: "enemy",
-    priority: "P0",
-    aspectRatio: "3:4",
-    path: "public/images/enemies/black-mountain-general.png",
+    path: "/images/enemies/black-mountain-general.png",
     usage: "敵人面板",
-    promptZh:
-      "黑山賊將，深色皮甲與鐵片護肩，手持大刀與盾牌，身後是山寨木柵與黑旗，沉穩兇悍的賊將氣勢，東方史詩卡牌風，半寫實，無文字",
-    promptEn:
-      "A Black Mountain bandit general in dark leather armor with iron shoulder plates, holding a broad blade and shield, wooden mountain fort and black banners behind, calm but fierce commander presence, eastern epic card game style, semi-realistic, no text.",
-    negativePrompt: sharedNegativePrompt,
-    status: "planned",
+    status: "ready",
   },
   {
     id: "enemy-zhang-liang",
     name: "張梁",
     type: "mini-boss",
-    priority: "P0",
-    aspectRatio: "3:4",
-    path: "public/images/enemies/zhang-liang.png",
+    path: "/images/enemies/zhang-liang.png",
     usage: "第 7 關 mini-boss",
-    promptZh:
-      "張梁，黃巾軍人公將軍，黃巾戰甲與符咒披帶，手持長兵器站在祭壇火光前，狂熱威壓，三國亂世 mini-boss 立繪，東方史詩卡牌風，半寫實，無文字",
-    promptEn:
-      "Zhang Liang, a Yellow Turban general, wearing yellow rebel armor with talisman sashes, holding a polearm before altar flames, fanatical and intimidating mini-boss portrait in the Three Kingdoms chaos, eastern epic card game style, semi-realistic, no text.",
-    negativePrompt: sharedNegativePrompt,
-    status: "planned",
+    status: "ready",
   },
   {
     id: "enemy-zhang-bao",
     name: "張寶",
     type: "mini-boss",
-    priority: "P0",
-    aspectRatio: "3:4",
-    path: "public/images/enemies/zhang-bao.png",
+    path: "/images/enemies/zhang-bao.png",
     usage: "第 7 關 mini-boss",
-    promptZh:
-      "張寶，黃巾軍地公將軍，術士將領造型，手持法杖與符紙，身後妖風與祭壇火盆，詭譎沉著，三國亂世 mini-boss 立繪，東方史詩卡牌風，半寫實，無文字",
-    promptEn:
-      "Zhang Bao, a Yellow Turban sorcerer general, holding a ritual staff and talisman papers, eerie wind and altar braziers behind him, mysterious and composed mini-boss portrait in the Three Kingdoms chaos, eastern epic card game style, semi-realistic, no text.",
-    negativePrompt: sharedNegativePrompt,
-    status: "planned",
+    status: "ready",
   },
   {
     id: "stage-mountain-ambush",
     name: "山道伏兵",
     type: "stage-background",
-    priority: "P0",
-    aspectRatio: "9:16 或 16:9",
-    path: "public/images/stages/mountain-ambush.png",
+    path: "/images/stages/mountain-ambush.png",
     usage: "第 2 關背景",
-    promptZh:
-      "狹窄山道伏兵場景，兩側密林與霧氣，遠處黃巾旗影若隱若現，地面有車轍與落葉，緊張伏擊氛圍，東方史詩卡牌風，半寫實場景，電影感光影，無文字",
-    promptEn:
-      "A narrow mountain road ambush scene, dense forest and mist on both sides, faint Yellow Turban banners in the distance, wheel tracks and fallen leaves on the ground, tense ambush atmosphere, eastern epic card game style, semi-realistic environment, cinematic lighting, no text.",
-    negativePrompt: sharedNegativePrompt,
-    status: "planned",
+    status: "ready",
   },
   {
     id: "stage-ruined-temple-night",
     name: "破廟夜戰",
     type: "stage-background",
-    priority: "P0",
-    aspectRatio: "9:16 或 16:9",
-    path: "public/images/stages/ruined-temple-night.png",
+    path: "/images/stages/ruined-temple-night.png",
     usage: "第 3 關背景",
-    promptZh:
-      "破敗古廟夜戰背景，殘破神像、斷裂樑柱與搖曳火光，門外敵影逼近，夜色壓迫而不血腥，東方史詩卡牌風，半寫實，電影感光影，無文字",
-    promptEn:
-      "A ruined ancient temple at night for a battle scene, broken statues, cracked beams and flickering firelight, enemy silhouettes approaching outside, oppressive but non-gory atmosphere, eastern epic card game style, semi-realistic, cinematic lighting, no text.",
-    negativePrompt: sharedNegativePrompt,
-    status: "planned",
+    status: "ready",
   },
   {
     id: "stage-black-mountain-camp",
     name: "黑山賊寨",
     type: "stage-background",
-    priority: "P0",
-    aspectRatio: "9:16 或 16:9",
-    path: "public/images/stages/black-mountain-camp.png",
+    path: "/images/stages/black-mountain-camp.png",
     usage: "第 4 關背景",
-    promptZh:
-      "黑山賊寨背景，山間木柵高牆、黑旗、巡邏火把與簡陋哨塔，遠處山霧壓低天空，賊寨守備森嚴，東方史詩卡牌風，半寫實場景，無文字",
-    promptEn:
-      "A Black Mountain bandit camp background, wooden palisades in the mountains, black banners, patrol torches and rough watchtowers, mountain mist under a heavy sky, heavily guarded bandit stronghold, eastern epic card game style, semi-realistic environment, no text.",
-    negativePrompt: sharedNegativePrompt,
-    status: "planned",
+    status: "ready",
   },
   {
     id: "stage-xiliang-charge",
     name: "西涼突騎",
     type: "stage-background",
-    priority: "P0",
-    aspectRatio: "9:16 或 16:9",
-    path: "public/images/stages/xiliang-charge.png",
+    path: "/images/stages/xiliang-charge.png",
     usage: "第 5 關背景",
-    promptZh:
-      "西涼突騎戰場背景，荒原塵土飛揚，遠方鐵騎隊形衝鋒，長槍與旌旗形成壓迫線條，三國亂世戰場，東方史詩卡牌風，半寫實，電影感，無文字",
-    promptEn:
-      "A Xiliang cavalry charge battlefield background, dust rising across a wasteland, distant armored riders charging in formation, spears and banners creating strong pressure lines, Three Kingdoms chaotic battlefield, eastern epic card game style, semi-realistic, cinematic, no text.",
-    negativePrompt: sharedNegativePrompt,
-    status: "planned",
+    status: "ready",
   },
   {
     id: "stage-ancient-battlefield",
     name: "古戰場遺跡",
     type: "stage-background",
-    priority: "P0",
-    aspectRatio: "9:16 或 16:9",
-    path: "public/images/stages/ancient-battlefield.png",
+    path: "/images/stages/ancient-battlefield.png",
     usage: "第 6 關背景",
-    promptZh:
-      "古戰場遺跡背景，斷戟殘旗、荒草、破碎戰車與黃昏雲層，地面散落舊甲片，史詩荒涼感，東方史詩卡牌風，半寫實場景，電影感光影，無文字",
-    promptEn:
-      "An ancient battlefield ruin background, broken halberds, torn banners, wild grass, shattered war carts and dusk clouds, old armor fragments scattered on the ground, epic desolate mood, eastern epic card game style, semi-realistic environment, cinematic lighting, no text.",
-    negativePrompt: sharedNegativePrompt,
-    status: "planned",
+    status: "ready",
   },
   {
     id: "stage-yellow-turban-altar",
     name: "黃巾祭壇",
     type: "stage-background",
-    priority: "P0",
-    aspectRatio: "9:16 或 16:9",
-    path: "public/images/stages/yellow-turban-altar.png",
+    path: "/images/stages/yellow-turban-altar.png",
     usage: "第 7 關背景",
-    promptZh:
-      "黃巾祭壇背景，符咒飄動、火盆環繞、破舊黃巾旗與詭異雲光，祭壇中央留出戰鬥空間，神秘危險但不恐怖血腥，東方史詩卡牌風，半寫實，無文字",
-    promptEn:
-      "A Yellow Turban altar background, talismans fluttering, braziers around the altar, worn yellow banners and eerie cloud light, clear central space for battle composition, mysterious and dangerous without gore, eastern epic card game style, semi-realistic, no text.",
-    negativePrompt: sharedNegativePrompt,
-    status: "planned",
+    status: "ready",
   },
+];
+
+export const CHAPTER_1_IMAGE_GAP_MANIFEST: ImageGapAsset[] = [
   {
     id: "route-mountain-path",
     name: "山道",

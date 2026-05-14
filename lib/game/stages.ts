@@ -22,7 +22,7 @@ export const chapterStages: ChapterStageConfig[] = [
     type: "normal",
     enemyIds: ["yellow-turban-archer", "yellow-turban-brute"],
     flavorText: "山道狹窄，伏兵隱於林間。",
-    backgroundImage: "stage-mountain-ambush",
+    backgroundImage: "/images/stages/mountain-ambush.png",
     visualPrompt: "狹窄山道，密林伏兵，霧氣與旗影交錯，緊張的三國戰場背景",
   },
   {
@@ -31,7 +31,7 @@ export const chapterStages: ChapterStageConfig[] = [
     type: "event-heavy",
     enemyIds: ["yellow-turban-soldier", "bandit-leader"],
     flavorText: "破廟燈火搖曳，敵影在夜色中逼近。",
-    backgroundImage: "stage-ruined-temple-night",
+    backgroundImage: "/images/stages/ruined-temple-night.png",
     visualPrompt: "破敗古廟，夜色火光，殘破神像與逼近敵影，懸疑三國亂世背景",
   },
   {
@@ -40,7 +40,7 @@ export const chapterStages: ChapterStageConfig[] = [
     type: "elite",
     enemyIds: ["bandit-leader", "black-mountain-general"],
     flavorText: "黑山賊寨盤踞山間，守備森嚴。",
-    backgroundImage: "stage-black-mountain-fort",
+    backgroundImage: "/images/stages/black-mountain-camp.png",
     visualPrompt: "山間賊寨，木柵高牆，黑旗與巡邏火把，壓迫感三國山寨背景",
   },
   {
@@ -49,7 +49,7 @@ export const chapterStages: ChapterStageConfig[] = [
     type: "elite",
     enemyIds: ["xiliang-cavalry", "black-mountain-general"],
     flavorText: "馬蹄聲急，西涼騎兵席捲而來。",
-    backgroundImage: "stage-xiliang-cavalry",
+    backgroundImage: "/images/stages/xiliang-charge.png",
     visualPrompt: "荒原塵土飛揚，西涼騎兵衝鋒，鐵騎與長槍形成高速壓迫，電影感背景",
   },
   {
@@ -58,7 +58,7 @@ export const chapterStages: ChapterStageConfig[] = [
     type: "event-heavy",
     enemyIds: ["yellow-turban-brute", "xiliang-cavalry"],
     flavorText: "古戰場埋藏著舊日兵戈，也藏著未知危機。",
-    backgroundImage: "stage-ancient-battlefield",
+    backgroundImage: "/images/stages/ancient-battlefield.png",
     visualPrompt: "古戰場遺跡，斷戟殘旗，黃昏荒草與沉重雲層，史詩三國背景",
   },
   {
@@ -67,7 +67,7 @@ export const chapterStages: ChapterStageConfig[] = [
     type: "mini-boss",
     enemyIds: ["zhang-liang", "zhang-bao"],
     flavorText: "祭壇妖風四起，黃巾殘部正進行詭異儀式。",
-    backgroundImage: "stage-yellow-turban-altar",
+    backgroundImage: "/images/stages/yellow-turban-altar.png",
     visualPrompt: "黃巾祭壇，符咒飄動，妖風與火盆環繞，神秘危險的三國術法背景",
   },
   {
