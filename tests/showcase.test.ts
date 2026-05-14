@@ -22,7 +22,7 @@ import { canPlayVoice } from "@/lib/game/voice";
 
 describe("showcase and onboarding copy", () => {
   it("includes homepage how-to and current feature copy", () => {
-    expect(currentVersionLabel).toBe("v0.21.0 背景音樂系統版");
+    expect(currentVersionLabel).toBe("v0.21.1 手機戰鬥 UX 強化版");
     expect(howToSteps.map((step) => step.title)).toEqual([
       "選擇武將",
       "進入戰鬥",
@@ -63,6 +63,9 @@ describe("showcase and onboarding copy", () => {
     );
     expect(currentFeatureHighlights).toContain(
       "第一章 P0 語音已導入：八關旁白、敵人登場、Boss 特性與勝敗語音陸續完成。",
+    );
+    expect(currentFeatureHighlights).toContain(
+      "手機戰鬥 UX 強化：底部操作區更集中，敵人敗退與選擇階段提示更清楚。",
     );
     expect(currentFeatureHighlights).toContain(
       "背景音樂系統：首頁、一般戰鬥與 Boss 戰已導入不同 BGM。",

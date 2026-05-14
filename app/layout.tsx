@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "三國單騎傳",
-  description: "v0.21.0 背景音樂系統版：首頁、一般戰鬥與 Boss 戰已導入不同 BGM。",
+  description: "v0.21.1 手機戰鬥 UX 強化版：底部操作區更集中，敵人敗退與選擇階段提示更清楚。",
 };
 
 export default function RootLayout({

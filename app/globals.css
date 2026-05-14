@@ -195,6 +195,29 @@ body {
   }
 }
 
+@keyframes selectable-card-glow {
+  0%,
+  100% {
+    box-shadow: 0 16px 34px rgba(0, 0, 0, 0.34);
+  }
+  50% {
+    box-shadow:
+      0 0 0 1px rgba(251, 191, 36, 0.6),
+      0 0 28px rgba(251, 191, 36, 0.18),
+      0 16px 34px rgba(0, 0, 0, 0.34);
+  }
+}
+
+@keyframes choice-pulse {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-1px);
+  }
+}
+
 .animate-shake-hit {
   animation: shake-hit 420ms ease-in-out;
 }
@@ -241,4 +264,26 @@ body {
 
 .animate-boss-panel-flash {
   animation: boss-panel-flash 980ms ease-out;
+}
+
+.selectable-card-glow {
+  animation: selectable-card-glow 1.9s ease-in-out infinite;
+}
+
+.choice-pulse {
+  animation: choice-pulse 1.4s ease-in-out infinite;
+}
+
+.defeated-grayscale {
+  filter: grayscale(1) brightness(0.72);
+}
+
+.defeated-stamp {
+  border: 2px solid rgba(254, 226, 226, 0.9);
+  background: rgba(127, 29, 29, 0.76);
+  box-shadow: 0 0 24px rgba(248, 113, 113, 0.32);
+}
+
+.bottom-action-safe-area {
+  padding-bottom: calc(0.75rem + env(safe-area-inset-bottom));
 }

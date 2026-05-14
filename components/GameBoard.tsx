@@ -43,6 +43,12 @@ import {
 } from "@/lib/game/voice";
 import { getSpeakerTypeLabel } from "@/lib/game/dialogues";
 import { getEventTypeLabel } from "@/lib/game/events";
+import {
+  getChoicePhasePrompt,
+  getEnemyDefeatedStampLabel,
+  getMobileBottomActionHint,
+  isChoicePhase,
+} from "@/lib/game/mobileBattleUx";
 import { getRouteEventTypeLabel } from "@/lib/game/routeEvents";
 import {
   createGame,
@@ -203,6 +209,12 @@ function GameBoardContent({
     ? state.stageConfig.backgroundImage
     : undefined;
   const activeBgmTrackId = state.enemy.id === "lu-bu" ? "boss-theme" : "battle-theme";
+  const enemyDefeated = state.enemyHealth <= 0 || state.status === "won";
+  const enemyDefeatedStamp = getEnemyDefeatedStampLabel(state.enemy.type === "boss");
+  const choicePhasePrompt = getChoicePhasePrompt(state.phase);
+  const mobileBottomActionHint = getMobileBottomActionHint(state.phase);
+  const showMobileHand = state.phase === "player";
+  const showMobileChoiceHint = isChoicePhase(state.phase);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -614,7 +626,7 @@ function GameBoardContent({
   }
 
   return (
-    <main className="min-h-screen overflow-x-hidden bg-[#140c09] bg-[radial-gradient(circle_at_top_left,rgba(127,29,29,0.34),transparent_34%),linear-gradient(135deg,#1b100b_0%,#2a120d_45%,#090605_100%)] px-4 pb-[330px] pt-4 text-stone-100 sm:px-6 sm:py-5 lg:px-8">
+    <main className="min-h-screen overflow-x-hidden bg-[#140c09] bg-[radial-gradient(circle_at_top_left,rgba(127,29,29,0.34),transparent_34%),linear-gradient(135deg,#1b100b_0%,#2a120d_45%,#090605_100%)] px-4 pb-[360px] pt-4 text-stone-100 sm:px-6 sm:py-5 lg:px-8">
       {eventToast ? <EventToastView key={eventToast.id} toast={eventToast} /> : null}
       <div className="mx-auto min-w-0 max-w-[calc(100vw-2rem)] sm:max-w-[calc(100vw-3rem)] lg:max-w-7xl">
         <header className="rounded-xl border border-amber-700/40 bg-black/30 p-4 shadow-[0_18px_45px_rgba(0,0,0,0.35)] backdrop-blur sm:flex sm:items-end sm:justify-between">
@@ -623,7 +635,7 @@ function GameBoardContent({
               {state.chapter.name} · 第 {state.enemyIndex + 1} 關 / {totalStages} ·
               第 {state.turn} 回合
             </p>
-            <h1 className="mt-2 text-3xl font-black tracking-normal text-amber-50 sm:text-4xl">
+            <h1 className="mt-2 text-2xl font-black tracking-normal text-amber-50 sm:text-4xl">
               三國單騎傳
             </h1>
             <p className="mt-2 break-words text-sm leading-6 text-stone-300">
@@ -678,7 +690,7 @@ function GameBoardContent({
         {stageNotice ? (
           <section
             key={stageNotice.id}
-            className="animate-fade-in mt-5 rounded-xl border border-amber-300/50 bg-amber-950/45 p-4 text-center shadow-[0_18px_45px_rgba(0,0,0,0.35)]"
+            className="animate-fade-in mt-5 hidden rounded-xl border border-amber-300/50 bg-amber-950/45 p-4 text-center shadow-[0_18px_45px_rgba(0,0,0,0.35)] md:block"
           >
             <p className="text-sm font-black uppercase tracking-[0.2em] text-amber-200">
               {stageNotice.title}
@@ -689,7 +701,25 @@ function GameBoardContent({
           </section>
         ) : null}
 
-        <section className="mt-5 rounded-xl border border-amber-400/45 bg-amber-950/30 p-4 shadow-[0_18px_45px_rgba(0,0,0,0.28)]">
+            <MobileBattleHud
+              enemyName={state.enemy.name}
+              enemyType={getEnemyTypeLabel(state.enemy.type)}
+              enemyHealth={`${state.enemyHealth}/${state.enemy.maxHealth}`}
+              enemyStatuses={enemyStatuses}
+              enemyPortrait={state.enemy.portrait.startsWith("/") ? state.enemy.portrait : undefined}
+              enemyPrompt={state.enemy.visualPrompt}
+              enemyFeedback={panelFeedback?.target === "enemy" ? panelFeedback : undefined}
+              enemyDefeated={enemyDefeated}
+              enemyDefeatedStamp={enemyDefeatedStamp}
+              playerName={state.player.name}
+              playerHealth={`${state.player.health}/${state.player.maxHealth}`}
+              playerStatuses={playerStatuses}
+              playerPortrait={currentHero.portrait}
+              playerPrompt={currentHero.visualPrompt}
+              playerFeedback={panelFeedback?.target === "player" ? panelFeedback : undefined}
+            />
+
+            <section className="mt-5 hidden rounded-xl border border-amber-400/45 bg-amber-950/30 p-4 shadow-[0_18px_45px_rgba(0,0,0,0.28)] md:block">
           <p className="text-xs font-black uppercase tracking-[0.2em] text-amber-200">
             提示
           </p>
@@ -701,22 +731,6 @@ function GameBoardContent({
         <DialoguePanel dialogue={state.currentDialogue} />
         <BossTraitAlertOverlay alert={bossTraitAlert} />
         <DefeatedAlertOverlay alert={defeatedAlert} />
-
-        <MobileBattleHud
-          enemyName={state.enemy.name}
-          enemyType={getEnemyTypeLabel(state.enemy.type)}
-          enemyHealth={`${state.enemyHealth}/${state.enemy.maxHealth}`}
-          enemyStatuses={enemyStatuses}
-          enemyPortrait={state.enemy.portrait.startsWith("/") ? state.enemy.portrait : undefined}
-          enemyPrompt={state.enemy.visualPrompt}
-          enemyFeedback={panelFeedback?.target === "enemy" ? panelFeedback : undefined}
-          playerName={state.player.name}
-          playerHealth={`${state.player.health}/${state.player.maxHealth}`}
-          playerStatuses={playerStatuses}
-          playerPortrait={currentHero.portrait}
-          playerPrompt={currentHero.visualPrompt}
-          playerFeedback={panelFeedback?.target === "player" ? panelFeedback : undefined}
-        />
 
         {stageBackgroundSrc ? (
           <section className="relative mt-5 hidden overflow-hidden rounded-xl border border-sky-300/30 bg-stone-950/55 shadow-[0_18px_45px_rgba(0,0,0,0.28)] sm:block">
@@ -809,6 +823,8 @@ function GameBoardContent({
                 visualPrompt={state.enemy.visualPrompt}
                 visualObjectPosition={getEnemyObjectPosition(state.enemy.id)}
                 visualEmphasis={state.enemy.type === "boss"}
+                defeated={enemyDefeated}
+                defeatedStamp={enemyDefeatedStamp}
                 details={[
                   `類型：${getEnemyTypeLabel(state.enemy.type)}`,
                   `特性：${state.enemy.traits.join("、")}`,
@@ -825,10 +841,8 @@ function GameBoardContent({
             </div>
 
             {state.phase === "observe" && state.pendingObservation ? (
-              <section className="rounded-xl border border-purple-400/50 bg-purple-950/55 p-5 text-purple-50 shadow-[0_18px_45px_rgba(0,0,0,0.35)]">
-                <p className="text-xs font-bold uppercase tracking-[0.2em] text-amber-200">
-                  諸葛亮技能
-                </p>
+              <section className="selectable-card-glow rounded-xl border border-purple-300/60 bg-purple-950/55 p-5 text-purple-50 shadow-[0_18px_45px_rgba(0,0,0,0.35)]">
+                <ChoicePhaseHeader eyebrow="諸葛亮技能" title={choicePhasePrompt ?? "請選擇觀星牌"} />
                 <h2 className="mt-2 text-2xl font-black">觀星</h2>
                 <p className="mt-2 text-sm leading-6 text-purple-100">
                   選擇一張牌加入手牌，其餘放回牌堆底。選完後會再抽
@@ -836,21 +850,20 @@ function GameBoardContent({
                 </p>
                 <div className="mt-5 grid gap-4 md:grid-cols-3">
                   {state.pendingObservation.cards.map((card) => (
-                    <CardView
-                      key={card.id}
-                      card={card}
-                      onPlay={handleSelectObservation}
-                    />
+                    <div key={card.id} className="selectable-card-glow choice-pulse rounded-lg">
+                      <CardView
+                        card={card}
+                        onPlay={handleSelectObservation}
+                      />
+                    </div>
                   ))}
                 </div>
               </section>
             ) : null}
 
             {state.phase === "event" && state.currentEvent ? (
-              <section className={`rounded-xl border p-5 shadow-[0_18px_45px_rgba(0,0,0,0.35)] ${getEventFrameClass(state.currentEvent.type)}`}>
-                <p className="text-xs font-bold uppercase tracking-[0.2em] text-amber-200">
-                  事件
-                </p>
+              <section className={`selectable-card-glow rounded-xl border p-5 shadow-[0_18px_45px_rgba(0,0,0,0.35)] ${getEventFrameClass(state.currentEvent.type)}`}>
+                <ChoicePhaseHeader eyebrow="事件" title={choicePhasePrompt ?? "請處理事件"} />
                 <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div>
                     <h2 className="text-2xl font-black text-stone-50">
@@ -916,10 +929,8 @@ function GameBoardContent({
             ) : null}
 
             {state.phase === "reward" ? (
-              <section className="rounded-xl border border-purple-400/50 bg-purple-950/50 p-5 text-purple-50 shadow-[0_18px_45px_rgba(0,0,0,0.35)]">
-                <p className="text-xs font-bold uppercase tracking-[0.2em] text-amber-200">
-                  戰後獎勵
-                </p>
+              <section className="selectable-card-glow rounded-xl border border-purple-300/60 bg-purple-950/50 p-5 text-purple-50 shadow-[0_18px_45px_rgba(0,0,0,0.35)]">
+                <ChoicePhaseHeader eyebrow="戰後獎勵" title={choicePhasePrompt ?? "請選擇一項戰後獎勵"} />
                 <h2 className="mt-2 text-2xl font-black">選擇一項強化</h2>
                 <p className="mt-2 text-sm leading-6 text-purple-100">
                   選擇一項強化，繼續下一場戰鬥。
@@ -937,10 +948,8 @@ function GameBoardContent({
             ) : null}
 
             {state.phase === "route" ? (
-              <section className="rounded-xl border border-amber-400/50 bg-stone-950/70 p-5 text-stone-50 shadow-[0_18px_45px_rgba(0,0,0,0.35)]">
-                <p className="text-xs font-bold uppercase tracking-[0.2em] text-amber-200">
-                  {routeSelectionCopy.title}
-                </p>
+              <section className="selectable-card-glow rounded-xl border border-amber-300/60 bg-stone-950/70 p-5 text-stone-50 shadow-[0_18px_45px_rgba(0,0,0,0.35)]">
+                <ChoicePhaseHeader eyebrow={routeSelectionCopy.title} title={choicePhasePrompt ?? "請選擇路線"} />
                 <h2 className="mt-2 text-2xl font-black">選擇路線風格</h2>
                 <p className="mt-2 text-sm leading-6 text-stone-300">
                   {routeSelectionCopy.description}
@@ -958,10 +967,8 @@ function GameBoardContent({
             ) : null}
 
             {state.phase === "routeEvent" && state.currentRouteEvent && state.selectedRoute ? (
-              <section className={`rounded-xl border p-5 shadow-[0_18px_45px_rgba(0,0,0,0.35)] ${getRouteEventFrameClass(state.selectedRoute.id)}`}>
-                <p className="text-xs font-bold uppercase tracking-[0.2em] text-amber-200">
-                  路線事件
-                </p>
+              <section className={`selectable-card-glow rounded-xl border p-5 shadow-[0_18px_45px_rgba(0,0,0,0.35)] ${getRouteEventFrameClass(state.selectedRoute.id)}`}>
+                <ChoicePhaseHeader eyebrow="路線事件" title={choicePhasePrompt ?? "請處理路線事件"} />
                 <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div>
                     <p className="text-sm font-black text-stone-200">
@@ -993,7 +1000,7 @@ function GameBoardContent({
                     }
                     alt={`${state.currentRouteEvent.name}事件圖`}
                     variant="vertical"
-                    className="mx-auto max-h-[360px] w-full max-w-[260px] rounded-md border border-white/10 sm:max-h-[420px]"
+                    className="mx-auto max-h-[220px] w-full max-w-[190px] rounded-md border border-white/10 sm:max-h-[420px] sm:max-w-[260px]"
                     imageClassName="object-cover"
                     sizes="(min-width: 768px) 260px, 75vw"
                     fallbackType="event"
@@ -1018,13 +1025,17 @@ function GameBoardContent({
               </section>
             ) : null}
 
-            <section className="fixed inset-x-0 bottom-0 z-40 border-t border-amber-700/50 bg-stone-950/95 p-3 shadow-[0_-18px_45px_rgba(0,0,0,0.45)] backdrop-blur md:static md:rounded-xl md:border md:border-amber-700/40 md:bg-black/25 md:p-4 md:shadow-[0_18px_45px_rgba(0,0,0,0.3)] md:backdrop-blur-none">
+            <section className="bottom-action-safe-area fixed inset-x-0 bottom-0 z-40 border-t border-amber-700/50 bg-stone-950/95 p-3 shadow-[0_-18px_45px_rgba(0,0,0,0.45)] backdrop-blur md:static md:rounded-xl md:border md:border-amber-700/40 md:bg-black/25 md:p-4 md:shadow-[0_18px_45px_rgba(0,0,0,0.3)] md:backdrop-blur-none">
               <div className="mx-auto max-w-7xl md:mx-0 md:max-w-none">
                 <div className="flex items-center justify-between gap-3">
                   <div>
-                    <h2 className="text-base font-black text-amber-50 sm:text-xl">手牌</h2>
+                    <h2 className="text-base font-black text-amber-50 sm:text-xl">
+                      {showMobileChoiceHint ? "目前選擇" : "手牌"}
+                    </h2>
                     <p className="text-xs font-bold text-stone-400 md:hidden">
-                      {state.phase === "defense" ? "敵人攻擊中" : `士氣 ${state.player.morale}/${state.player.maxMorale}`}
+                      {state.phase === "player"
+                        ? `士氣 ${state.player.morale}/${state.player.maxMorale}`
+                        : mobileBottomActionHint}
                     </p>
                   </div>
                   {state.phase === "defense" && state.pendingDefense ? (
@@ -1041,9 +1052,13 @@ function GameBoardContent({
                         onClick={() => handleResolveDefense(false)}
                         className="h-10 rounded-md border border-red-300/70 px-4 text-sm font-black text-red-50 transition hover:bg-red-800"
                       >
-                        承受
+                        承受傷害
                       </button>
                     </div>
+                  ) : showMobileChoiceHint ? (
+                    <span className="hidden rounded-md border border-amber-300/50 bg-amber-500/15 px-4 py-2 text-sm font-black text-amber-50 md:inline-flex">
+                      {choicePhasePrompt}
+                    </span>
                   ) : (
                     <button
                       type="button"
@@ -1055,12 +1070,12 @@ function GameBoardContent({
                     </button>
                   )}
                 </div>
-                {state.phase !== "player" && state.phase !== "defense" ? (
-                  <p className="mt-3 rounded-md border border-stone-700 bg-black/25 px-3 py-2 text-xs font-bold text-stone-300 md:hidden">
-                    目前請在上方完成階段選擇。
+                {showMobileChoiceHint ? (
+                  <p className="choice-pulse mt-3 rounded-md border border-amber-300/55 bg-amber-500/15 px-3 py-2 text-sm font-black text-amber-50 md:hidden">
+                    請選擇一項繼續
                   </p>
                 ) : null}
-                <div className={`${state.phase === "player" ? "mt-3 flex" : "hidden md:grid"} -mx-3 gap-3 overflow-x-auto px-3 pb-2 md:mx-0 md:mt-4 md:grid md:grid-cols-2 md:gap-4 md:overflow-visible md:px-0 md:pb-0 xl:grid-cols-3`}>
+                <div className={`${showMobileHand ? "mt-3 flex" : "hidden md:grid"} -mx-3 gap-3 overflow-x-auto px-3 pb-2 md:mx-0 md:mt-4 md:grid md:grid-cols-2 md:gap-4 md:overflow-visible md:px-0 md:pb-0 xl:grid-cols-3`}>
                   {state.hand.map((card) => (
                     <div key={card.id} className="w-40 shrink-0 md:w-auto">
                       <CardView
@@ -1175,8 +1190,8 @@ function DialoguePanel({ dialogue }: { dialogue?: DialogueLine }) {
   const speakerTypeLabel = dialogue ? getSpeakerTypeLabel(dialogue.speakerType) : "旁白";
 
   return (
-    <section className="mt-5 rounded-xl border border-amber-300/45 bg-stone-950/70 p-4 shadow-[0_18px_45px_rgba(0,0,0,0.28)]">
-      <div className="flex items-start gap-4">
+    <section className="mt-3 rounded-xl border border-amber-300/45 bg-stone-950/70 p-3 shadow-[0_18px_45px_rgba(0,0,0,0.28)] sm:mt-5 sm:p-4">
+      <div className="flex items-start gap-3 sm:gap-4">
         <div className="hidden h-12 w-12 shrink-0 items-center justify-center rounded-full border border-amber-300/50 bg-amber-500/15 text-lg font-black text-amber-100 sm:flex">
           {dialogue?.speakerName.slice(0, 1) ?? "旁"}
         </div>
@@ -1192,7 +1207,7 @@ function DialoguePanel({ dialogue }: { dialogue?: DialogueLine }) {
               <span className="text-xs font-bold text-stone-400">{dialogue.tone}</span>
             ) : null}
           </div>
-          <p className="mt-3 break-words text-base font-bold leading-7 text-stone-100">
+          <p className="mt-2 break-words text-sm font-bold leading-6 text-stone-100 sm:mt-3 sm:text-base sm:leading-7">
             {dialogue?.text ?? "戰場寂靜，等待下一步行動。"}
           </p>
         </div>
@@ -1209,6 +1224,8 @@ function MobileBattleHud({
   enemyPortrait,
   enemyPrompt,
   enemyFeedback,
+  enemyDefeated,
+  enemyDefeatedStamp,
   playerName,
   playerHealth,
   playerStatuses,
@@ -1223,6 +1240,8 @@ function MobileBattleHud({
   enemyPortrait?: string;
   enemyPrompt?: string;
   enemyFeedback?: PanelFeedback;
+  enemyDefeated: boolean;
+  enemyDefeatedStamp: string;
   playerName: string;
   playerHealth: string;
   playerStatuses: string[];
@@ -1242,6 +1261,8 @@ function MobileBattleHud({
         visualLabel={enemyName}
         visualPrompt={enemyPrompt}
         feedback={enemyFeedback}
+        defeated={enemyDefeated}
+        defeatedStamp={enemyDefeatedStamp}
       />
       <MobileHudRow
         tone="player"
@@ -1319,6 +1340,8 @@ function MobileHudRow({
   visualLabel,
   visualPrompt,
   feedback,
+  defeated = false,
+  defeatedStamp,
 }: {
   tone: "enemy" | "player";
   eyebrow: string;
@@ -1329,6 +1352,8 @@ function MobileHudRow({
   visualLabel: string;
   visualPrompt?: string;
   feedback?: PanelFeedback;
+  defeated?: boolean;
+  defeatedStamp?: string;
 }) {
   const toneClass =
     tone === "enemy"
@@ -1345,8 +1370,11 @@ function MobileHudRow({
           ? "animate-damage-flash animate-shake-hit"
           : "";
 
+  const defeatedClass = defeated ? "opacity-75" : "";
+  const visualDefeatedClass = defeated ? "defeated-grayscale" : "";
+
   return (
-    <div className={`relative rounded-xl border p-3 shadow-[0_14px_34px_rgba(0,0,0,0.28)] ${toneClass} ${feedbackClass}`}>
+    <div className={`relative rounded-xl border p-3 shadow-[0_14px_34px_rgba(0,0,0,0.28)] ${toneClass} ${feedbackClass} ${defeatedClass}`}>
       {feedback ? (
         <span
           key={feedback.id}
@@ -1356,19 +1384,26 @@ function MobileHudRow({
         </span>
       ) : null}
       <div className="flex items-start gap-3">
-        <GameImage
-          src={portrait}
-          alt={`${visualLabel}立繪`}
-          variant="portrait"
-          objectPosition="50% 22%"
-          className="h-20 w-16 shrink-0 rounded-md border border-white/10"
-          imageClassName="object-cover"
-          sizes="64px"
-          fallbackType={tone === "enemy" ? "enemy" : "hero"}
-          fallbackLabel={visualLabel}
-          fallbackPrompt={visualPrompt}
-          fallbackCompact
-        />
+        <div className="relative shrink-0">
+          <GameImage
+            src={portrait}
+            alt={`${visualLabel}立繪`}
+            variant="portrait"
+            objectPosition="50% 22%"
+            className={`h-16 w-14 rounded-md border border-white/10 sm:h-20 sm:w-16 ${visualDefeatedClass}`}
+            imageClassName="object-cover"
+            sizes="64px"
+            fallbackType={tone === "enemy" ? "enemy" : "hero"}
+            fallbackLabel={visualLabel}
+            fallbackPrompt={visualPrompt}
+            fallbackCompact
+          />
+          {defeated && defeatedStamp ? (
+            <span className="defeated-stamp absolute inset-x-1 top-1/2 -translate-y-1/2 text-center text-xs font-black tracking-[0.14em] text-red-50">
+              {defeatedStamp}
+            </span>
+          ) : null}
+        </div>
         <div className="min-w-0">
           <p className="text-[11px] font-black uppercase tracking-[0.16em] text-amber-200">
             {eyebrow}
@@ -1622,6 +1657,8 @@ function CombatantPanel({
   visualPrompt,
   visualObjectPosition = "50% 24%",
   visualEmphasis = false,
+  defeated = false,
+  defeatedStamp,
   details,
   statuses,
   feedback,
@@ -1638,6 +1675,8 @@ function CombatantPanel({
   visualPrompt?: string;
   visualObjectPosition?: string;
   visualEmphasis?: boolean;
+  defeated?: boolean;
+  defeatedStamp?: string;
   details: string[];
   statuses: string[];
   feedback?: PanelFeedback;
@@ -1656,6 +1695,8 @@ function CombatantPanel({
   const criticalClass = statuses.some((status) => status === "瀕死" || status === "重傷")
     ? "animate-critical-pulse"
     : "";
+  const defeatedClass = defeated ? "opacity-75" : "";
+  const visualDefeatedClass = defeated ? "defeated-grayscale" : "";
 
   const feedbackClass =
     feedback?.tone === "heal"
@@ -1667,7 +1708,7 @@ function CombatantPanel({
           : "";
 
   return (
-    <section className={`relative rounded-xl border p-5 shadow-[0_18px_45px_rgba(0,0,0,0.35)] ${frameClass} ${feedbackClass} ${criticalClass}`}>
+    <section className={`relative rounded-xl border p-5 shadow-[0_18px_45px_rgba(0,0,0,0.35)] ${frameClass} ${feedbackClass} ${criticalClass} ${defeatedClass}`}>
       {feedback ? (
         <div
           key={feedback.id}
@@ -1694,19 +1735,26 @@ function CombatantPanel({
         </span>
       </div>
       <div className="mt-5 grid gap-4 sm:grid-cols-[minmax(120px,38%)_1fr] sm:items-start">
-        <GameImage
-          src={visualSrc}
-          alt={`${visualLabel}立繪`}
-          variant="portrait"
-          objectPosition={visualObjectPosition}
-          className={`mx-auto max-h-[300px] w-full max-w-[230px] sm:max-h-[320px] sm:max-w-none ${visualFrameClass}`}
-          imageClassName="object-cover"
-          sizes="(min-width: 1024px) 180px, (min-width: 768px) 38vw, 230px"
-          fallbackType={visualType}
-          fallbackLabel={visualLabel}
-          fallbackPrompt={visualPrompt}
-          fallbackCompact
-        />
+        <div className="relative mx-auto w-full max-w-[230px] sm:max-w-none">
+          <GameImage
+            src={visualSrc}
+            alt={`${visualLabel}立繪`}
+            variant="portrait"
+            objectPosition={visualObjectPosition}
+            className={`max-h-[300px] w-full sm:max-h-[320px] ${visualFrameClass} ${visualDefeatedClass}`}
+            imageClassName="object-cover"
+            sizes="(min-width: 1024px) 180px, (min-width: 768px) 38vw, 230px"
+            fallbackType={visualType}
+            fallbackLabel={visualLabel}
+            fallbackPrompt={visualPrompt}
+            fallbackCompact
+          />
+          {defeated && defeatedStamp ? (
+            <span className="defeated-stamp absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 px-4 py-2 text-2xl font-black tracking-[0.16em] text-red-50">
+              {defeatedStamp}
+            </span>
+          ) : null}
+        </div>
         <div className="min-w-0">
           <div className="flex items-center justify-between gap-4">
             <p className="text-lg font-black text-stone-50">{health}</p>
@@ -1789,12 +1837,23 @@ function getStageObjectPosition(stage: number) {
   return "50% 50%";
 }
 
+function ChoicePhaseHeader({ eyebrow, title }: { eyebrow: string; title: string }) {
+  return (
+    <div className="choice-pulse rounded-lg border border-amber-200/45 bg-amber-500/12 px-4 py-3">
+      <p className="text-xs font-bold uppercase tracking-[0.2em] text-amber-200">
+        {eyebrow}
+      </p>
+      <h2 className="mt-1 text-2xl font-black text-amber-50">{title}</h2>
+    </div>
+  );
+}
+
 function RewardCard({ reward, onChoose }: { reward: Reward; onChoose: () => void }) {
   return (
     <button
       type="button"
       onClick={onChoose}
-      className="min-h-44 rounded-lg border border-amber-300/50 bg-stone-950/80 p-4 text-left shadow-[0_16px_34px_rgba(0,0,0,0.34)] transition hover:-translate-y-1 hover:border-amber-200 hover:bg-purple-900/60"
+      className="selectable-card-glow choice-pulse min-h-44 rounded-lg border border-amber-200/70 bg-stone-950/80 p-4 text-left shadow-[0_16px_34px_rgba(0,0,0,0.34)] transition hover:-translate-y-1 hover:border-amber-100 hover:bg-purple-900/60 active:scale-[0.98]"
     >
       <span className="rounded-full border border-purple-300/40 bg-purple-500/15 px-3 py-1 text-xs font-black text-purple-100">
         {getRewardStyleHint(reward.id)}
@@ -1824,7 +1883,7 @@ function EventOptionCard({
     <button
       type="button"
       onClick={() => onChoose(optionId)}
-      className={`min-h-36 rounded-lg border p-4 text-left shadow-[0_16px_34px_rgba(0,0,0,0.34)] transition hover:-translate-y-1 ${getEventButtonClass(event.type)}`}
+      className={`selectable-card-glow choice-pulse min-h-36 rounded-lg border p-4 text-left shadow-[0_16px_34px_rgba(0,0,0,0.34)] transition hover:-translate-y-1 active:scale-[0.98] ${getEventButtonClass(event.type)}`}
     >
       <span className="rounded-full border border-white/25 bg-black/25 px-3 py-1 text-xs font-black text-stone-100">
         {getEventTypeLabel(event.type)}
@@ -1840,7 +1899,7 @@ function RouteCard({ route, onChoose }: { route: StageRoute; onChoose: () => voi
     <button
       type="button"
       onClick={onChoose}
-      className={`min-h-56 rounded-lg border p-4 text-left shadow-[0_16px_34px_rgba(0,0,0,0.34)] transition hover:-translate-y-1 ${getRouteButtonClass(route.id)}`}
+      className={`selectable-card-glow choice-pulse min-h-56 rounded-lg border p-4 text-left shadow-[0_16px_34px_rgba(0,0,0,0.34)] transition hover:-translate-y-1 active:scale-[0.98] ${getRouteButtonClass(route.id)}`}
     >
       <GameImage
         src={route.image.startsWith("/") ? route.image : undefined}
@@ -1892,7 +1951,7 @@ function RouteEventOptionCard({
     <button
       type="button"
       onClick={() => onChoose(optionId)}
-      className={`min-h-36 rounded-lg border p-4 text-left shadow-[0_16px_34px_rgba(0,0,0,0.34)] transition hover:-translate-y-1 ${getRouteEventButtonClass(routeId)}`}
+      className={`selectable-card-glow choice-pulse min-h-36 rounded-lg border p-4 text-left shadow-[0_16px_34px_rgba(0,0,0,0.34)] transition hover:-translate-y-1 active:scale-[0.98] ${getRouteEventButtonClass(routeId)}`}
     >
       <span className="rounded-full border border-white/25 bg-black/25 px-3 py-1 text-xs font-black text-stone-100">
         遭遇事件｜{getRouteEventTypeLabel(eventType)}
