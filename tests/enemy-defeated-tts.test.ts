@@ -57,7 +57,7 @@ describe("enemy defeated TTS import", () => {
     expect(canPlayVoice("lu-bu-defeated")).toBe(true);
   });
 
-  it("keeps route event TTS planned", () => {
+  it("keeps route event TTS ready after route event voice import", () => {
     [
       "route-mountain-spring",
       "route-hermit-guidance",
@@ -71,9 +71,9 @@ describe("enemy defeated TTS import", () => {
     ].forEach((audioKey) => {
       expect(getTtsAssetByAudioKey(audioKey)).toMatchObject({
         audioKey,
-        status: "planned",
+        status: "ready",
       });
-      expect(canPlayVoice(audioKey)).toBe(false);
+      expect(canPlayVoice(audioKey)).toBe(true);
     });
   });
 });

@@ -1,6 +1,6 @@
 import type { GamePhase } from "./types";
 
-export const currentVersionLabel = "v0.20.1 敵人擊敗 TTS 導入版";
+export const currentVersionLabel = "v0.20.2 路線事件 TTS 導入版";
 
 export const gameLoadingCopy = {
   title: "戰局準備中……",
@@ -70,7 +70,7 @@ export const currentFeatureHighlights = [
   "第一批 AI 圖像：首頁主視覺、關羽、趙雲、諸葛亮",
   "第二批敵人圖像：黃巾兵、山賊頭目、西涼騎兵、呂布",
   "第一批關卡背景：荒村初戰、虎牢關前",
-  "敵人擊敗語音：敵將敗退時會有旁白與音效回饋。",
+  "路線事件語音：山道、官道、險道事件現在具備圖片與旁白語音。",
   "視覺呈現優化：首頁、武將、敵人、Boss 與關卡背景手機版顯示",
   "人物台詞系統：武將台詞、敵人登場、章節旁白與勝敗旁白",
   "第一版音效系統：Web Audio API 提示音、手動開關與本機設定保存",

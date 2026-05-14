@@ -212,6 +212,7 @@ export interface RouteEvent {
   description: string;
   type: RouteEventType;
   image: string;
+  audioKey: string;
   options: RouteEventOption[];
   flavorText: string;
   weight?: number;

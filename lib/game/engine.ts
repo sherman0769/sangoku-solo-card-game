@@ -1455,9 +1455,10 @@ function createRouteNarratorDialogue(event: RouteEvent): DialogueLine {
     speakerId: "narrator",
     speakerName: "戰場旁白",
     speakerType: "narrator",
-    trigger: "stage_intro",
+    trigger: "route_event",
     text: event.flavorText,
     tone: "路線事件",
+    audioKey: event.audioKey,
   };
 }
 

@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "三國單騎傳",
-  description: "v0.20.1 敵人擊敗 TTS 導入版：敵將敗退時會有旁白與音效回饋。",
+  description: "v0.20.2 路線事件 TTS 導入版：山道、官道、險道事件現在具備圖片與旁白語音。",
 };
 
 export default function RootLayout({

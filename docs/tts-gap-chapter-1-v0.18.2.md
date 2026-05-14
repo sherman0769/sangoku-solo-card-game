@@ -2,7 +2,7 @@
 
 ## 1. 文件目的
 
-本文件整理《三國單騎傳》第一章「黃巾亂起」目前尚未導入真實音檔、但值得補齊的 TTS 台詞。v0.18.2 先建立缺口文件與結構化清單；v0.18.3 已導入 P0 批次 MP3；v0.20.1 已導入 9 筆敵人擊敗旁白，剩餘缺口以路線事件與武將戰鬥補充台詞為主。
+本文件整理《三國單騎傳》第一章「黃巾亂起」目前尚未導入真實音檔、但值得補齊的 TTS 台詞。v0.18.2 先建立缺口文件與結構化清單；v0.18.3 已導入 P0 批次 MP3；v0.20.1 已導入 9 筆敵人擊敗旁白；v0.20.2 已導入 9 筆路線事件旁白。剩餘缺口以武將戰鬥補充台詞為主。
 
 結構化資料位於 `lib/game/ttsGapManifest.ts` 的 `CHAPTER_1_TTS_GAP_MANIFEST`。後續可依照本文件與 batch 文件繼續生成剩餘 P1 / P2 MP3，放入建議路徑後，再逐筆將 status 改為 `ready`。
 
@@ -27,6 +27,15 @@
 | zhang-liang-defeated | 旁白 | 張梁怒吼未息，黃巾祭壇的火光卻已黯淡。 | /audio/voices/enemies/zhang-liang-defeated.mp3 | ready |
 | zhang-bao-defeated | 旁白 | 妖風散去，張寶的術法終究難逆天命。 | /audio/voices/enemies/zhang-bao-defeated.mp3 | ready |
 | lu-bu-defeated | 旁白 | 虎牢關前，戰神退去，第一章至此落幕。 | /audio/voices/enemies/lu-bu-defeated.mp3 | ready |
+| route-mountain-spring | 旁白 | 山風微涼，清泉洗去一路塵煙。 | /audio/voices/route-events/route-mountain-spring.mp3 | ready |
+| route-hermit-guidance | 旁白 | 隱士一語，勝過千軍探報。 | /audio/voices/route-events/route-hermit-guidance.mp3 | ready |
+| route-misty-path | 旁白 | 你避開了強敵，也失去了一部分準備時間。 | /audio/voices/route-events/route-misty-path.mp3 | ready |
+| route-post-station | 旁白 | 官道雖險，仍有殘存秩序可依。 | /audio/voices/route-events/route-post-station.mp3 | ready |
+| route-military-dispatch | 旁白 | 知敵先機，勝過一時勇武。 | /audio/voices/route-events/route-military-dispatch.mp3 | ready |
+| route-remnant-troops | 旁白 | 亂世之中，殘兵亦可成勢。 | /audio/voices/route-events/route-remnant-troops.mp3 | ready |
+| route-cliff-ambush | 旁白 | 險路藏殺機，也藏著更大的機會。 | /audio/voices/route-events/route-cliff-ambush.mp3 | ready |
+| route-battlefield-relic | 旁白 | 昔日名將遺物，仍在亂世中閃著寒光。 | /audio/voices/route-events/route-battlefield-relic.mp3 | ready |
+| route-night-raid | 旁白 | 勝負只在一念之間。 | /audio/voices/route-events/route-night-raid.mp3 | ready |
 
 ## 3. 尚未完成語音清單
 
@@ -82,19 +91,19 @@
 | zhang-bao-defeated | 旁白 | 妖風散去，張寶的術法終究難逆天命。 | /audio/voices/enemies/zhang-bao-defeated.mp3 | ready |
 | lu-bu-defeated | 旁白 | 虎牢關前，戰神退去，第一章至此落幕。 | /audio/voices/enemies/lu-bu-defeated.mp3 | ready |
 
-### P1：路線事件旁白
+### P1：路線事件旁白（v0.20.2 已導入）
 
 | audioKey | speakerName | text | 建議路徑 | status |
 |---|---|---|---|---|
-| route-mountain-spring | 旁白 | 山風微涼，清泉洗去一路塵煙。 | public/audio/narration/route-mountain-spring.mp3 | planned |
-| route-hermit-guidance | 旁白 | 隱士一語，勝過千軍探報。 | public/audio/narration/route-hermit-guidance.mp3 | planned |
-| route-misty-path | 旁白 | 你避開了強敵，也失去了一部分準備時間。 | public/audio/narration/route-misty-path.mp3 | planned |
-| route-post-station | 旁白 | 官道雖險，仍有殘存秩序可依。 | public/audio/narration/route-post-station.mp3 | planned |
-| route-military-dispatch | 旁白 | 知敵先機，勝過一時勇武。 | public/audio/narration/route-military-dispatch.mp3 | planned |
-| route-remnant-troops | 旁白 | 亂世之中，殘兵亦可成勢。 | public/audio/narration/route-remnant-troops.mp3 | planned |
-| route-cliff-ambush | 旁白 | 險路藏殺機，也藏著更大的機會。 | public/audio/narration/route-cliff-ambush.mp3 | planned |
-| route-battlefield-relic | 旁白 | 昔日名將遺物，仍在亂世中閃著寒光。 | public/audio/narration/route-battlefield-relic.mp3 | planned |
-| route-night-raid | 旁白 | 勝負只在一念之間。 | public/audio/narration/route-night-raid.mp3 | planned |
+| route-mountain-spring | 旁白 | 山風微涼，清泉洗去一路塵煙。 | /audio/voices/route-events/route-mountain-spring.mp3 | ready |
+| route-hermit-guidance | 旁白 | 隱士一語，勝過千軍探報。 | /audio/voices/route-events/route-hermit-guidance.mp3 | ready |
+| route-misty-path | 旁白 | 你避開了強敵，也失去了一部分準備時間。 | /audio/voices/route-events/route-misty-path.mp3 | ready |
+| route-post-station | 旁白 | 官道雖險，仍有殘存秩序可依。 | /audio/voices/route-events/route-post-station.mp3 | ready |
+| route-military-dispatch | 旁白 | 知敵先機，勝過一時勇武。 | /audio/voices/route-events/route-military-dispatch.mp3 | ready |
+| route-remnant-troops | 旁白 | 亂世之中，殘兵亦可成勢。 | /audio/voices/route-events/route-remnant-troops.mp3 | ready |
+| route-cliff-ambush | 旁白 | 險路藏殺機，也藏著更大的機會。 | /audio/voices/route-events/route-cliff-ambush.mp3 | ready |
+| route-battlefield-relic | 旁白 | 昔日名將遺物，仍在亂世中閃著寒光。 | /audio/voices/route-events/route-battlefield-relic.mp3 | ready |
+| route-night-raid | 旁白 | 勝負只在一念之間。 | /audio/voices/route-events/route-night-raid.mp3 | ready |
 
 ### P2：武將戰鬥補充台詞
 
@@ -119,10 +128,10 @@
 ## 4. 生成優先級
 
 - P0：v0.18.3 已導入八關開場旁白、敵人登場、呂布 Boss 特性、通關與戰敗旁白；不再列入 `CHAPTER_1_TTS_GAP_MANIFEST` 缺口。
-- P1：v0.20.1 已導入敵人被擊敗旁白；剩餘需補齊路線事件旁白，強化路線選擇的敘事回饋。
+- P1：v0.20.1 已導入敵人被擊敗旁白，v0.20.2 已導入路線事件旁白；不再列入 `CHAPTER_1_TTS_GAP_MANIFEST` 缺口。
 - P2：補齊武將戰鬥補充台詞，提升出牌、受傷、低血量與勝利時的角色感。
 
-v0.20.1 後，`CHAPTER_1_TTS_GAP_MANIFEST` 目前共有 24 筆：P1 9 筆、P2 15 筆。P0 20 筆與敵人擊敗旁白 9 筆已導入並改為 `ready`。
+v0.20.2 後，`CHAPTER_1_TTS_GAP_MANIFEST` 目前共有 15 筆：P2 15 筆。P0 20 筆、敵人擊敗旁白 9 筆與路線事件旁白 9 筆已導入並改為 `ready`。
 
 ## 5. 建議聲線
 
@@ -150,7 +159,7 @@ v0.20.1 後，`CHAPTER_1_TTS_GAP_MANIFEST` 目前共有 24 筆：P1 9 筆、P2 1
 - [ ] 依 speakerName 與 suggestedVoice 分批生成 MP3。
 - [ ] 確認檔名完全等於 `audioKey.mp3`。
 - [x] 已將 P1 敵人擊敗旁白放入 `public/audio/voices/enemies`，並於 v0.20.1 導入。
-- [ ] 繼續將 P1 路線事件旁白放入 `public/audio/narration`。
+- [x] 已將 P1 路線事件旁白放入 `public/audio/voices/route-events`，並於 v0.20.2 導入。
 - [ ] 將武將語音放入各自的 `public/audio/voices/{hero}` 資料夾。
 - [x] 已將 P0 一般敵人登場語音放入 `public/audio/voices/enemies`。
 - [x] 已將 P0 呂布 Boss 特性語音放入 `public/audio/voices/lu-bu`。

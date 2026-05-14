@@ -58,10 +58,10 @@ describe("chapter one P0 TTS voice import", () => {
     expect(CHAPTER_1_TTS_P0_BATCH_MANIFEST.every((item) => item.status === "ready")).toBe(true);
   });
 
-  it("keeps P1 and P2 gaps planned", () => {
-    expect(CHAPTER_1_TTS_GAP_MANIFEST).toHaveLength(24);
+  it("keeps remaining P2 gaps planned", () => {
+    expect(CHAPTER_1_TTS_GAP_MANIFEST).toHaveLength(15);
     expect(CHAPTER_1_TTS_GAP_MANIFEST.every((item) => item.status === "planned")).toBe(true);
-    expect(CHAPTER_1_TTS_GAP_MANIFEST.every((item) => item.priority === "P1" || item.priority === "P2")).toBe(true);
+    expect(CHAPTER_1_TTS_GAP_MANIFEST.every((item) => item.priority === "P2")).toBe(true);
     CHAPTER_1_TTS_GAP_MANIFEST.forEach((gap) => {
       expect(getTtsAssetByAudioKey(gap.audioKey)).toMatchObject({
         audioKey: gap.audioKey,

@@ -91,7 +91,8 @@
 - v0.18.1 已將 `guan-yu-preview`、`zhao-yun-preview`、`zhuge-liang-preview` 標記為 `ready`，用途為首頁武將選擇試聽語音，不同於遊戲內登場台詞；其他未導入音檔的素材仍維持 `planned`。
 - v0.18.3 已將第一章 P0 批次語音導入並標記為 `ready`：八關開場旁白、第一章敵人登場、呂布 Boss 特性、通關與戰敗旁白。
 - v0.20.1 已將 9 筆 `enemy_defeated` 敵人擊敗旁白語音標記為 `ready`，用途為敵人被擊敗後播放。
-- 路線事件旁白與武將戰鬥語音仍維持 `planned`。
+- v0.20.2 已將 9 筆 `route_event` 路線事件旁白語音標記為 `ready`，用途為 routeEvent phase 遇到山道、官道、險道事件時播放。
+- 武將戰鬥語音仍維持 `planned`。
 - 生成後音檔建議使用 MP3，放入上表的 `suggestedFilePath`。
 - 不要在音檔中加入背景音樂、Logo 音、水印或額外口白。
 - 角色語音應保留清楚斷句，避免過度戲劇化。
@@ -118,3 +119,17 @@
 | zhang-liang-defeated | ready | /audio/voices/enemies/zhang-liang-defeated.mp3 | 敵人被擊敗後播放 |
 | zhang-bao-defeated | ready | /audio/voices/enemies/zhang-bao-defeated.mp3 | 敵人被擊敗後播放 |
 | lu-bu-defeated | ready | /audio/voices/enemies/lu-bu-defeated.mp3 | 敵人被擊敗後播放 |
+
+## v0.20.2 路線事件語音狀態
+
+| audioKey | status | filePath | usage |
+|---|---|---|---|
+| route-mountain-spring | ready | /audio/voices/route-events/route-mountain-spring.mp3 | 路線事件旁白 |
+| route-hermit-guidance | ready | /audio/voices/route-events/route-hermit-guidance.mp3 | 路線事件旁白 |
+| route-misty-path | ready | /audio/voices/route-events/route-misty-path.mp3 | 路線事件旁白 |
+| route-post-station | ready | /audio/voices/route-events/route-post-station.mp3 | 路線事件旁白 |
+| route-military-dispatch | ready | /audio/voices/route-events/route-military-dispatch.mp3 | 路線事件旁白 |
+| route-remnant-troops | ready | /audio/voices/route-events/route-remnant-troops.mp3 | 路線事件旁白 |
+| route-cliff-ambush | ready | /audio/voices/route-events/route-cliff-ambush.mp3 | 路線事件旁白 |
+| route-battlefield-relic | ready | /audio/voices/route-events/route-battlefield-relic.mp3 | 路線事件旁白 |
+| route-night-raid | ready | /audio/voices/route-events/route-night-raid.mp3 | 路線事件旁白 |

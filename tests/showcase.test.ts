@@ -22,7 +22,7 @@ import { canPlayVoice } from "@/lib/game/voice";
 
 describe("showcase and onboarding copy", () => {
   it("includes homepage how-to and current feature copy", () => {
-    expect(currentVersionLabel).toBe("v0.20.1 敵人擊敗 TTS 導入版");
+    expect(currentVersionLabel).toBe("v0.20.2 路線事件 TTS 導入版");
     expect(howToSteps.map((step) => step.title)).toEqual([
       "選擇武將",
       "進入戰鬥",
@@ -65,7 +65,7 @@ describe("showcase and onboarding copy", () => {
       "第一章 P0 語音已導入：八關旁白、敵人登場、Boss 特性與勝敗語音陸續完成。",
     );
     expect(currentFeatureHighlights).toContain(
-      "敵人擊敗語音：敵將敗退時會有旁白與音效回饋。",
+      "路線事件語音：山道、官道、險道事件現在具備圖片與旁白語音。",
     );
     expect(currentFeatureHighlights).toContain(
       "開頭動畫：以 AI 圖像、影片與音樂製作第一章開場",

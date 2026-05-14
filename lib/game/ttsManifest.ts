@@ -43,6 +43,15 @@ const readyVoiceFilePaths: Record<string, string> = {
   "zhang-liang-defeated": "/audio/voices/enemies/zhang-liang-defeated.mp3",
   "zhang-bao-defeated": "/audio/voices/enemies/zhang-bao-defeated.mp3",
   "lu-bu-defeated": "/audio/voices/enemies/lu-bu-defeated.mp3",
+  "route-mountain-spring": "/audio/voices/route-events/route-mountain-spring.mp3",
+  "route-hermit-guidance": "/audio/voices/route-events/route-hermit-guidance.mp3",
+  "route-misty-path": "/audio/voices/route-events/route-misty-path.mp3",
+  "route-post-station": "/audio/voices/route-events/route-post-station.mp3",
+  "route-military-dispatch": "/audio/voices/route-events/route-military-dispatch.mp3",
+  "route-remnant-troops": "/audio/voices/route-events/route-remnant-troops.mp3",
+  "route-cliff-ambush": "/audio/voices/route-events/route-cliff-ambush.mp3",
+  "route-battlefield-relic": "/audio/voices/route-events/route-battlefield-relic.mp3",
+  "route-night-raid": "/audio/voices/route-events/route-night-raid.mp3",
 };
 
 export interface TtsDialogueAsset {

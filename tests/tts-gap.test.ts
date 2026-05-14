@@ -51,7 +51,7 @@ const routeEventAudioKeys = [
 
 describe("chapter one TTS gap manifest", () => {
   it("contains planned chapter one TTS gaps", () => {
-    expect(CHAPTER_1_TTS_GAP_MANIFEST).toHaveLength(24);
+    expect(CHAPTER_1_TTS_GAP_MANIFEST).toHaveLength(15);
     expect(CHAPTER_1_TTS_GAP_MANIFEST.every((item) => item.status === "planned")).toBe(true);
   });
 
@@ -94,8 +94,15 @@ describe("chapter one TTS gap manifest", () => {
     );
   });
 
-  it("includes nine route event narration gaps", () => {
-    expect(CHAPTER_1_TTS_GAP_MANIFEST.map((item) => item.audioKey)).toEqual(
+  it("excludes imported route event narration from the remaining gaps", () => {
+    routeEventAudioKeys.forEach((audioKey) => {
+      expect(getTtsAssetByAudioKey(audioKey)).toMatchObject({
+        audioKey,
+        status: "ready",
+      });
+    });
+
+    expect(CHAPTER_1_TTS_GAP_MANIFEST.map((item) => item.audioKey)).not.toEqual(
       expect.arrayContaining([...routeEventAudioKeys]),
     );
   });
@@ -141,6 +148,7 @@ describe("chapter one TTS gap manifest", () => {
         "game-win",
         "game-lose",
         ...enemyDefeatedAudioKeys,
+        ...routeEventAudioKeys,
       ]),
     );
   });
@@ -152,7 +160,6 @@ describe("chapter one TTS gap manifest", () => {
     }, {});
 
     expect(countByPriority).toEqual({
-      P1: 9,
       P2: 15,
     });
   });
