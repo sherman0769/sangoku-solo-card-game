@@ -13,7 +13,7 @@ import { VISUAL_ASSET_MANIFEST } from "@/lib/game/visualAssetManifest";
 
 describe("visual asset manifest", () => {
   it("contains the imported visual assets", () => {
-    expect(VISUAL_ASSET_MANIFEST).toHaveLength(33);
+    expect(VISUAL_ASSET_MANIFEST).toHaveLength(34);
   });
 
   it("includes required fields for every asset", () => {
@@ -39,11 +39,12 @@ describe("visual asset manifest", () => {
     );
   });
 
-  it("includes the three hero portraits", () => {
+  it("includes the four hero portraits", () => {
     expect(getAssetIdsByType("hero")).toEqual([
       "hero-guan-yu",
       "hero-zhao-yun",
       "hero-zhuge-liang",
+      "hero-li-shimin-ai-architect",
     ]);
   });
 
@@ -93,10 +94,21 @@ describe("visual asset manifest", () => {
     ]);
   });
 
-  it("uses imported PNG portraits for the three heroes", () => {
+  it("uses imported PNG portraits for the four heroes", () => {
     expect(getHeroPortrait("guan-yu")).toBe("/images/heroes/guan-yu.png");
     expect(getHeroPortrait("zhao-yun")).toBe("/images/heroes/zhao-yun.png");
     expect(getHeroPortrait("zhuge-liang")).toBe("/images/heroes/zhuge-liang.png");
+    expect(getHeroPortrait("li-shimin-ai-architect")).toBe(
+      "/images/heroes/li-shimin-ai-architect.png",
+    );
+    expect(VISUAL_ASSET_MANIFEST).toContainEqual(
+      expect.objectContaining({
+        id: "hero-li-shimin-ai-architect",
+        type: "hero",
+        path: "/images/heroes/li-shimin-ai-architect.png",
+        status: "ready",
+      }),
+    );
   });
 
   it("uses imported PNG portraits for all chapter one enemies", () => {

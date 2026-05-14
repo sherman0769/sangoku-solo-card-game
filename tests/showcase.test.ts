@@ -24,7 +24,7 @@ import { canPlayVoice } from "@/lib/game/voice";
 
 describe("showcase and onboarding copy", () => {
   it("includes homepage how-to copy without version feature lists", () => {
-    expect(currentVersionLabel).toBe("v0.23.0 第四位彩蛋角色版");
+    expect(currentVersionLabel).toBe("v0.23.1 李詩民角色資產導入版");
     expect(howToSteps.map((step) => step.title)).toEqual([
       "選擇武將",
       "進入戰鬥",
@@ -45,6 +45,7 @@ describe("showcase and onboarding copy", () => {
   it("describes the corrected homepage start flow", () => {
     expect(homeMainFlowSteps).toEqual(["觀看開場動畫", "選擇武將", "開始遊戲"]);
     expect(homeHeroSelectionCopy).toContain("李詩民｜AI 架構師");
+    expect(homeHeroSelectionCopy).toContain("正式立繪");
     expect(homeHeroSelectionCopy).toContain("系統調度");
     expect(homeHeroPreviewCopy).toBe("開啟角色語音後，點選武將可試聽專屬選角語音。");
     expect(homeOpeningVideoEntry).toMatchObject({
@@ -137,6 +138,7 @@ describe("showcase and onboarding copy", () => {
     expect(canPlayVoice("guan-yu-preview")).toBe(true);
     expect(canPlayVoice("zhao-yun-preview")).toBe(true);
     expect(canPlayVoice("zhuge-liang-preview")).toBe(true);
+    expect(canPlayVoice("li-shimin-preview")).toBe(true);
   });
 
   it("keeps game intro audio keys ready for entering the game", () => {
@@ -147,5 +149,6 @@ describe("showcase and onboarding copy", () => {
     expect(canPlayVoice("guan-yu-intro")).toBe(true);
     expect(canPlayVoice("zhao-yun-intro")).toBe(true);
     expect(canPlayVoice("zhuge-liang-intro")).toBe(true);
+    expect(canPlayVoice("li-shimin-intro")).toBe(true);
   });
 });

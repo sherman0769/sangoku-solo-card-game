@@ -1,6 +1,6 @@
 import type { GamePhase } from "./types";
 
-export const currentVersionLabel = "v0.23.0 第四位彩蛋角色版";
+export const currentVersionLabel = "v0.23.1 李詩民角色資產導入版";
 
 export const gameLoadingCopy = {
   title: "戰局準備中……",
@@ -20,7 +20,7 @@ export const homeOpeningVideoEntry = {
 } as const;
 
 export const homeHeroSelectionCopy =
-  "選擇一位角色，踏入第一章：黃巾之亂。彩蛋角色李詩民｜AI 架構師以系統調度與路線事件推演穩定戰局。";
+  "選擇一位角色，踏入第一章：黃巾之亂。李詩民｜AI 架構師 已導入正式立繪與選角 / 登場語音，以系統調度與路線事件推演穩定戰局。";
 
 export const homeHeroPreviewCopy = "開啟角色語音後，點選武將可試聽專屬選角語音。";
 

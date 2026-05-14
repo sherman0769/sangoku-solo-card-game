@@ -16,6 +16,7 @@ export interface VisualAssetManifestItem {
   usage: string;
   promptZh: string;
   promptEn: string;
+  status?: "planned" | "ready";
 }
 
 export const VISUAL_ASSET_MANIFEST: VisualAssetManifestItem[] = [
@@ -66,6 +67,19 @@ export const VISUAL_ASSET_MANIFEST: VisualAssetManifestItem[] = [
       "三國軍師諸葛亮，羽扇綸巾，沉著睿智，身後有星象與軍帳燭光，東方史詩卡牌風，半寫實角色立繪，電影感光影。",
     promptEn:
       "Zhuge Liang from the Three Kingdoms, feather fan and scholar headwear, calm and wise, star patterns and a candlelit war tent behind him, eastern epic card game style, semi-realistic character portrait, cinematic lighting.",
+  },
+  {
+    id: "hero-li-shimin-ai-architect",
+    type: "hero",
+    name: "李詩民｜AI 架構師",
+    aspectRatio: "3:4",
+    path: "/images/heroes/li-shimin-ai-architect.png",
+    usage: "首頁角色卡、遊戲玩家面板",
+    promptZh:
+      "東方亂世中的 AI 架構師軍師，身穿深色東方長袍，帶有藍金色資料光紋，手持卷軸或玉簡，背後浮現戰略圖、星盤與資料節點，半寫實三國卡牌風，電影感光影，不要文字，不要 Logo。",
+    promptEn:
+      "An AI architect strategist in an eastern chaotic war era, wearing a dark eastern robe with blue and gold data-light patterns, holding a scroll or jade slips, strategic maps, astrolabe and data nodes behind him, semi-realistic Three Kingdoms card game style, cinematic lighting, no text, no logo.",
+    status: "ready",
   },
   {
     id: "enemy-yellow-turban-soldier",

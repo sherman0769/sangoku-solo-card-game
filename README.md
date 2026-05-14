@@ -4,7 +4,7 @@
 
 線上遊玩網址：[https://sangoku-solo-card-game.vercel.app](https://sangoku-solo-card-game.vercel.app)
 
-目前版本：`v0.23.0 第四位彩蛋角色版`
+目前版本：`v0.23.1 李詩民角色資產導入版`
 
 AI 協作開發：李詩民
 
@@ -85,7 +85,8 @@ AI 協作開發：李詩民
 - LINE 開啟提醒：從 LINE 內建瀏覽器開啟時會提示改用 Safari / Chrome，並支援複製連結
 - BGM 啟動修正：BGM 改為使用者點擊且成功播放後才顯示開啟，避免顯示已開但沒有聲音
 - 首頁精簡：移除玩家不必要的版本特色與修改記錄區塊，首頁更聚焦開場動畫、選武將與開始遊戲
-- 第四位彩蛋角色：李詩民｜AI 架構師，作為 AI 協作開發與教學展示彩蛋角色，使用 placeholder 與 planned TTS
+- 第四位彩蛋角色：李詩民｜AI 架構師，作為 AI 協作開發與教學展示彩蛋角色，已可在首頁與遊戲中選用
+- 李詩民角色資產：已導入正式立繪、首頁 preview 語音與遊戲內 intro 語音，其餘戰鬥語音仍為 planned
 - 背景音樂系統：已導入首頁主題音樂、一般戰鬥音樂與 Boss 戰音樂，預設關閉並可由玩家手動開啟
 - BGM 與音效 / 語音分開控制，不影響卡牌音效、Web Audio cue 或 TTS 播放
 - 視覺呈現優化：首頁主視覺、武將立繪、敵人 / Boss 面板與關卡背景在手機與桌機上更穩定
@@ -210,6 +211,7 @@ npm run build
 - v0.22.1：修正 LINE 開啟提醒與 BGM 啟動狀態
 - v0.22.2：首頁精簡，移除版本特色與修改記錄
 - v0.23.0：新增第四位彩蛋角色「李詩民｜AI 架構師」
+- v0.23.1：導入李詩民角色立繪與語音
 
 ## 視覺資產系統
 
@@ -375,6 +377,13 @@ v0.23.0 第四位彩蛋角色版：
 - 李詩民作為 AI 協作開發與教學展示彩蛋角色，以亂世中的異世軍師 / AI 架構師方式融入世界觀。
 - 本版尚未導入李詩民正式立繪與語音，先使用 placeholder 與 planned TTS。
 - 新增 `docs/balance-report-v0.23.0.md`，以四位角色執行 basic-safe-strategy 平衡模擬。
+
+v0.23.1 李詩民角色資產導入版：
+
+- 已導入李詩民正式立繪：`public/images/heroes/li-shimin-ai-architect.png`。
+- 已導入李詩民首頁 preview 語音：`li-shimin-preview`。
+- 已導入李詩民遊戲內 intro 語音：`li-shimin-intro`。
+- `li-shimin-strategy`、`li-shimin-damage`、`li-shimin-low-hp`、`li-shimin-victory` 仍維持 `planned`，待後續補齊戰鬥語音。
 
 ## 人物台詞系統
 

@@ -13,6 +13,8 @@ const readyVoiceFilePaths: Record<string, string> = {
   "zhao-yun-intro": "/audio/voices/zhao-yun/zhao-yun-intro.mp3",
   "zhuge-liang-preview": "/audio/voices/zhuge-liang/zhuge-liang-preview.mp3",
   "zhuge-liang-intro": "/audio/voices/zhuge-liang/zhuge-liang-intro.mp3",
+  "li-shimin-preview": "/audio/voices/li-shimin/li-shimin-preview.mp3",
+  "li-shimin-intro": "/audio/voices/li-shimin/li-shimin-intro.mp3",
   "lu-bu-intro": "/audio/voices/lu-bu/lu-bu-intro.mp3",
   "stage-1-intro": "/audio/narration/stage-1-intro.mp3",
   "stage-2-intro": "/audio/narration/stage-2-intro.mp3",

@@ -4,7 +4,7 @@ const heroPortraits: Record<HeroId, string> = {
   "guan-yu": "/images/heroes/guan-yu.png",
   "zhao-yun": "/images/heroes/zhao-yun.png",
   "zhuge-liang": "/images/heroes/zhuge-liang.png",
-  "li-shimin-ai-architect": "",
+  "li-shimin-ai-architect": "/images/heroes/li-shimin-ai-architect.png",
 };
 
 const enemyPortraits: Record<string, string> = {
