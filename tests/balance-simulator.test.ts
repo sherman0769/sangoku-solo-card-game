@@ -30,6 +30,9 @@ describe("battle balance simulator", () => {
     expect(Array.isArray(result.routeEventsEncountered)).toBe(true);
     expect(Array.isArray(result.bossTraitTriggers)).toBe(true);
     expect(result.enemyHealTriggers).toBeGreaterThanOrEqual(0);
+    expect(result.counterAlertTriggers).toBeGreaterThanOrEqual(0);
+    expect(result.counterAttackTriggers).toBeGreaterThanOrEqual(0);
+    expect(result.counterDefeatCount).toBeGreaterThanOrEqual(0);
   });
 
   it("summarizes multiple runs for all heroes", () => {
@@ -55,6 +58,9 @@ describe("battle balance simulator", () => {
     expect(summary.routeDecisionStats).toBeDefined();
     expect(summary.bossTraitStats).toBeDefined();
     expect(summary.enemyHealTriggerCount).toBeGreaterThanOrEqual(0);
+    expect(summary.counterAlertTriggerCount).toBeGreaterThanOrEqual(0);
+    expect(summary.counterAttackTriggerCount).toBeGreaterThanOrEqual(0);
+    expect(summary.counterDefeatCount).toBeGreaterThanOrEqual(0);
   });
 
   it("generates a Traditional Chinese Markdown report", () => {
@@ -93,7 +99,7 @@ describe("battle balance simulator", () => {
     expect(report).toContain("路線風格決策分佈");
     expect(report).toContain("路線事件分佈");
     expect(report).toContain("Boss 特性觸發次數");
-    expect(report).toContain("敵人回血觸發次數");
+    expect(report).toContain("敵人回血與反制統計");
     expect(report).toContain("是否達到平衡目標");
   });
 
@@ -115,7 +121,7 @@ describe("battle balance simulator", () => {
     expect(report).toContain("v0.25.0");
   });
 
-  it("supports normal and challenge mode balance comparisons", () => {
+  it("supports normal and challenge mode balance comparisons with counterattack stats", () => {
     const summary = simulateManyRuns({
       heroIds: ["guan-yu", "zhao-yun"],
       runsPerHero: 1,
@@ -125,16 +131,19 @@ describe("battle balance simulator", () => {
       strategy: "basic-safe-strategy",
     });
     const report = generateBalanceReport(summary, {
-      title: "# v0.26.0 挑戰模式平衡報告",
+      title: "# v0.26.1 敵方反制與行動節奏平衡報告",
     });
 
     expect(summary.totalRuns).toBe(4);
     expect(summary.perModeStats.normal?.totalRuns).toBe(2);
     expect(summary.perModeStats.challenge?.totalRuns).toBe(2);
     expect(summary.results.some((result) => result.mode === "challenge")).toBe(true);
+    expect(summary.perModeStats.challenge?.counterAlertTriggerCount).toBeGreaterThanOrEqual(0);
+    expect(summary.perModeStats.challenge?.counterAttackTriggerCount).toBeGreaterThanOrEqual(0);
     expect(report).toContain("模式比較");
     expect(report).toContain("普通模式");
     expect(report).toContain("挑戰模式");
+    expect(report).toContain("反擊觸發");
   });
 
   it("chooses routes by health and state for basic-safe-strategy", () => {

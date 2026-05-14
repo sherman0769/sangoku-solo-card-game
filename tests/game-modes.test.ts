@@ -16,6 +16,7 @@ describe("game modes", () => {
     expect(GAME_MODES.map((mode) => mode.id)).toEqual(["normal", "challenge"]);
     expect(NORMAL_MODE.name).toBe("普通模式");
     expect(CHALLENGE_MODE.name).toBe("挑戰模式");
+    expect(CHALLENGE_MODE.description).toContain("警戒反擊");
   });
 
   it("falls unknown modes back to normal", () => {
@@ -37,13 +38,14 @@ describe("game modes", () => {
     expect(getResultModeOutcomeLabel("lost", "normal")).toBe("普通模式戰敗");
   });
 
-  it("keeps README and home page aligned with v0.26.0 mode copy", () => {
+  it("keeps README and home page aligned with v0.26.1 mode copy", () => {
     const readme = readFileSync(join(process.cwd(), "README.md"), "utf-8");
     const homePage = readFileSync(join(process.cwd(), "app", "page.tsx"), "utf-8");
 
-    expect(readme).toContain("v0.26.0");
-    expect(readme).toContain("挑戰模式");
+    expect(readme).toContain("v0.26.1");
+    expect(readme).toContain("警戒反擊");
     expect(homePage).toContain("選擇模式");
+    expect(homePage).toContain("連續攻擊需要承擔代價");
     expect(homePage).not.toContain("查看目前版本特色");
   });
 });

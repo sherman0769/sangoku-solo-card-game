@@ -577,6 +577,14 @@ function GameBoardContent({
         emitSound("heal");
       }
 
+      if (next.player.health < beforePlayerHealth) {
+        const counteredByLuBu = next.log.some((entry) => entry.includes("呂布") && entry.includes("反擊"));
+        const text = next.player.health <= 0 ? "倒在反擊之下！" : "敵人反擊！";
+        showEventToast(text, "danger");
+        showPanelFeedback("player", "hit", text);
+        emitSound(counteredByLuBu ? "boss" : "hit");
+      }
+
       if (next.phase === "event") {
         emitSound("event");
       }

@@ -284,6 +284,8 @@ export interface GameState {
   enemyGuarding: boolean;
   enemyCharged: boolean;
   enemyArmorBroken: boolean;
+  enemyDamagedThisTurn: boolean;
+  enemyCounteredThisTurn: boolean;
   bossTraitUsage: Partial<Record<BossTraitId, boolean>>;
   bossTraitHistory: BossTraitId[];
   deck: Card[];

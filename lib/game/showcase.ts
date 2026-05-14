@@ -1,6 +1,6 @@
 import type { GamePhase } from "./types";
 
-export const currentVersionLabel = "v0.26.0 挑戰模式版";
+export const currentVersionLabel = "v0.26.1 敵方反制與行動節奏版";
 
 export const gameLoadingCopy = {
   title: "戰局準備中……",
@@ -20,7 +20,7 @@ export const homeOpeningVideoEntry = {
 } as const;
 
 export const homeHeroSelectionCopy =
-  "選擇一位角色，踏入第一章：黃巾之亂。新增挑戰模式，熟悉規則後可選擇更高壓力的第一章挑戰。";
+  "選擇一位角色，踏入第一章：黃巾之亂。挑戰模式中後期敵人會警戒反擊，連續攻擊需要承擔代價。";
 
 export const homeHeroPreviewCopy = "開啟角色語音後，點選武將可試聽專屬選角語音。";
 

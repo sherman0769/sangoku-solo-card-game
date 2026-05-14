@@ -17,7 +17,7 @@ export const NORMAL_MODE: GameMode = {
 export const CHALLENGE_MODE: GameMode = {
   id: "challenge",
   name: "挑戰模式",
-  description: "敵人更積極，後期與 Boss 戰更具壓力。",
+  description: "中後期敵人會警戒反擊，連續攻擊需要承擔代價。",
   recommendedFor: "熟悉規則後挑戰",
 };
 

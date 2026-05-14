@@ -305,7 +305,7 @@ export default function Home() {
               </div>
               {selectedMode === "challenge" ? (
                 <p className="text-sm font-bold leading-6 text-amber-100">
-                  挑戰模式會提高敵人血量與行動壓力，建議熟悉規則後再選。
+                  挑戰模式中後期敵人會警戒反擊，連續攻擊需要承擔代價。
                 </p>
               ) : null}
             </div>
@@ -330,7 +330,7 @@ export default function Home() {
                     <span className="mt-2 block text-sm leading-6 text-stone-300">
                       {mode.id === "normal"
                         ? "適合第一次體驗，較重視完整劇情與文圖聲影展示。"
-                        : "敵人更積極，後期與 Boss 戰更有壓力，適合熟悉規則後挑戰。"}
+                        : "中後期敵人會警戒反擊，連續攻擊需要承擔代價，適合熟悉規則後挑戰。"}
                     </span>
                     <span className="mt-3 inline-flex rounded-full border border-sky-300/40 bg-sky-500/15 px-3 py-1 text-xs font-black text-sky-100">
                       {mode.recommendedFor}

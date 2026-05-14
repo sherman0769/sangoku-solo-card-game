@@ -70,9 +70,12 @@ export function generateBalanceReport(
     "",
     formatDistribution(summary.bossTraitStats, "目前沒有 Boss 特性觸發紀錄。"),
     "",
-    "## 敵人回血觸發次數",
+    "## 敵人回血與反制統計",
     "",
     `- 敵人回血：${summary.enemyHealTriggerCount} 次`,
+    `- 警戒觸發：${summary.counterAlertTriggerCount} 次`,
+    `- 反擊觸發：${summary.counterAttackTriggerCount} 次`,
+    `- 因反擊戰敗：${summary.counterDefeatCount} 次`,
     "",
     "## 初步觀察",
     "",
@@ -103,14 +106,17 @@ function formatModeSection(summary: BalanceSimulationSummary) {
   return [
     "## 模式比較",
     "",
-    "| 模式 | 局數 | 整體勝率 | 平均回合數 | 敵人回血 | 第 8 關死亡 |",
-    "| --- | ---: | ---: | ---: | ---: | ---: |",
+    "| 模式 | 局數 | 整體勝率 | 平均回合數 | 敵人回血 | 警戒 | 反擊 | 反擊死亡 | 第 8 關死亡 |",
+    "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
     ...entries.map((entry) => [
       modeNames[entry.mode] ?? entry.mode,
       entry.totalRuns,
       formatPercent(entry.overallWinRate),
       formatNumber(entry.averageTurns),
       entry.enemyHealTriggerCount,
+      entry.counterAlertTriggerCount,
+      entry.counterAttackTriggerCount,
+      entry.counterDefeatCount,
       entry.stageDeathDistribution["第 8 關"] ?? 0,
     ].join(" | ").replace(/^/, "| ").concat(" |")),
     "",
@@ -190,6 +196,7 @@ function createObservations(summary: BalanceSimulationSummary) {
     `- 第 8 關死亡 ${stageEightDeaths} 次，可觀察呂布 Boss 特性是否提高最終戰壓力。`,
     `- 呂布無雙壓迫觸發 ${unmatchedPressureCount} 次，戰神回血觸發 ${warlordRecoveryCount} 次。`,
     `- 敵人回血行動觸發 ${summary.enemyHealTriggerCount} 次，可觀察張寶回復是否拉長第 7 關節奏。`,
+    `- 警戒觸發 ${summary.counterAlertTriggerCount} 次，反擊觸發 ${summary.counterAttackTriggerCount} 次，因反擊戰敗 ${summary.counterDefeatCount} 次。`,
   ];
 }
 

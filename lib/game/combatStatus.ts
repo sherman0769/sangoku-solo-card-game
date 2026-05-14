@@ -1,4 +1,5 @@
 import type { GameState } from "./types";
+import { getChallengeCounterBadge } from "./challengeCounter";
 
 export type HpStatus = "healthy" | "wounded" | "critical" | "defeated";
 
@@ -53,6 +54,7 @@ export function getEnemyCombatBadges(state: GameState, nextActionLabel?: string)
     hpStatus === "wounded" ? "受創" : null,
     state.enemyGuarding ? "防守中" : null,
     state.enemyCharged ? "蓄力中" : null,
+    getChallengeCounterBadge(state) ?? null,
     isBoss ? "Boss" : null,
     state.bossTraitUsage["unmatched-pressure"] ? "無雙已觸發" : null,
     state.bossTraitUsage["warlord-recovery"] ? "回血已觸發" : null,

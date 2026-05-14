@@ -56,6 +56,9 @@ export interface RunSimulationResult {
   routeEventsEncountered: string[];
   bossTraitTriggers: string[];
   enemyHealTriggers: number;
+  counterAlertTriggers: number;
+  counterAttackTriggers: number;
+  counterDefeatCount: number;
   damageTaken: number;
   cardsPlayed: Record<string, number>;
   defeatReason?: string;
@@ -85,6 +88,9 @@ export interface BalanceSimulationSummary {
   routeEventDeathStats: Record<string, number>;
   bossTraitStats: Record<string, number>;
   enemyHealTriggerCount: number;
+  counterAlertTriggerCount: number;
+  counterAttackTriggerCount: number;
+  counterDefeatCount: number;
   results: RunSimulationResult[];
 }
 
@@ -96,6 +102,9 @@ export interface ModeBalanceStats {
   stageDeathDistribution: Record<string, number>;
   bossTraitStats: Record<string, number>;
   enemyHealTriggerCount: number;
+  counterAlertTriggerCount: number;
+  counterAttackTriggerCount: number;
+  counterDefeatCount: number;
   perHeroStats: Record<HeroId, HeroBalanceStats>;
 }
 
@@ -123,6 +132,9 @@ export function simulateRun(options: RunSimulationOptions): RunSimulationResult 
     const cardsPlayed: Record<string, number> = {};
     let damageTaken = 0;
     let enemyHealTriggers = 0;
+    let counterAlertTriggers = 0;
+    let counterAttackTriggers = 0;
+    let counterDefeatCount = 0;
     let steps = 0;
 
     while (state.status === "playing" && steps < maxTurns) {
@@ -178,11 +190,17 @@ export function simulateRun(options: RunSimulationOptions): RunSimulationResult 
 
       damageTaken += Math.max(0, beforeHealth - state.player.health);
       enemyHealTriggers += countNewEnemyHealLogs(previousState, state);
+      counterAlertTriggers += countNewCounterAlertLogs(previousState, state);
+      counterAttackTriggers += countNewCounterAttackLogs(previousState, state);
+      counterDefeatCount += countNewCounterDefeatLogs(previousState, state);
 
       if (state === previousState && state.enemyIndex === beforeEnemyIndex) {
         const beforeFallback = state;
         state = endTurn(state);
         enemyHealTriggers += countNewEnemyHealLogs(beforeFallback, state);
+        counterAlertTriggers += countNewCounterAlertLogs(beforeFallback, state);
+        counterAttackTriggers += countNewCounterAttackLogs(beforeFallback, state);
+        counterDefeatCount += countNewCounterDefeatLogs(beforeFallback, state);
       }
     }
 
@@ -202,6 +220,9 @@ export function simulateRun(options: RunSimulationOptions): RunSimulationResult 
       routeEventsEncountered,
       bossTraitTriggers: state.bossTraitHistory,
       enemyHealTriggers,
+      counterAlertTriggers,
+      counterAttackTriggers,
+      counterDefeatCount,
       damageTaken,
       cardsPlayed,
       defeatReason: timedOut ? `超過 ${maxTurns} 步仍未結束` : getDefeatReason(state),
@@ -245,6 +266,9 @@ export function summarizeResults(results: RunSimulationResult[]): BalanceSimulat
   const routeEventDeathStats: Record<string, number> = {};
   const bossTraitStats: Record<string, number> = {};
   let enemyHealTriggerCount = 0;
+  let counterAlertTriggerCount = 0;
+  let counterAttackTriggerCount = 0;
+  let counterDefeatCount = 0;
 
   results.forEach((result) => {
     if (!result.won) {
@@ -274,6 +298,9 @@ export function summarizeResults(results: RunSimulationResult[]): BalanceSimulat
     });
 
     enemyHealTriggerCount += result.enemyHealTriggers;
+    counterAlertTriggerCount += result.counterAlertTriggers;
+    counterAttackTriggerCount += result.counterAttackTriggers;
+    counterDefeatCount += result.counterDefeatCount;
 
     if (!result.won) {
       const lastRouteEvent = result.routeEventsEncountered.at(-1);
@@ -321,6 +348,9 @@ export function summarizeResults(results: RunSimulationResult[]): BalanceSimulat
     routeEventDeathStats,
     bossTraitStats,
     enemyHealTriggerCount,
+    counterAlertTriggerCount,
+    counterAttackTriggerCount,
+    counterDefeatCount,
     results,
   };
 }
@@ -331,6 +361,9 @@ function summarizeModeResults(mode: GameModeId, results: RunSimulationResult[]):
   const stageDeathDistribution: Record<string, number> = {};
   const bossTraitStats: Record<string, number> = {};
   let enemyHealTriggerCount = 0;
+  let counterAlertTriggerCount = 0;
+  let counterAttackTriggerCount = 0;
+  let counterDefeatCount = 0;
 
   results.forEach((result) => {
     if (!result.won) {
@@ -344,6 +377,9 @@ function summarizeModeResults(mode: GameModeId, results: RunSimulationResult[]):
     });
 
     enemyHealTriggerCount += result.enemyHealTriggers;
+    counterAlertTriggerCount += result.counterAlertTriggers;
+    counterAttackTriggerCount += result.counterAttackTriggers;
+    counterDefeatCount += result.counterDefeatCount;
   });
 
   const heroIds = [...new Set(results.map((result) => result.heroId))] as HeroId[];
@@ -372,6 +408,9 @@ function summarizeModeResults(mode: GameModeId, results: RunSimulationResult[]):
     stageDeathDistribution,
     bossTraitStats,
     enemyHealTriggerCount,
+    counterAlertTriggerCount,
+    counterAttackTriggerCount,
+    counterDefeatCount,
     perHeroStats,
   };
 }
@@ -480,12 +519,34 @@ function getDefeatReason(state: GameState) {
 }
 
 function countNewEnemyHealLogs(previousState: GameState, nextState: GameState) {
+  return countNewLogs(previousState, nextState, (entry) => entry.includes("敵人回復"));
+}
+
+function countNewCounterAlertLogs(previousState: GameState, nextState: GameState) {
+  return countNewLogs(previousState, nextState, (entry) => entry.includes("進入警戒"));
+}
+
+function countNewCounterAttackLogs(previousState: GameState, nextState: GameState) {
+  return countNewLogs(previousState, nextState, (entry) => (
+    entry.includes("警戒反擊") || entry.includes("無雙之勢反擊")
+  ));
+}
+
+function countNewCounterDefeatLogs(previousState: GameState, nextState: GameState) {
+  return countNewLogs(previousState, nextState, (entry) => entry.includes("倒在反擊之下"));
+}
+
+function countNewLogs(
+  previousState: GameState,
+  nextState: GameState,
+  predicate: (entry: string) => boolean,
+) {
   if (nextState.log === previousState.log) {
     return 0;
   }
 
   const previousLog = new Set(previousState.log);
-  return nextState.log.filter((entry) => !previousLog.has(entry) && entry.includes("敵人回復")).length;
+  return nextState.log.filter((entry) => !previousLog.has(entry) && predicate(entry)).length;
 }
 
 function withSeededMathRandom<T>(random: () => number, action: () => T) {

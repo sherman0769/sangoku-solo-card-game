@@ -60,7 +60,7 @@ describe("card image manifests", () => {
     expect(cardImageGap).toContain("status: ready");
   });
 
-  it("updates README through v0.26.0 without restoring homepage changelog sections", () => {
+  it("updates README through v0.26.1 without restoring homepage changelog sections", () => {
     const readme = readFileSync(readmePath, "utf-8");
     const homePageSource = readFileSync(join(process.cwd(), "app", "page.tsx"), "utf-8");
 
@@ -74,6 +74,8 @@ describe("card image manifests", () => {
     expect(readme).toContain("v0.24.4：修復 BGM 跨頁延續狀態");
     expect(readme).toContain("v0.26.0 挑戰模式版");
     expect(readme).toContain("v0.26.0：新增挑戰模式");
+    expect(readme).toContain("v0.26.1 敵方反制與行動節奏版");
+    expect(readme).toContain("v0.26.1：挑戰模式加入警戒反擊機制");
     expect(homePageSource).not.toContain("查看目前版本特色");
   });
 });

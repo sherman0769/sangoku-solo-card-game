@@ -1,4 +1,10 @@
 import { starterDeck } from "./cards";
+import {
+  getChallengeCounterDamage,
+  getChallengeCounterDefeatLogMessage,
+  getChallengeCounterLogMessage,
+  isChallengeCounterEnabled,
+} from "./challengeCounter";
 import { getBossTraitLogMessage, getWarlordRecoveryAmount } from "./bossTraits";
 import {
   getChapterIntroDialogue,
@@ -176,6 +182,8 @@ export function createGame(heroId?: string, enemyOptions?: EnemySelectionOptions
     enemyGuarding: false,
     enemyCharged: false,
     enemyArmorBroken: false,
+    enemyDamagedThisTurn: false,
+    enemyCounteredThisTurn: false,
     deck: [...starterDeck],
     hand: [],
     discard: [],
@@ -289,7 +297,7 @@ export function playCard(
     ["boss_trait", "boss_recovery"].includes(next.currentDialogue?.trigger ?? "") &&
     next.currentDialogue?.id !== previousDialogueId;
 
-  if (!bossDialogueJustTriggered) {
+  if (next.status === "playing" && !bossDialogueJustTriggered) {
     applyCardDialogue(next, card);
   }
 
@@ -863,6 +871,8 @@ function advanceEnemy(state: GameState): GameState {
         status: "won",
         enemyHealth: 0,
         phase: "player",
+        enemyDamagedThisTurn: false,
+        enemyCounteredThisTurn: false,
         availableRoutes: [],
       },
       `敵將敗退：${state.enemy.name}`,
@@ -875,6 +885,8 @@ function advanceEnemy(state: GameState): GameState {
     enemyGuarding: false,
     enemyCharged: false,
     enemyArmorBroken: false,
+    enemyDamagedThisTurn: false,
+    enemyCounteredThisTurn: false,
     bossTraitUsage: {},
     pendingDefense: undefined,
     currentEvent: undefined,
@@ -962,6 +974,8 @@ function startNextTurn(state: GameState): GameState {
   next.player.wineBonus = 0;
   next.player.equipmentUsageThisTurn = createTurnEquipmentUsage();
   next.enemyArmorBroken = false;
+  next.enemyDamagedThisTurn = false;
+  next.enemyCounteredThisTurn = false;
   next.routeEventRecentlyProcessed = false;
 
   if (next.player.heroId === "zhuge-liang") {
@@ -993,6 +1007,8 @@ function startNextStage(
   next.enemyGuarding = false;
   next.enemyCharged = false;
   next.enemyArmorBroken = false;
+  next.enemyDamagedThisTurn = false;
+  next.enemyCounteredThisTurn = false;
   next.bossTraitUsage = {};
   next.enemy = nextEnemy;
   next.stageConfig = stageConfig;
@@ -1282,8 +1298,61 @@ function applySlashEffect(state: GameState, baseValue: number, actionText: strin
 }
 
 function applyEnemyDamage(state: GameState, damage: number) {
+  if (damage <= 0) {
+    return [];
+  }
+
   state.enemyHealth = Math.max(0, state.enemyHealth - damage);
-  return applyWarlordRecovery(state);
+  const bossTraitMessages = applyWarlordRecovery(state);
+  const counterMessages = applyChallengeCounterAfterPlayerDamage(state);
+
+  return [...bossTraitMessages, ...counterMessages];
+}
+
+function applyChallengeCounterAfterPlayerDamage(state: GameState) {
+  if (
+    !isChallengeCounterEnabled(state) ||
+    state.status !== "playing" ||
+    state.enemyHealth <= 0
+  ) {
+    return [];
+  }
+
+  if (!state.enemyDamagedThisTurn) {
+    state.enemyDamagedThisTurn = true;
+    return ["敵人進入警戒，若本回合再次受傷將反擊。"];
+  }
+
+  if (state.enemyCounteredThisTurn) {
+    return [];
+  }
+
+  state.enemyCounteredThisTurn = true;
+  const counterDamage = getChallengeCounterDamage(state);
+  let finalDamage = counterDamage;
+  const notes: string[] = [];
+
+  if (state.player.guardActive) {
+    finalDamage = Math.max(0, finalDamage - 1);
+    state.player.guardActive = false;
+    notes.push("固守發動，反擊傷害 -1。");
+  }
+
+  state.player.health = Math.max(0, state.player.health - finalDamage);
+
+  if (state.player.health <= 0) {
+    state.status = "lost";
+    setDialogue(state, getGameResultDialogue("lost"));
+    return [
+      getChallengeCounterDefeatLogMessage(state, counterDamage),
+      ...notes,
+    ];
+  }
+
+  return [
+    getChallengeCounterLogMessage(state, counterDamage),
+    ...notes,
+  ];
 }
 
 function applyWarlordRecovery(state: GameState) {
@@ -1451,6 +1520,8 @@ function cloneState(state: GameState): GameState {
     rewardOptions: state.rewardOptions.map((reward) => ({ ...reward })),
     bossTraitUsage: { ...(state.bossTraitUsage ?? {}) },
     bossTraitHistory: [...(state.bossTraitHistory ?? [])],
+    enemyDamagedThisTurn: state.enemyDamagedThisTurn ?? false,
+    enemyCounteredThisTurn: state.enemyCounteredThisTurn ?? false,
     routeEventHistory: [...(state.routeEventHistory ?? [])],
     routeEventRecentlyProcessed: state.routeEventRecentlyProcessed ?? false,
     log: [...state.log],
