@@ -7,11 +7,18 @@ import type { OpeningVideoConfig } from "@/lib/game/openingVideo";
 interface OpeningVideoProps {
   config: OpeningVideoConfig;
   startHref: string;
+  onModalClose?: () => void;
+  onModalOpen?: () => void;
 }
 
 type PlaybackState = "idle" | "playing" | "ended";
 
-export function OpeningVideo({ config, startHref }: OpeningVideoProps) {
+export function OpeningVideo({
+  config,
+  onModalClose,
+  onModalOpen,
+  startHref,
+}: OpeningVideoProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [playbackState, setPlaybackState] = useState<PlaybackState>("idle");
@@ -41,6 +48,7 @@ export function OpeningVideo({ config, startHref }: OpeningVideoProps) {
     setHasVideoError(false);
     setIsMutedFallback(false);
     setPlaybackState("playing");
+    onModalOpen?.();
     setIsOpen(true);
   }
 
@@ -48,6 +56,7 @@ export function OpeningVideo({ config, startHref }: OpeningVideoProps) {
     videoRef.current?.pause();
     setIsOpen(false);
     setPlaybackState("idle");
+    onModalClose?.();
   }
 
   function playFromStart() {

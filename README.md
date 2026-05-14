@@ -4,7 +4,7 @@
 
 線上遊玩網址：[https://sangoku-solo-card-game.vercel.app](https://sangoku-solo-card-game.vercel.app)
 
-目前版本：`v0.20.2 路線事件 TTS 導入版`
+目前版本：`v0.21.0 背景音樂系統版`
 
 ## 已完成功能
 
@@ -71,6 +71,8 @@
 - 敵人與 Boss 擊敗回饋：顯示敗退提示、戰鬥紀錄與敵人擊敗旁白，並預留擊敗音效與 TTS 擴充接口
 - 敵人擊敗 TTS 語音：9 筆敵人敗退旁白已導入，語音開啟時會搭配擊敗提示播放
 - 路線事件 TTS 語音：9 筆山道、官道、險道事件旁白已導入，語音開啟時會搭配事件圖片與台詞框播放
+- 背景音樂系統：已導入首頁主題音樂、一般戰鬥音樂與 Boss 戰音樂，預設關閉並可由玩家手動開啟
+- BGM 與音效 / 語音分開控制，不影響卡牌音效、Web Audio cue 或 TTS 播放
 - 視覺呈現優化：首頁主視覺、武將立繪、敵人 / Boss 面板與關卡背景在手機與桌機上更穩定
 - 手機與桌機版基本響應式排版
 
@@ -186,6 +188,7 @@ npm run build
 - v0.20.0：新增即時戰鬥狀態與擊敗回饋
 - v0.20.1：導入敵人擊敗 TTS 語音
 - v0.20.2：導入路線事件 TTS 語音
+- v0.21.0：建立並導入背景音樂系統
 
 ## 視覺資產系統
 
@@ -293,6 +296,14 @@ v0.20.2 導入路線事件 TTS 語音：
 - routeEvent phase 現在同時具備正式事件圖片、台詞框、TTS 旁白與既有事件效果。
 - 剩餘 TTS 缺口仍待補齊，主要為武將戰鬥補充語音。
 
+v0.21.0 建立並導入背景音樂系統：
+
+- 已建立 `lib/game/bgmManifest.ts` 與 `lib/game/bgm.ts`，集中管理 BGM manifest、播放、暫停、停止、音量與 localStorage 設定。
+- 已導入三首 ready BGM：`home-theme`、`battle-theme`、`boss-theme`。
+- BGM 預設關閉，玩家需在首頁或遊戲頁手動開啟；音量預設為 0.35。
+- 首頁播放 `home-theme`，一般戰鬥播放 `battle-theme`，呂布 Boss 戰播放 `boss-theme`。
+- BGM 開關與音效 / 語音開關彼此獨立；若瀏覽器阻擋或音檔播放失敗，會安全 no-op。
+
 ## 人物台詞系統
 
 v0.11.0 新增第一版文字台詞系統，先不加入音檔、不串接 TTS 或外部 API。台詞資料以 `DialogueLine` 管理，包含說話者、觸發時機、台詞內容、語氣、立繪與預留的 `audioKey`。
@@ -332,6 +343,18 @@ v0.14.2 導入第一批 7 個真實卡牌音效：
 - 火攻：`/audio/sfx/cards/fire-card.mp3`
 
 音效開關仍會控制卡牌音效。斬與連斬已拆成不同 MP3；若瀏覽器阻擋、檔案缺失或播放失敗，仍會 fallback 到既有 Web Audio 提示音。
+
+## 背景音樂系統
+
+v0.21.0 新增第一版背景音樂系統。BGM 使用 HTMLAudioElement 播放，不引入外部 API 或大型播放器套件，並與既有 Web Audio 音效、卡牌音效及 TTS 語音播放系統分開控制。
+
+已導入三首 BGM：
+
+- `home-theme`：`/audio/bgm/home-theme.mp3`，首頁、選角與展示使用。
+- `battle-theme`：`/audio/bgm/battle-theme.mp3`，第一章一般戰鬥使用。
+- `boss-theme`：`/audio/bgm/boss-theme.mp3`，呂布 Boss 戰使用。
+
+BGM 預設關閉，玩家可在首頁或遊戲頁「狀態與設定」中手動開啟並調整音量。首頁播放開場動畫時會暫停首頁 BGM，關閉動畫後依玩家原本設定恢復；進入遊戲後，系統會依一般戰鬥或 Boss 戰切換對應曲目。若音檔播放失敗或瀏覽器阻擋播放，BGM 會安全 no-op，不影響遊戲流程。
 
 ## 戰鬥平衡分析
 

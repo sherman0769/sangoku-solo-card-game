@@ -27,6 +27,15 @@ import {
   writeSoundEnabledSetting,
 } from "@/lib/game/audio";
 import {
+  createBgmPlayer,
+  getBgmEnabled,
+  getBgmVolume,
+  isBgmSupported,
+  setBgmEnabled,
+  setBgmVolume,
+  type BgmPlayer,
+} from "@/lib/game/bgm";
+import {
   isVoiceSupported,
   playVoice,
   readVoiceEnabledSetting,
@@ -160,6 +169,9 @@ function GameBoardContent({
   const [audioSupported, setAudioSupported] = useState(false);
   const [voiceEnabled, setVoiceEnabled] = useState(false);
   const [voiceSupported, setVoiceSupported] = useState(false);
+  const [bgmEnabled, setBattleBgmEnabled] = useState(false);
+  const [bgmSupported, setBattleBgmSupported] = useState(false);
+  const [bgmVolume, setBattleBgmVolume] = useState(0.35);
   const eventTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const panelTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const bossTraitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -167,6 +179,7 @@ function GameBoardContent({
   const outcomeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const stageTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastVoiceKeyRef = useRef<string | null>(null);
+  const bgmPlayerRef = useRef<BgmPlayer | null>(null);
   const feedbackIdRef = useRef(0);
   const enemyPercent = useMemo(
     () => Math.max(0, Math.round((state.enemyHealth / state.enemy.maxHealth) * 100)),
@@ -189,6 +202,7 @@ function GameBoardContent({
   const stageBackgroundSrc = state.stageConfig.backgroundImage.startsWith("/")
     ? state.stageConfig.backgroundImage
     : undefined;
+  const activeBgmTrackId = state.enemy.id === "lu-bu" ? "boss-theme" : "battle-theme";
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -196,10 +210,30 @@ function GameBoardContent({
       setSoundEnabled(readSoundEnabledSetting());
       setVoiceSupported(isVoiceSupported());
       setVoiceEnabled(readVoiceEnabledSetting());
+      setBattleBgmSupported(isBgmSupported());
+      setBattleBgmEnabled(getBgmEnabled());
+      setBattleBgmVolume(getBgmVolume());
+      bgmPlayerRef.current = createBgmPlayer();
     }, 0);
 
-    return () => window.clearTimeout(timer);
+    return () => {
+      window.clearTimeout(timer);
+      bgmPlayerRef.current?.stop();
+    };
   }, []);
+
+  useEffect(() => {
+    const player = bgmPlayerRef.current ?? createBgmPlayer();
+    bgmPlayerRef.current = player;
+    player.setVolume(bgmVolume);
+
+    if (!bgmEnabled) {
+      player.stop();
+      return;
+    }
+
+    player.play(activeBgmTrackId, { volume: bgmVolume });
+  }, [activeBgmTrackId, bgmEnabled, bgmVolume]);
 
   useEffect(() => {
     const audioKey = state.currentDialogue?.audioKey;
@@ -332,6 +366,17 @@ function GameBoardContent({
     const nextEnabled = !voiceEnabled;
     setVoiceEnabled(nextEnabled);
     writeVoiceEnabledSetting(nextEnabled);
+  }
+
+  function toggleBattleBgm() {
+    const nextEnabled = !bgmEnabled;
+    setBattleBgmEnabled(nextEnabled);
+    setBgmEnabled(nextEnabled);
+  }
+
+  function handleBattleBgmVolumeChange(volume: number) {
+    setBattleBgmVolume(volume);
+    setBgmVolume(volume);
   }
 
   useEffect(() => {
@@ -603,6 +648,15 @@ function GameBoardContent({
                 enabled={voiceEnabled}
                 voiceSupported={voiceSupported}
                 onToggle={toggleVoice}
+              />
+            </div>
+            <div className="hidden md:block">
+              <BgmToggle
+                enabled={bgmEnabled}
+                bgmSupported={bgmSupported}
+                volume={bgmVolume}
+                onToggle={toggleBattleBgm}
+                onVolumeChange={handleBattleBgmVolumeChange}
               />
             </div>
             <button
@@ -1043,11 +1097,16 @@ function GameBoardContent({
                 equippedLabels={equippedLabels}
                 onToggleSound={toggleSound}
                 onToggleVoice={toggleVoice}
+                onToggleBgm={toggleBattleBgm}
+                onBgmVolumeChange={handleBattleBgmVolumeChange}
                 quickRulesList={quickRules}
                 soundEnabled={soundEnabled}
                 upgradeLabels={upgradeLabels}
                 voiceEnabled={voiceEnabled}
                 voiceSupported={voiceSupported}
+                bgmEnabled={bgmEnabled}
+                bgmSupported={bgmSupported}
+                bgmVolume={bgmVolume}
               />
             </div>
           </div>
@@ -1335,7 +1394,12 @@ function MobileHudRow({
 function MobileStatusSettings({
   audioSupported,
   battleLines,
+  bgmEnabled,
+  bgmSupported,
+  bgmVolume,
   equippedLabels,
+  onBgmVolumeChange,
+  onToggleBgm,
   onToggleSound,
   onToggleVoice,
   quickRulesList,
@@ -1346,7 +1410,12 @@ function MobileStatusSettings({
 }: {
   audioSupported: boolean;
   battleLines: Array<string | null>;
+  bgmEnabled: boolean;
+  bgmSupported: boolean;
+  bgmVolume: number;
   equippedLabels: string[];
+  onBgmVolumeChange: (volume: number) => void;
+  onToggleBgm: () => void;
   onToggleSound: () => void;
   onToggleVoice: () => void;
   quickRulesList: readonly string[];
@@ -1371,6 +1440,13 @@ function MobileStatusSettings({
             enabled={voiceEnabled}
             voiceSupported={voiceSupported}
             onToggle={onToggleVoice}
+          />
+          <BgmToggle
+            enabled={bgmEnabled}
+            bgmSupported={bgmSupported}
+            volume={bgmVolume}
+            onToggle={onToggleBgm}
+            onVolumeChange={onBgmVolumeChange}
           />
         </div>
         <MobileInfoBlock title="目前強化">
@@ -1480,6 +1556,54 @@ function VoiceToggle({
         {voiceSupported
           ? "已導入部分角色語音；開啟語音後，部分登場台詞會播放。"
           : "此瀏覽器不支援語音播放。"}
+      </p>
+    </div>
+  );
+}
+
+function BgmToggle({
+  bgmSupported,
+  enabled,
+  onToggle,
+  onVolumeChange,
+  volume,
+}: {
+  bgmSupported: boolean;
+  enabled: boolean;
+  onToggle: () => void;
+  onVolumeChange: (volume: number) => void;
+  volume: number;
+}) {
+  return (
+    <div className="min-w-[190px] rounded-md border border-emerald-500/50 bg-stone-950/60 px-3 py-2">
+      <button
+        type="button"
+        onClick={onToggle}
+        className={`h-9 w-full rounded-md px-3 text-sm font-black transition ${
+          enabled
+            ? "bg-emerald-300 text-stone-950 hover:bg-emerald-200"
+            : "border border-stone-600 bg-stone-950/70 text-stone-100 hover:border-emerald-300"
+        }`}
+      >
+        BGM：{enabled ? "開" : "關"}
+      </button>
+      <label className="mt-2 block text-[11px] font-bold leading-4 text-stone-300">
+        音量 {Math.round(volume * 100)}%
+        <input
+          aria-label="戰鬥 BGM 音量"
+          type="range"
+          min="0"
+          max="1"
+          step="0.05"
+          value={volume}
+          onChange={(event) => onVolumeChange(Number(event.target.value))}
+          className="mt-1 block w-full accent-emerald-300"
+        />
+      </label>
+      <p className="mt-1 text-[11px] leading-4 text-stone-400">
+        {bgmSupported
+          ? "背景音樂獨立控制，Boss 戰會自動切換。"
+          : "此瀏覽器不支援背景音樂播放。"}
       </p>
     </div>
   );

@@ -1,9 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { GameImage } from "@/components/GameImage";
 import { OpeningVideo } from "@/components/OpeningVideo";
+import {
+  createBgmPlayer,
+  getBgmEnabled,
+  getBgmVolume,
+  isBgmSupported,
+  setBgmEnabled,
+  setBgmVolume,
+  type BgmPlayer,
+} from "@/lib/game/bgm";
 import { playSound } from "@/lib/game/audio";
 import { getHeroDialogue } from "@/lib/game/dialogues";
 import { heroes } from "@/lib/game/heroes";
@@ -31,6 +40,11 @@ export default function Home() {
   const [selectedHeroId, setSelectedHeroId] = useState("guan-yu");
   const [voiceEnabled, setVoiceEnabled] = useState(false);
   const [voiceSupported, setVoiceSupported] = useState(false);
+  const [bgmEnabled, setHomeBgmEnabled] = useState(false);
+  const [bgmSupported, setHomeBgmSupported] = useState(false);
+  const [bgmVolume, setHomeBgmVolume] = useState(0.35);
+  const homeBgmPlayerRef = useRef<BgmPlayer | null>(null);
+  const shouldResumeBgmAfterVideoRef = useRef(false);
   const selectedHero = heroes.find((hero) => hero.id === selectedHeroId) ?? heroes[0];
   const homeHeroImage = VISUAL_ASSET_MANIFEST.find((asset) => asset.id === "home-hero")?.path;
   const openingVideo = getOpeningVideoConfig();
@@ -42,9 +56,16 @@ export default function Home() {
     const timer = window.setTimeout(() => {
       setVoiceSupported(isVoiceSupported());
       setVoiceEnabled(readVoiceEnabledSetting());
+      setHomeBgmSupported(isBgmSupported());
+      setHomeBgmEnabled(getBgmEnabled());
+      setHomeBgmVolume(getBgmVolume());
+      homeBgmPlayerRef.current = createBgmPlayer();
     }, 0);
 
-    return () => window.clearTimeout(timer);
+    return () => {
+      window.clearTimeout(timer);
+      homeBgmPlayerRef.current?.stop();
+    };
   }, []);
 
   function handleSelectHero(heroId: string) {
@@ -66,10 +87,97 @@ export default function Home() {
     writeVoiceEnabledSetting(nextEnabled);
   }
 
+  function toggleHomeBgm() {
+    const player = homeBgmPlayerRef.current ?? createBgmPlayer();
+    homeBgmPlayerRef.current = player;
+    const nextEnabled = !bgmEnabled;
+    setHomeBgmEnabled(nextEnabled);
+    setBgmEnabled(nextEnabled);
+
+    if (nextEnabled) {
+      player.play("home-theme", { volume: bgmVolume });
+      return;
+    }
+
+    shouldResumeBgmAfterVideoRef.current = false;
+    player.stop();
+  }
+
+  function handleHomeBgmVolumeChange(volume: number) {
+    setHomeBgmVolume(volume);
+    setBgmVolume(volume);
+    homeBgmPlayerRef.current?.setVolume(volume);
+  }
+
+  function pauseHomeBgmForOpeningVideo() {
+    shouldResumeBgmAfterVideoRef.current = bgmEnabled;
+
+    if (bgmEnabled) {
+      homeBgmPlayerRef.current?.pause();
+    }
+  }
+
+  function resumeHomeBgmAfterOpeningVideo() {
+    if (bgmEnabled && shouldResumeBgmAfterVideoRef.current) {
+      homeBgmPlayerRef.current?.play("home-theme", { volume: bgmVolume });
+    }
+
+    shouldResumeBgmAfterVideoRef.current = false;
+  }
+
   return (
     <main className="min-h-screen bg-[#140c09] bg-[radial-gradient(circle_at_top_left,rgba(127,29,29,0.36),transparent_35%),linear-gradient(135deg,#1b100b_0%,#2a120d_48%,#090605_100%)] px-4 py-6 text-stone-100 sm:px-6 sm:py-10">
       <section className="mx-auto max-w-6xl">
-        <OpeningVideo config={openingVideo} startHref={selectedHeroStartHref} />
+        <OpeningVideo
+          config={openingVideo}
+          onModalClose={resumeHomeBgmAfterOpeningVideo}
+          onModalOpen={pauseHomeBgmForOpeningVideo}
+          startHref={selectedHeroStartHref}
+        />
+
+        <section className="mt-4 rounded-xl border border-emerald-500/35 bg-emerald-950/20 p-4 shadow-[0_18px_45px_rgba(0,0,0,0.24)]">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.18em] text-emerald-200">
+                背景音樂
+              </p>
+              <p className="mt-1 text-sm font-bold text-stone-200">
+                首頁主題音樂｜BGM：{bgmEnabled ? "開" : "關"}
+              </p>
+            </div>
+            <div className="flex flex-col gap-2 sm:min-w-[280px]">
+              <button
+                type="button"
+                onClick={toggleHomeBgm}
+                className={`h-10 rounded-md px-4 text-sm font-black transition ${
+                  bgmEnabled
+                    ? "bg-emerald-300 text-stone-950 hover:bg-emerald-200"
+                    : "border border-emerald-300/50 bg-stone-950/70 text-emerald-50 hover:border-emerald-100"
+                }`}
+              >
+                BGM：{bgmEnabled ? "開" : "關"}
+              </button>
+              <label className="text-xs font-bold text-stone-300">
+                音量 {Math.round(bgmVolume * 100)}%
+                <input
+                  aria-label="首頁 BGM 音量"
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.05"
+                  value={bgmVolume}
+                  onChange={(event) => handleHomeBgmVolumeChange(Number(event.target.value))}
+                  className="mt-2 block w-full accent-emerald-300"
+                />
+              </label>
+              {!bgmSupported ? (
+                <p className="text-xs font-bold text-stone-400">
+                  此瀏覽器不支援背景音樂播放。
+                </p>
+              ) : null}
+            </div>
+          </div>
+        </section>
 
         <section className="relative overflow-hidden rounded-2xl border border-amber-700/45 bg-black/35 shadow-[0_24px_70px_rgba(0,0,0,0.42)]">
           <GameImage
@@ -250,7 +358,7 @@ export default function Home() {
           <summary className="cursor-pointer text-2xl font-black text-amber-50">
             {homeCollapsibleSections[1].title}
           </summary>
-          <h2 className="sr-only">v0.20.2 目前特色</h2>
+          <h2 className="sr-only">v0.21.0 目前特色</h2>
           <ul className="mt-5 grid gap-3 text-sm leading-6 text-stone-300 md:grid-cols-2">
             {currentFeatureHighlights.map((feature) => (
               <li
