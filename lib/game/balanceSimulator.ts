@@ -1,5 +1,6 @@
 import { createSeededRandom } from "./seededRandom";
 import { getBossTraitName } from "./bossTraits";
+import { resolveGameMode, type GameModeId } from "./gameModes";
 import {
   createGame,
   endTurn,
@@ -25,6 +26,7 @@ export type BalanceStrategyName = "basic-safe-strategy";
 
 export interface RunSimulationOptions {
   heroId: HeroId;
+  mode?: GameModeId;
   seed?: string | number;
   maxTurns?: number;
   strategy?: BalanceStrategyName;
@@ -33,6 +35,8 @@ export interface RunSimulationOptions {
 export interface ManyRunSimulationOptions {
   heroIds: HeroId[];
   runsPerHero: number;
+  mode?: GameModeId;
+  modes?: GameModeId[];
   seed?: string | number;
   maxTurns?: number;
   strategy?: BalanceStrategyName;
@@ -40,6 +44,7 @@ export interface ManyRunSimulationOptions {
 
 export interface RunSimulationResult {
   heroId: HeroId;
+  mode: GameModeId;
   won: boolean;
   finalStage: number;
   turnsTaken: number;
@@ -69,6 +74,7 @@ export interface HeroBalanceStats {
 export interface BalanceSimulationSummary {
   totalRuns: number;
   perHeroStats: Record<HeroId, HeroBalanceStats>;
+  perModeStats: Partial<Record<GameModeId, ModeBalanceStats>>;
   overallWinRate: number;
   averageTurns: number;
   stageDeathDistribution: Record<string, number>;
@@ -82,6 +88,17 @@ export interface BalanceSimulationSummary {
   results: RunSimulationResult[];
 }
 
+export interface ModeBalanceStats {
+  mode: GameModeId;
+  totalRuns: number;
+  overallWinRate: number;
+  averageTurns: number;
+  stageDeathDistribution: Record<string, number>;
+  bossTraitStats: Record<string, number>;
+  enemyHealTriggerCount: number;
+  perHeroStats: Record<HeroId, HeroBalanceStats>;
+}
+
 const defaultMaxTurns = 320;
 const rewardPriority = [
   "slash-damage",
@@ -92,10 +109,11 @@ const rewardPriority = [
 ] as const;
 
 export function simulateRun(options: RunSimulationOptions): RunSimulationResult {
+  const mode = resolveGameMode(options.mode).id;
   const random = createSeededRandom(options.seed ?? `${options.heroId}:1`);
 
   return withSeededMathRandom(random, () => {
-    let state = createGame(options.heroId, { enemyRandom: random });
+    let state = createGame(options.heroId, { enemyRandom: random, mode });
     const maxTurns = options.maxTurns ?? defaultMaxTurns;
     const rewardsChosen: string[] = [];
     const routesChosen: string[] = [];
@@ -172,6 +190,7 @@ export function simulateRun(options: RunSimulationOptions): RunSimulationResult 
 
     return {
       heroId: options.heroId,
+      mode,
       won: state.status === "won",
       finalStage: Math.min(state.enemyIndex + 1, 8),
       turnsTaken: state.turn,
@@ -192,18 +211,24 @@ export function simulateRun(options: RunSimulationOptions): RunSimulationResult 
 
 export function simulateManyRuns(options: ManyRunSimulationOptions): BalanceSimulationSummary {
   const results: RunSimulationResult[] = [];
+  const modes = options.modes?.length
+    ? options.modes.map((mode) => resolveGameMode(mode).id)
+    : [resolveGameMode(options.mode).id];
 
-  options.heroIds.forEach((heroId) => {
-    for (let index = 0; index < options.runsPerHero; index += 1) {
-      results.push(
-        simulateRun({
-          heroId,
-          seed: `${options.seed ?? "balance"}:${heroId}:${index}`,
-          maxTurns: options.maxTurns,
-          strategy: options.strategy,
-        }),
-      );
-    }
+  modes.forEach((mode) => {
+    options.heroIds.forEach((heroId) => {
+      for (let index = 0; index < options.runsPerHero; index += 1) {
+        results.push(
+          simulateRun({
+            heroId,
+            mode,
+            seed: `${options.seed ?? "balance"}:${mode}:${heroId}:${index}`,
+            maxTurns: options.maxTurns,
+            strategy: options.strategy,
+          }),
+        );
+      }
+    });
   });
 
   return summarizeResults(results);
@@ -276,10 +301,16 @@ export function summarizeResults(results: RunSimulationResult[]): BalanceSimulat
 
     return stats;
   }, {} as Record<HeroId, HeroBalanceStats>);
+  const perModeStats = [...new Set(results.map((result) => result.mode))]
+    .reduce<Partial<Record<GameModeId, ModeBalanceStats>>>((stats, mode) => {
+      stats[mode] = summarizeModeResults(mode, results.filter((result) => result.mode === mode));
+      return stats;
+    }, {});
 
   return {
     totalRuns,
     perHeroStats,
+    perModeStats,
     overallWinRate: safeRatio(wins, totalRuns),
     averageTurns: average(results.map((result) => result.turnsTaken)),
     stageDeathDistribution,
@@ -291,6 +322,57 @@ export function summarizeResults(results: RunSimulationResult[]): BalanceSimulat
     bossTraitStats,
     enemyHealTriggerCount,
     results,
+  };
+}
+
+function summarizeModeResults(mode: GameModeId, results: RunSimulationResult[]): ModeBalanceStats {
+  const totalRuns = results.length;
+  const wins = results.filter((result) => result.won).length;
+  const stageDeathDistribution: Record<string, number> = {};
+  const bossTraitStats: Record<string, number> = {};
+  let enemyHealTriggerCount = 0;
+
+  results.forEach((result) => {
+    if (!result.won) {
+      const stageKey = `第 ${result.finalStage} 關`;
+      stageDeathDistribution[stageKey] = (stageDeathDistribution[stageKey] ?? 0) + 1;
+    }
+
+    result.bossTraitTriggers.forEach((traitId) => {
+      const traitName = getBossTraitName(traitId as BossTraitId);
+      bossTraitStats[traitName] = (bossTraitStats[traitName] ?? 0) + 1;
+    });
+
+    enemyHealTriggerCount += result.enemyHealTriggers;
+  });
+
+  const heroIds = [...new Set(results.map((result) => result.heroId))] as HeroId[];
+  const perHeroStats = heroIds.reduce<Record<HeroId, HeroBalanceStats>>((stats, heroId) => {
+    const heroResults = results.filter((result) => result.heroId === heroId);
+    const heroWins = heroResults.filter((result) => result.won).length;
+
+    stats[heroId] = {
+      heroId,
+      runs: heroResults.length,
+      wins: heroWins,
+      winRate: safeRatio(heroWins, heroResults.length),
+      averageTurns: average(heroResults.map((result) => result.turnsTaken)),
+      averageFinalStage: average(heroResults.map((result) => result.finalStage)),
+      averageDamageTaken: average(heroResults.map((result) => result.damageTaken)),
+    };
+
+    return stats;
+  }, {} as Record<HeroId, HeroBalanceStats>);
+
+  return {
+    mode,
+    totalRuns,
+    overallWinRate: safeRatio(wins, totalRuns),
+    averageTurns: average(results.map((result) => result.turnsTaken)),
+    stageDeathDistribution,
+    bossTraitStats,
+    enemyHealTriggerCount,
+    perHeroStats,
   };
 }
 

@@ -1,5 +1,6 @@
 import type { SoundCue } from "./sounds";
 import type { BossTraitId } from "./types";
+import type { GameModeId } from "./gameModes";
 
 export const bossTraitCatalog: Record<
   BossTraitId,
@@ -44,26 +45,44 @@ export function getBossTraitShortName(traitId: BossTraitId) {
   return bossTraitCatalog[traitId].shortName;
 }
 
-export function getBossTraitDescription(traitId: BossTraitId) {
+export function getBossTraitDescription(traitId: BossTraitId, mode: GameModeId = "normal") {
+  if (traitId === "warlord-recovery") {
+    return `首次降到半血以下時回復 ${getWarlordRecoveryAmount(mode)} 點體力`;
+  }
+
   return bossTraitCatalog[traitId].description;
 }
 
-export function getBossTraitAlert(traitId: BossTraitId) {
+export function getBossTraitAlert(traitId: BossTraitId, mode: GameModeId = "normal") {
+  const recoveryAmount = getWarlordRecoveryAmount(mode);
+
   return {
     traitId,
     title: bossTraitCatalog[traitId].alertTitle,
-    subtitle: bossTraitCatalog[traitId].alertSubtitle,
-    feedbackText: bossTraitCatalog[traitId].feedbackText,
+    subtitle: traitId === "warlord-recovery"
+      ? `呂布回復 ${recoveryAmount} 點體力`
+      : bossTraitCatalog[traitId].alertSubtitle,
+    feedbackText: traitId === "warlord-recovery"
+      ? `+${recoveryAmount}`
+      : bossTraitCatalog[traitId].feedbackText,
     soundCue: bossTraitCatalog[traitId].soundCue,
   };
 }
 
-export function getBossTraitLogMessage(traitId: BossTraitId, enemyName: string) {
+export function getBossTraitLogMessage(
+  traitId: BossTraitId,
+  enemyName: string,
+  mode: GameModeId = "normal",
+) {
   if (traitId === "unmatched-pressure") {
     return `${bossTraitCatalog[traitId].logMarker} ${enemyName}發動無雙壓迫，猛攻第二段傷害 +1！`;
   }
 
-  return `${bossTraitCatalog[traitId].logMarker} ${enemyName}發動戰神回血，回復 3 點體力！`;
+  return `${bossTraitCatalog[traitId].logMarker} ${enemyName}發動戰神回血，回復 ${getWarlordRecoveryAmount(mode)} 點體力！`;
+}
+
+export function getWarlordRecoveryAmount(mode: GameModeId = "normal") {
+  return mode === "challenge" ? 4 : 3;
 }
 
 export function getBossTraitHudLabels(

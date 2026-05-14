@@ -1,17 +1,25 @@
 import Link from "next/link";
 import { ShareGameButton } from "@/components/ShareGameButton";
 import { getGameResultDialogue } from "@/lib/game/dialogues";
+import {
+  getGameModeName,
+  getResultModeOutcomeLabel,
+  resolveGameMode,
+} from "@/lib/game/gameModes";
 
 export default async function ResultPage({
   searchParams,
 }: {
-  searchParams: Promise<{ outcome?: string }>;
+  searchParams: Promise<{ outcome?: string; mode?: string }>;
 }) {
-  const { outcome } = await searchParams;
+  const { outcome, mode } = await searchParams;
+  const resolvedMode = resolveGameMode(mode);
   const isWon = outcome === "won";
   const isLost = outcome === "lost";
   const resultDialogue = isWon ? getGameResultDialogue("won") : isLost ? getGameResultDialogue("lost") : undefined;
-  const title = isWon ? "通關成功" : isLost ? "戰敗" : "戰役結果";
+  const title = isWon || isLost
+    ? getResultModeOutcomeLabel(outcome, resolvedMode.id)
+    : "戰役結果";
   const message = isWon
     ? (resultDialogue?.text ?? "你突破虎牢關前的考驗，第一章：黃巾亂起 已完成。")
     : isLost
@@ -26,6 +34,9 @@ export default async function ResultPage({
           <p className="text-sm font-black uppercase tracking-[0.22em] text-amber-300">
             戰役結果
           </p>
+          <p className="mt-3 inline-flex rounded-full border border-amber-300/45 bg-amber-500/12 px-3 py-1 text-sm font-black text-amber-100">
+            本局模式：{getGameModeName(resolvedMode.id)}
+          </p>
           <h1 className="mt-4 text-4xl font-black text-amber-50 sm:text-7xl">
             {title}
           </h1>
@@ -37,7 +48,7 @@ export default async function ResultPage({
           </p>
           <div className="mt-10 flex flex-wrap gap-3">
             <Link
-              href="/game"
+              href={`/game?mode=${resolvedMode.id}`}
               className="inline-flex h-12 items-center justify-center rounded-md bg-amber-500 px-6 text-sm font-black text-stone-950 transition hover:bg-amber-300"
             >
               {cta}

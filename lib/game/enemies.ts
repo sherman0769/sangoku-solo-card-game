@@ -1,4 +1,6 @@
 import type { Enemy, EnemyAction, EnemyStage } from "./types";
+import type { GameModeId } from "./gameModes";
+import { isChallengeMode } from "./gameModes";
 import { getStageConfig } from "./stages";
 
 const actionTemplates = {
@@ -216,6 +218,7 @@ export function selectEnemyForStage(
   stage: EnemyStage,
   enemyId?: string,
   random: () => number = () => 0,
+  mode: GameModeId = "normal",
 ): Enemy {
   const pool = getEnemiesForStage(stage);
   const stageConfig = getStageConfig(stage);
@@ -226,7 +229,11 @@ export function selectEnemyForStage(
         pool[Math.floor(random() * pool.length)] ??
         pool[0]);
 
-  return applyLateStageHpScaling(cloneEnemyForStage(selected, stage), stage);
+  return applyModeEnemyScaling(
+    applyLateStageHpScaling(cloneEnemyForStage(selected, stage), stage),
+    stage,
+    mode,
+  );
 }
 
 export function applyLateStageHpScaling(enemy: Enemy, stage: EnemyStage): Enemy {
@@ -256,6 +263,70 @@ export function getLateStageHpBonus(enemy: Pick<Enemy, "type">, stage: EnemyStag
   }
 
   return 0;
+}
+
+export function applyModeEnemyScaling(enemy: Enemy, stage: EnemyStage, mode: GameModeId): Enemy {
+  if (!isChallengeMode(mode)) {
+    return enemy;
+  }
+
+  const hpBonus = getChallengeHpBonus(enemy, stage);
+  const scaledEnemy = hpBonus > 0
+    ? {
+        ...enemy,
+        maxHp: enemy.maxHealth + hpBonus,
+        maxHealth: enemy.maxHealth + hpBonus,
+        traits: [...enemy.traits, `挑戰模式 +${hpBonus}`],
+      }
+    : enemy;
+
+  return applyChallengeActionPressure(scaledEnemy);
+}
+
+export function getChallengeHpBonus(enemy: Pick<Enemy, "type">, stage: EnemyStage) {
+  if (stage === 8 && enemy.type === "boss") {
+    return 1;
+  }
+
+  if (stage >= 1 && stage <= 7) {
+    return 1;
+  }
+
+  return 0;
+}
+
+export function applyChallengeActionPressure(enemy: Enemy): Enemy {
+  const bonusActions: EnemyAction[] = [];
+  const fierceAction = enemy.actionDeck.find((action) => action.kind === "fierce");
+  const attackAction = enemy.actionDeck.find((action) => action.kind === "attack");
+  const healAction = enemy.id === "zhang-bao"
+    ? enemy.actionDeck.find((action) => action.kind === "heal")
+    : undefined;
+
+  if (fierceAction) {
+    bonusActions.push({ ...fierceAction });
+  } else if (attackAction) {
+    bonusActions.push({ ...attackAction });
+  }
+
+  if (healAction) {
+    bonusActions.push({ ...healAction });
+  }
+
+  if (bonusActions.length === 0) {
+    return enemy;
+  }
+
+  const actionDeck = [
+    ...enemy.actionDeck.map((action) => ({ ...action })),
+    ...bonusActions,
+  ];
+
+  return {
+    ...enemy,
+    actionDeck,
+    actions: actionDeck.map((action) => ({ ...action })),
+  };
 }
 
 export function cloneEnemy(enemy: Enemy): Enemy {

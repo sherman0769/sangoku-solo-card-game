@@ -3,27 +3,29 @@ import { dirname, resolve } from "node:path";
 import { generateBalanceReport } from "../lib/game/balanceReport";
 import { simulateManyRuns } from "../lib/game/balanceSimulator";
 
-const reportPath = resolve("docs/balance-report-v0.25.0.md");
+const reportPath = resolve("docs/balance-report-v0.26.0.md");
 
 async function main() {
   const summary = simulateManyRuns({
     heroIds: ["guan-yu", "zhao-yun", "zhuge-liang", "li-shimin-ai-architect"],
     runsPerHero: 50,
-    seed: "v0.25.0-balance",
+    modes: ["normal", "challenge"],
+    seed: "v0.26.0-balance",
     maxTurns: 360,
     strategy: "basic-safe-strategy",
   });
 
   const report = generateBalanceReport(summary, {
-    title: "# v0.25.0 強化回饋與敵人行動升級平衡報告",
+    title: "# v0.26.0 挑戰模式平衡報告",
     preAdjustmentSummary: [
-      "v0.24.4 已完成首頁到遊戲頁 BGM 延續、卡牌圖與手機戰鬥 UX 基礎修正。",
-      "本次以小幅方式提高後期敵人耐久，並讓張寶新增回復行動，觀察第 7～8 關節奏是否更穩定。",
+      "v0.25.0 普通模式整體勝率仍偏高，保留作為劇情與展示體驗。",
+      "本次新增挑戰模式，讓熟悉規則的玩家面對更高敵人血量、行動壓力與 Boss 壓迫。",
     ],
     adjustments: [
-      "第 5～7 關敵人 clone 進場時最大體力 +1，第 8 關 Boss 呂布最大體力 +2。",
-      "張寶 actionDeck 新增一張回復行動：非滿血時回復 2 點體力，滿血時改為防守。",
-      "本次不調整第 1～4 關、玩家牌組、獎勵數值與路線事件收益。",
+      "普通模式維持 v0.25.0 後期耐久規則：第 5～7 關 +1，第 8 關 Boss +2。",
+      "挑戰模式在普通模式基礎上額外加壓：第 1～7 關 +1，第 8 關 Boss 再 +1。",
+      "挑戰模式敵人 actionDeck 追加攻擊或猛攻；張寶額外追加一張回復；呂布額外追加一張猛攻。",
+      "挑戰模式呂布戰神回血由 3 點提高為 4 點。",
     ],
     goalAssessment: createGoalAssessment(summary),
   });
@@ -42,17 +44,24 @@ function createGoalAssessment(summary: ReturnType<typeof simulateManyRuns>) {
   const highestWinRate = Math.max(...winRates);
   const lowestWinRate = Math.min(...winRates);
   const gap = highestWinRate - lowestWinRate;
+  const normal = summary.perModeStats.normal;
+  const challenge = summary.perModeStats.challenge;
+  const challengeDrop = normal && challenge
+    ? normal.overallWinRate - challenge.overallWinRate
+    : 0;
 
   return [
-    `調整後整體勝率為 ${formatPercent(summary.overallWinRate)}。`,
+    `普通模式整體勝率為 ${normal ? formatPercent(normal.overallWinRate) : "未模擬"}。`,
+    `挑戰模式整體勝率為 ${challenge ? formatPercent(challenge.overallWinRate) : "未模擬"}。`,
+    `挑戰模式相對普通模式勝率下降 ${formatPercent(challengeDrop)}。`,
     `四位角色勝率差距為 ${formatPercent(gap)}。`,
     `路線事件共觸發 ${getTotalRouteEvents(summary)} 次。`,
     `Boss 特性觸發統計：${formatBossTraitStats(summary)}。`,
     `敵人回血行動觸發 ${summary.enemyHealTriggerCount} 次。`,
     `低血量選山道 ${summary.routeDecisionStats["低血量｜山道"] ?? 0} 次；中等血量選官道 ${summary.routeDecisionStats["中等血量｜官道"] ?? 0} 次；高血量狀態好選險道 ${summary.routeDecisionStats["高血量｜險道"] ?? 0} 次。`,
-    summary.overallWinRate > 0.8
-      ? "整體勝率仍偏高，需觀察呂布 Boss 特性是否需要再加強或加入第二階段行動。"
-      : "整體勝率已下降到較可觀察區間，可繼續觀察第 8 關死亡與 Boss 特性觸發頻率。",
+    challenge && normal && challenge.overallWinRate < normal.overallWinRate
+      ? "挑戰模式已使勝率低於普通模式，可繼續觀察是否落在理想挑戰區間。"
+      : "挑戰模式尚未明顯拉低勝率，下一輪可優先檢查敵人行動權重與 Boss 壓迫。",
   ];
 }
 

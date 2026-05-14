@@ -24,6 +24,12 @@ import { getHeroDialogue } from "@/lib/game/dialogues";
 import { heroes } from "@/lib/game/heroes";
 import { getOpeningVideoConfig } from "@/lib/game/openingVideo";
 import {
+  GAME_MODES,
+  createGameStartHref,
+  getGameModeName,
+  type GameModeId,
+} from "@/lib/game/gameModes";
+import {
   getHeroPreviewAudioKey,
   getHeroStartLabel,
   homeHeroPreviewCopy,
@@ -44,6 +50,7 @@ import { VISUAL_ASSET_MANIFEST } from "@/lib/game/visualAssetManifest";
 
 export default function Home() {
   const [selectedHeroId, setSelectedHeroId] = useState("guan-yu");
+  const [selectedMode, setSelectedMode] = useState<GameModeId>("normal");
   const [voiceEnabled, setVoiceEnabled] = useState(false);
   const [voiceSupported, setVoiceSupported] = useState(false);
   const [bgmEnabled, setHomeBgmEnabled] = useState(false);
@@ -55,7 +62,7 @@ export default function Home() {
   const selectedHero = heroes.find((hero) => hero.id === selectedHeroId) ?? heroes[0];
   const homeHeroImage = VISUAL_ASSET_MANIFEST.find((asset) => asset.id === "home-hero")?.path;
   const openingVideo = getOpeningVideoConfig();
-  const selectedHeroStartHref = `/game?hero=${selectedHeroId}`;
+  const selectedHeroStartHref = createGameStartHref(selectedHeroId, selectedMode);
   const selectedHeroStartLabel = getHeroStartLabel(selectedHero.name);
   const selectedHeroPreviewDialogue = getHeroDialogue(selectedHero.id, "hero_preview");
 
@@ -286,6 +293,53 @@ export default function Home() {
           <p className="mt-3 inline-flex rounded-full border border-amber-300/40 bg-amber-500/12 px-3 py-1 text-sm font-black text-amber-100">
             目前選擇：{selectedHero.name}
           </p>
+          <section className="mt-4 rounded-lg border border-sky-400/30 bg-sky-950/20 p-4">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className="text-xs font-black tracking-[0.16em] text-sky-200">
+                  選擇模式
+                </p>
+                <p className="mt-2 text-sm font-bold text-stone-200">
+                  目前模式：{getGameModeName(selectedMode)}
+                </p>
+              </div>
+              {selectedMode === "challenge" ? (
+                <p className="text-sm font-bold leading-6 text-amber-100">
+                  挑戰模式會提高敵人血量與行動壓力，建議熟悉規則後再選。
+                </p>
+              ) : null}
+            </div>
+            <div className="mt-3 grid gap-3 sm:grid-cols-2">
+              {GAME_MODES.map((mode) => {
+                const isSelected = selectedMode === mode.id;
+
+                return (
+                  <button
+                    key={mode.id}
+                    type="button"
+                    onClick={() => setSelectedMode(mode.id)}
+                    className={`rounded-lg border p-4 text-left transition ${
+                      isSelected
+                        ? "border-sky-200 bg-sky-500/18 shadow-[0_0_0_2px_rgba(125,211,252,0.18)]"
+                        : "border-stone-700 bg-stone-950/50 hover:border-sky-400"
+                    }`}
+                  >
+                    <span className="text-base font-black text-stone-50">
+                      {mode.name}
+                    </span>
+                    <span className="mt-2 block text-sm leading-6 text-stone-300">
+                      {mode.id === "normal"
+                        ? "適合第一次體驗，較重視完整劇情與文圖聲影展示。"
+                        : "敵人更積極，後期與 Boss 戰更有壓力，適合熟悉規則後挑戰。"}
+                    </span>
+                    <span className="mt-3 inline-flex rounded-full border border-sky-300/40 bg-sky-500/15 px-3 py-1 text-xs font-black text-sky-100">
+                      {mode.recommendedFor}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </section>
           {selectedHeroPreviewDialogue ? (
             <div className="mt-3 rounded-lg border border-amber-300/35 bg-amber-500/10 px-4 py-3">
               <p className="text-xs font-black tracking-[0.16em] text-amber-200">

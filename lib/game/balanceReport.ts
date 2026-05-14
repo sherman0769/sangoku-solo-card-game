@@ -36,6 +36,7 @@ export function generateBalanceReport(
     "| --- | ---: | ---: | ---: | ---: | ---: |",
     ...Object.values(summary.perHeroStats).map(formatHeroRow),
     "",
+    ...formatModeSection(summary),
     "## 整體統計",
     "",
     `- 整體勝率：${formatPercent(summary.overallWinRate)}`,
@@ -85,6 +86,43 @@ export function generateBalanceReport(
   ];
 
   return lines.join("\n");
+}
+
+function formatModeSection(summary: BalanceSimulationSummary) {
+  const entries = Object.values(summary.perModeStats);
+
+  if (entries.length === 0) {
+    return [];
+  }
+
+  const modeNames: Record<string, string> = {
+    normal: "普通模式",
+    challenge: "挑戰模式",
+  };
+
+  return [
+    "## 模式比較",
+    "",
+    "| 模式 | 局數 | 整體勝率 | 平均回合數 | 敵人回血 | 第 8 關死亡 |",
+    "| --- | ---: | ---: | ---: | ---: | ---: |",
+    ...entries.map((entry) => [
+      modeNames[entry.mode] ?? entry.mode,
+      entry.totalRuns,
+      formatPercent(entry.overallWinRate),
+      formatNumber(entry.averageTurns),
+      entry.enemyHealTriggerCount,
+      entry.stageDeathDistribution["第 8 關"] ?? 0,
+    ].join(" | ").replace(/^/, "| ").concat(" |")),
+    "",
+    ...entries.flatMap((entry) => [
+      `### ${modeNames[entry.mode] ?? entry.mode}四位角色勝率`,
+      "",
+      "| 武將 | 局數 | 勝率 | 平均回合數 | 平均最終關卡 | 平均受傷 |",
+      "| --- | ---: | ---: | ---: | ---: | ---: |",
+      ...Object.values(entry.perHeroStats).map(formatHeroRow),
+      "",
+    ]),
+  ];
 }
 
 function formatOptionalSection(title: string, items?: readonly string[]) {

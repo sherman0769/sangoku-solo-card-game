@@ -66,6 +66,11 @@ import {
 } from "@/lib/game/mobileBattleUx";
 import { getRouteEventTypeLabel } from "@/lib/game/routeEvents";
 import {
+  getGameModeBadge,
+  getGameModeName,
+  resolveGameMode,
+} from "@/lib/game/gameModes";
+import {
   createGame,
   endTurn,
   getCurrentEnemyAction,
@@ -130,9 +135,16 @@ interface StageNotice {
   subtitle: string;
 }
 
-export default function GameBoard({ initialHeroId }: { initialHeroId?: string }) {
+export default function GameBoard({
+  initialHeroId,
+  initialMode,
+}: {
+  initialHeroId?: string;
+  initialMode?: string;
+}) {
   const [initialState, setInitialState] = useState<GameState | null>(null);
   const initializedRef = useRef(false);
+  const resolvedInitialMode = resolveGameMode(initialMode).id;
 
   useEffect(() => {
     if (initializedRef.current) {
@@ -140,14 +152,23 @@ export default function GameBoard({ initialHeroId }: { initialHeroId?: string })
     }
 
     initializedRef.current = true;
-    setInitialState(createGame(initialHeroId, { enemyRandom: Math.random }));
-  }, [initialHeroId]);
+    setInitialState(createGame(initialHeroId, {
+      enemyRandom: Math.random,
+      mode: resolvedInitialMode,
+    }));
+  }, [initialHeroId, resolvedInitialMode]);
 
   if (!initialState) {
     return <GameBoardLoading />;
   }
 
-  return <GameBoardContent initialHeroId={initialHeroId} initialState={initialState} />;
+  return (
+    <GameBoardContent
+      initialHeroId={initialHeroId}
+      initialMode={resolvedInitialMode}
+      initialState={initialState}
+    />
+  );
 }
 
 function GameBoardLoading() {
@@ -175,9 +196,11 @@ function GameBoardLoading() {
 
 function GameBoardContent({
   initialHeroId,
+  initialMode,
   initialState,
 }: {
   initialHeroId?: string;
+  initialMode: ReturnType<typeof resolveGameMode>["id"];
   initialState: GameState;
 }) {
   const router = useRouter();
@@ -218,7 +241,7 @@ function GameBoardContent({
   const playerStatuses = getPlayerCombatBadges(state);
   const enemyStatuses = getEnemyCombatBadges(state, nextEnemyAction.label);
   const enemyBossTraitDetails = state.enemy.bossTraits.map(
-    (traitId) => `Boss 特性｜${getBossTraitName(traitId)}：${getBossTraitDescription(traitId)}`,
+    (traitId) => `Boss 特性｜${getBossTraitName(traitId)}：${getBossTraitDescription(traitId, state.mode)}`,
   );
   const upgradeSummary = getUpgradeSummary(state);
   const upgradeLabels = upgradeSummary.fullLabels;
@@ -345,10 +368,10 @@ function GameBoardContent({
       }
 
       outcomeTimerRef.current = setTimeout(() => {
-        router.push(`/result?outcome=${state.status}`);
+        router.push(`/result?outcome=${state.status}&mode=${state.mode}`);
       }, 1450);
     }
-  }, [router, state.status]);
+  }, [router, state.mode, state.status]);
 
   function nextFeedbackId() {
     feedbackIdRef.current += 1;
@@ -422,7 +445,7 @@ function GameBoardContent({
     const newTraitIds = next.bossTraitHistory.slice(previous.bossTraitHistory.length);
 
     newTraitIds.forEach((traitId) => {
-      const alert = getBossTraitAlert(traitId);
+      const alert = getBossTraitAlert(traitId, next.mode);
       showBossTraitAlert({
         id: nextFeedbackId(),
         title: alert.title,
@@ -479,7 +502,10 @@ function GameBoardContent({
   }
 
   function restartCurrentGame() {
-    setState(createGame(initialHeroId, { enemyRandom: Math.random }));
+    setState(createGame(initialHeroId, {
+      enemyRandom: Math.random,
+      mode: initialMode,
+    }));
   }
 
   useEffect(() => {
@@ -738,7 +764,7 @@ function GameBoardContent({
           <div className="min-w-0">
             <p className="break-words text-xs font-bold uppercase leading-5 tracking-[0.18em] text-amber-300 sm:tracking-[0.22em]">
               {state.chapter.name} · 第 {state.enemyIndex + 1} 關 / {totalStages} ·
-              第 {state.turn} 回合
+              第 {state.turn} 回合 · {getGameModeName(state.mode)}
             </p>
             <h1 className="mt-2 text-2xl font-black tracking-normal text-amber-50 sm:text-4xl">
               三國單騎傳
@@ -804,6 +830,7 @@ function GameBoardContent({
               enemyFeedback={panelFeedback?.target === "enemy" ? panelFeedback : undefined}
               enemyDefeated={enemyDefeated}
               enemyDefeatedStamp={enemyDefeatedStamp}
+              modeBadge={getGameModeBadge(state.mode)}
               playerName={state.player.name}
               playerHealth={`${state.player.health}/${state.player.maxHealth}`}
               playerStatuses={playerStatuses}
@@ -1199,6 +1226,7 @@ function GameBoardContent({
                 audioSupported={audioSupported}
                 battleLines={[
                   `章節：${state.chapter.name}`,
+                  `模式：${getGameModeName(state.mode)}`,
                   `關卡：${state.stageConfig.name}`,
                   `牌庫 ${state.deck.length} 張 / 棄牌 ${state.discard.length} 張`,
                   state.selectedRoute ? `目前路線：${state.selectedRoute.name}` : null,
@@ -1274,6 +1302,7 @@ function GameBoardContent({
               <p>
                 目前第 {state.enemyIndex + 1} 關，共 {totalStages} 關
               </p>
+              <p className="mt-2">模式：{getGameModeName(state.mode)}</p>
               <p className="mt-2">章節：{state.chapter.name}</p>
               <p className="mt-2">關卡：{state.stageConfig.name}</p>
               <p className="mt-2">關卡敘事：{state.stageConfig.flavorText}</p>
@@ -1339,6 +1368,7 @@ function MobileBattleHud({
   enemyFeedback,
   enemyDefeated,
   enemyDefeatedStamp,
+  modeBadge,
   playerName,
   playerHealth,
   playerStatuses,
@@ -1357,6 +1387,7 @@ function MobileBattleHud({
   enemyFeedback?: PanelFeedback;
   enemyDefeated: boolean;
   enemyDefeatedStamp: string;
+  modeBadge: string;
   playerName: string;
   playerHealth: string;
   playerStatuses: string[];
@@ -1370,7 +1401,7 @@ function MobileBattleHud({
     <section className="mt-5 grid gap-3 md:hidden">
       <MobileHudRow
         tone="enemy"
-        eyebrow={`敵人｜${enemyType}`}
+        eyebrow={`敵人｜${enemyType}｜${modeBadge}`}
         title={enemyName}
         health={enemyHealth}
         statuses={enemyStatuses}

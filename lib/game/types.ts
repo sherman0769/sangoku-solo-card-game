@@ -271,6 +271,7 @@ export interface Reward {
 }
 
 export interface GameState {
+  mode: import("./gameModes").GameModeId;
   chapter: Chapter;
   stageConfig: ChapterStageConfig;
   player: PlayerState;

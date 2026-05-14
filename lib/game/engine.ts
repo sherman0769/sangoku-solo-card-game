@@ -1,5 +1,5 @@
 import { starterDeck } from "./cards";
-import { getBossTraitLogMessage } from "./bossTraits";
+import { getBossTraitLogMessage, getWarlordRecoveryAmount } from "./bossTraits";
 import {
   getChapterIntroDialogue,
   getBossRecoveryDialogue,
@@ -13,6 +13,7 @@ import {
 import { cloneEnemy, selectEnemyForStage } from "./enemies";
 import { resolveEvent } from "./events";
 import { resolveHero } from "./heroes";
+import { resolveGameMode, type GameModeId } from "./gameModes";
 import { selectRouteEventForRoute } from "./routeEvents";
 import { resolveStageRoute, stageRoutes } from "./routes";
 import {
@@ -52,6 +53,7 @@ interface EnemySelectionOptions {
   enemyIds?: Partial<Record<EnemyStage, string>>;
   enemyRandom?: () => number;
   equipmentRandom?: () => number;
+  mode?: GameModeId;
 }
 
 interface RouteEventSelectionOptions {
@@ -152,13 +154,16 @@ export const rewardCatalog: Reward[] = [
 
 export function createGame(heroId?: string, enemyOptions?: EnemySelectionOptions): GameState {
   const hero = resolveHero(heroId);
+  const mode = resolveGameMode(enemyOptions?.mode).id;
   const firstStage = getStageConfig(1);
   const firstEnemy = selectEnemyForStage(
     1,
     enemyOptions?.enemyIds?.[1],
     enemyOptions?.enemyRandom,
+    mode,
   );
   const baseState: GameState = {
+    mode,
     chapter: chapterOne,
     stageConfig: firstStage,
     player: createStartingPlayer(hero),
@@ -185,7 +190,11 @@ export function createGame(heroId?: string, enemyOptions?: EnemySelectionOptions
     routeEventHistory: [],
     routeEventRecentlyProcessed: false,
     status: "playing",
-    log: [firstEnemy.intro, firstStage.flavorText],
+    log: [
+      ...(mode === "challenge" ? ["你選擇了挑戰模式，敵人將更加積極。"] : []),
+      firstEnemy.intro,
+      firstStage.flavorText,
+    ].slice(0, logLimit),
     currentDialogue: getHeroDialogue(hero.id, "hero_intro"),
     dialogueHistory: createOpeningDialogueHistory(hero.id, firstStage.stage, firstEnemy),
     lowHpDialogueUsed: false,
@@ -973,6 +982,7 @@ function startNextStage(
     stage,
     enemyOptions?.enemyIds?.[stage],
     enemyOptions?.enemyRandom,
+    next.mode,
   );
   const nextEnemy = applyNextBattleModifiersToEnemy(
     baseEnemy,
@@ -1292,10 +1302,11 @@ function applyWarlordRecovery(state: GameState) {
 
   state.bossTraitUsage["warlord-recovery"] = true;
   state.bossTraitHistory.push("warlord-recovery");
-  state.enemyHealth = Math.min(state.enemy.maxHealth, state.enemyHealth + 3);
+  const recoveryAmount = getWarlordRecoveryAmount(state.mode);
+  state.enemyHealth = Math.min(state.enemy.maxHealth, state.enemyHealth + recoveryAmount);
   setDialogue(state, getBossRecoveryDialogue(state.enemy.id));
 
-  return [getBossTraitLogMessage("warlord-recovery", state.enemy.name)];
+  return [getBossTraitLogMessage("warlord-recovery", state.enemy.name, state.mode)];
 }
 
 function applyUnmatchedPressure(
@@ -1319,7 +1330,7 @@ function applyUnmatchedPressure(
   state.bossTraitHistory.push("unmatched-pressure");
   setDialogue(state, getBossTraitDialogue(state.enemy.id));
 
-  return [getBossTraitLogMessage("unmatched-pressure", state.enemy.name)];
+  return [getBossTraitLogMessage("unmatched-pressure", state.enemy.name, state.mode)];
 }
 
 function hasBossTrait(enemy: Enemy, traitId: BossTraitId) {
@@ -1384,6 +1395,7 @@ function cloneState(state: GameState): GameState {
 
   return {
     ...state,
+    mode: resolveGameMode(state.mode).id,
     chapter: { ...(state.chapter ?? chapterOne) },
     stageConfig: {
       ...(state.stageConfig ?? fallbackStageConfig),

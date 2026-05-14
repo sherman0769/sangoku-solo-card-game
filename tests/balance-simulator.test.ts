@@ -22,6 +22,7 @@ describe("battle balance simulator", () => {
     });
 
     expect(result.heroId).toBe("guan-yu");
+    expect(result.mode).toBe("normal");
     expect(typeof result.won).toBe("boolean");
     expect(result.finalStage).toBeGreaterThanOrEqual(1);
     expect(result.turnsTaken).toBeGreaterThan(0);
@@ -41,6 +42,7 @@ describe("battle balance simulator", () => {
     });
 
     expect(summary.totalRuns).toBe(8);
+    expect(summary.perModeStats.normal?.totalRuns).toBe(8);
     expect(Object.keys(summary.perHeroStats)).toEqual([
       "guan-yu",
       "zhao-yun",
@@ -111,6 +113,28 @@ describe("battle balance simulator", () => {
     expect(summary.enemyHealTriggerCount).toBeGreaterThanOrEqual(0);
     expect(report).toContain("敵人回血");
     expect(report).toContain("v0.25.0");
+  });
+
+  it("supports normal and challenge mode balance comparisons", () => {
+    const summary = simulateManyRuns({
+      heroIds: ["guan-yu", "zhao-yun"],
+      runsPerHero: 1,
+      modes: ["normal", "challenge"],
+      seed: "mode-balance-test",
+      maxTurns: 200,
+      strategy: "basic-safe-strategy",
+    });
+    const report = generateBalanceReport(summary, {
+      title: "# v0.26.0 挑戰模式平衡報告",
+    });
+
+    expect(summary.totalRuns).toBe(4);
+    expect(summary.perModeStats.normal?.totalRuns).toBe(2);
+    expect(summary.perModeStats.challenge?.totalRuns).toBe(2);
+    expect(summary.results.some((result) => result.mode === "challenge")).toBe(true);
+    expect(report).toContain("模式比較");
+    expect(report).toContain("普通模式");
+    expect(report).toContain("挑戰模式");
   });
 
   it("chooses routes by health and state for basic-safe-strategy", () => {

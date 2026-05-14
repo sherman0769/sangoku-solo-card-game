@@ -4,6 +4,7 @@ import {
   getBossTraitAlert,
   getBossTraitHudLabels,
   getBossTraitLogMessage,
+  getWarlordRecoveryAmount,
 } from "@/lib/game/bossTraits";
 import { starterDeck } from "@/lib/game/cards";
 import {
@@ -29,10 +30,12 @@ import {
 } from "@/lib/game/engine";
 import {
   applyLateStageHpScaling,
+  applyModeEnemyScaling,
   bossEnemy,
   enemyPool,
   firstStageEnemyPool,
   getLateStageHpBonus,
+  getChallengeHpBonus,
   getEnemiesForStage,
   secondStageEnemyPool,
   selectEnemyForStage,
@@ -224,6 +227,50 @@ describe("game engine", () => {
     expect(selectEnemyForStage(7, "zhang-bao").maxHealth).toBe(zhangBaoBase.maxHealth + 1);
     expect(selectEnemyForStage(8, "lu-bu").maxHealth).toBe(luBuBase.maxHealth + 2);
     expect(applyLateStageHpScaling(xiliangBase, 4).maxHealth).toBe(xiliangBase.maxHealth);
+  });
+
+  it("creates games with normal and challenge modes", () => {
+    expect(createGame("guan-yu", { mode: "normal" }).mode).toBe("normal");
+    expect(createGame("guan-yu", { mode: "challenge" }).mode).toBe("challenge");
+    expect(createGame("guan-yu", { mode: "challenge" }).log[0]).toContain("挑戰模式");
+  });
+
+  it("applies challenge HP scaling on top of normal scaling only in challenge mode", () => {
+    const soldierBase = enemyPool.find((enemy) => enemy.id === "yellow-turban-soldier")!;
+    const zhangBaoBase = enemyPool.find((enemy) => enemy.id === "zhang-bao")!;
+    const luBuBase = enemyPool.find((enemy) => enemy.id === "lu-bu")!;
+
+    expect(selectEnemyForStage(1, "yellow-turban-soldier", () => 0, "normal").maxHealth)
+      .toBe(soldierBase.maxHealth);
+    expect(selectEnemyForStage(1, "yellow-turban-soldier", () => 0, "challenge").maxHealth)
+      .toBe(soldierBase.maxHealth + 1);
+    expect(selectEnemyForStage(7, "zhang-bao", () => 0, "challenge").maxHealth)
+      .toBe(zhangBaoBase.maxHealth + 2);
+    expect(selectEnemyForStage(8, "lu-bu", () => 0, "challenge").maxHealth)
+      .toBe(luBuBase.maxHealth + 3);
+    expect(getChallengeHpBonus(luBuBase, 8)).toBe(1);
+    expect(applyModeEnemyScaling(selectEnemyForStage(1, "yellow-turban-soldier"), 1, "normal").maxHealth)
+      .toBe(soldierBase.maxHealth);
+  });
+
+  it("makes challenge enemy action decks more aggressive", () => {
+    const normalZhangBao = selectEnemyForStage(7, "zhang-bao", () => 0, "normal");
+    const challengeZhangBao = selectEnemyForStage(7, "zhang-bao", () => 0, "challenge");
+    const normalLuBu = selectEnemyForStage(8, "lu-bu", () => 0, "normal");
+    const challengeLuBu = selectEnemyForStage(8, "lu-bu", () => 0, "challenge");
+
+    expect(challengeZhangBao.actionDeck.filter((action) => action.kind === "heal").length)
+      .toBeGreaterThan(normalZhangBao.actionDeck.filter((action) => action.kind === "heal").length);
+    expect(challengeLuBu.actionDeck.filter((action) => action.kind === "fierce").length)
+      .toBeGreaterThan(normalLuBu.actionDeck.filter((action) => action.kind === "fierce").length);
+  });
+
+  it("uses stronger Lu Bu warlord recovery in challenge mode only", () => {
+    expect(getWarlordRecoveryAmount("normal")).toBe(3);
+    expect(getWarlordRecoveryAmount("challenge")).toBe(4);
+    expect(getBossTraitLogMessage("warlord-recovery", "呂布")).toContain("回復 3 點體力");
+    expect(getBossTraitLogMessage("warlord-recovery", "呂布", "challenge")).toContain("回復 4 點體力");
+    expect(getBossTraitAlert("warlord-recovery", "challenge").subtitle).toContain("4");
   });
 
   it("uses higher event chance for event-heavy stages", () => {
