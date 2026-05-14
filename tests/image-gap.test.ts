@@ -1,4 +1,4 @@
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import {
   CHAPTER_1_IMAGE_GAP_MANIFEST,
@@ -25,7 +25,7 @@ const importedRouteImageIds = [
   "route-dangerous-pass",
 ] as const;
 
-const routeEventGapIds = [
+const importedRouteEventImageIds = [
   "route-mountain-spring",
   "route-hermit-guidance",
   "route-misty-path",
@@ -39,7 +39,7 @@ const routeEventGapIds = [
 
 describe("chapter one image gap manifest", () => {
   it("contains planned chapter one image gaps", () => {
-    expect(CHAPTER_1_IMAGE_GAP_MANIFEST).toHaveLength(9);
+    expect(CHAPTER_1_IMAGE_GAP_MANIFEST).toHaveLength(0);
     expect(CHAPTER_1_IMAGE_GAP_MANIFEST.every((item) => item.status === "planned")).toBe(true);
   });
 
@@ -58,6 +58,16 @@ describe("chapter one image gap manifest", () => {
     const readyIds = CHAPTER_1_READY_IMAGE_MANIFEST.map((item) => item.id);
 
     importedRouteImageIds.forEach((id) => {
+      expect(gapIds).not.toContain(id);
+      expect(readyIds).toContain(id);
+    });
+  });
+
+  it("moves imported route event images out of the gap manifest", () => {
+    const gapIds = CHAPTER_1_IMAGE_GAP_MANIFEST.map((item) => item.id);
+    const readyIds = CHAPTER_1_READY_IMAGE_MANIFEST.map((item) => item.id);
+
+    importedRouteEventImageIds.forEach((id) => {
       expect(gapIds).not.toContain(id);
       expect(readyIds).toContain(id);
     });
@@ -83,11 +93,10 @@ describe("chapter one image gap manifest", () => {
     expect(routeGaps).toHaveLength(0);
   });
 
-  it("contains nine route event image gaps", () => {
+  it("contains no route event image gaps", () => {
     const routeEventGaps = CHAPTER_1_IMAGE_GAP_MANIFEST.filter((item) => item.type === "route-event");
 
-    expect(routeEventGaps).toHaveLength(9);
-    expect(routeEventGaps.map((item) => item.id)).toEqual(routeEventGapIds);
+    expect(routeEventGaps).toHaveLength(0);
   });
 
   it("includes required fields and prompts for every gap", () => {
@@ -133,9 +142,18 @@ describe("chapter one image gap manifest", () => {
         "route-mountain-path",
         "route-official-road",
         "route-dangerous-pass",
+        "route-mountain-spring",
+        "route-hermit-guidance",
+        "route-misty-path",
+        "route-post-station",
+        "route-military-dispatch",
+        "route-remnant-troops",
+        "route-cliff-ambush",
+        "route-battlefield-relic",
+        "route-night-raid",
       ]),
     );
-    expect(CHAPTER_1_READY_IMAGE_MANIFEST).toHaveLength(24);
+    expect(CHAPTER_1_READY_IMAGE_MANIFEST).toHaveLength(33);
     expect(CHAPTER_1_READY_IMAGE_MANIFEST.every((item) => item.status === "ready")).toBe(true);
   });
 
@@ -149,5 +167,14 @@ describe("chapter one image gap manifest", () => {
 
   it("keeps the image gap document available", () => {
     expect(existsSync("docs/image-gap-chapter-1-v0.19.0.md")).toBe(true);
+  });
+
+  it("marks the image gap document as completed", () => {
+    const documentText = existsSync("docs/image-gap-chapter-1-v0.19.0.md")
+      ? readFileSync("docs/image-gap-chapter-1-v0.19.0.md", "utf8")
+      : "";
+
+    expect(documentText).toContain("第一章圖片缺口歸零");
+    expect(documentText).toContain("`CHAPTER_1_IMAGE_GAP_MANIFEST` 目前共有 0 筆");
   });
 });

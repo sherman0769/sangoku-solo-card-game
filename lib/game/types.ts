@@ -211,6 +211,7 @@ export interface RouteEvent {
   name: string;
   description: string;
   type: RouteEventType;
+  image: string;
   options: RouteEventOption[];
   flavorText: string;
   weight?: number;

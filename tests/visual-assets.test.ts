@@ -6,13 +6,14 @@ import {
 } from "@/components/GameImage";
 import { enemyPool } from "@/lib/game/enemies";
 import { heroes } from "@/lib/game/heroes";
+import { routeEvents } from "@/lib/game/routeEvents";
 import { stageRoutes } from "@/lib/game/routes";
 import { getStageConfig } from "@/lib/game/stages";
 import { VISUAL_ASSET_MANIFEST } from "@/lib/game/visualAssetManifest";
 
 describe("visual asset manifest", () => {
   it("contains the imported visual assets", () => {
-    expect(VISUAL_ASSET_MANIFEST).toHaveLength(24);
+    expect(VISUAL_ASSET_MANIFEST).toHaveLength(33);
   });
 
   it("includes required fields for every asset", () => {
@@ -75,6 +76,20 @@ describe("visual asset manifest", () => {
       "route-mountain-path",
       "route-official-road",
       "route-dangerous-pass",
+    ]);
+  });
+
+  it("includes all nine route event image assets", () => {
+    expect(getAssetIdsByType("route-event")).toEqual([
+      "route-mountain-spring",
+      "route-hermit-guidance",
+      "route-misty-path",
+      "route-post-station",
+      "route-military-dispatch",
+      "route-remnant-troops",
+      "route-cliff-ambush",
+      "route-battlefield-relic",
+      "route-night-raid",
     ]);
   });
 
@@ -166,6 +181,54 @@ describe("visual asset manifest", () => {
     expect(getAssetPath("route-dangerous-pass")).toBe("/images/routes/dangerous-pass.png");
   });
 
+  it("uses imported PNG images for all route events", () => {
+    expect(getRouteEventImage("mountain-spring")).toBe(
+      "/images/events/route-mountain-spring.png",
+    );
+    expect(getRouteEventImage("hermit-guidance")).toBe(
+      "/images/events/route-hermit-guidance.png",
+    );
+    expect(getRouteEventImage("foggy-trail")).toBe("/images/events/route-misty-path.png");
+    expect(getRouteEventImage("relay-station")).toBe("/images/events/route-post-station.png");
+    expect(getRouteEventImage("urgent-orders")).toBe(
+      "/images/events/route-military-dispatch.png",
+    );
+    expect(getRouteEventImage("remnant-troops")).toBe(
+      "/images/events/route-remnant-troops.png",
+    );
+    expect(getRouteEventImage("cliff-ambush")).toBe(
+      "/images/events/route-cliff-ambush.png",
+    );
+    expect(getRouteEventImage("battlefield-relic")).toBe(
+      "/images/events/route-battlefield-relic.png",
+    );
+    expect(getRouteEventImage("night-raid")).toBe("/images/events/route-night-raid.png");
+  });
+
+  it("updates imported route event manifest paths to PNG", () => {
+    expect(getAssetPath("route-mountain-spring")).toBe(
+      "/images/events/route-mountain-spring.png",
+    );
+    expect(getAssetPath("route-hermit-guidance")).toBe(
+      "/images/events/route-hermit-guidance.png",
+    );
+    expect(getAssetPath("route-misty-path")).toBe("/images/events/route-misty-path.png");
+    expect(getAssetPath("route-post-station")).toBe("/images/events/route-post-station.png");
+    expect(getAssetPath("route-military-dispatch")).toBe(
+      "/images/events/route-military-dispatch.png",
+    );
+    expect(getAssetPath("route-remnant-troops")).toBe(
+      "/images/events/route-remnant-troops.png",
+    );
+    expect(getAssetPath("route-cliff-ambush")).toBe(
+      "/images/events/route-cliff-ambush.png",
+    );
+    expect(getAssetPath("route-battlefield-relic")).toBe(
+      "/images/events/route-battlefield-relic.png",
+    );
+    expect(getAssetPath("route-night-raid")).toBe("/images/events/route-night-raid.png");
+  });
+
   it("uses image paths when available and falls back when missing or failed", () => {
     expect(getGameImageRenderMode("/images/heroes/guan-yu.png")).toBe("image");
     expect(getGameImageRenderMode(undefined)).toBe("fallback");
@@ -176,6 +239,7 @@ describe("visual asset manifest", () => {
     expect(getGameImageVariantClass("cover")).toContain("aspect-[16/9]");
     expect(getGameImageVariantClass("background")).toContain("aspect-[16/9]");
     expect(getGameImageVariantClass("portrait")).toContain("aspect-[3/4]");
+    expect(getGameImageVariantClass("vertical")).toContain("aspect-[9/16]");
     expect(getGameImageObjectPositionStyle("50% 18%")).toEqual({
       objectPosition: "50% 18%",
     });
@@ -196,6 +260,10 @@ function getEnemyPortrait(enemyId: string) {
 
 function getRouteImage(routeId: string) {
   return stageRoutes.find((route) => route.id === routeId)?.image;
+}
+
+function getRouteEventImage(eventId: string) {
+  return routeEvents.find((event) => event.id === eventId)?.image;
 }
 
 function getAssetPath(assetId: string) {

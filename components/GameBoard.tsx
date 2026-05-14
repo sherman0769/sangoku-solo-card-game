@@ -891,11 +891,21 @@ function GameBoardContent({
                   </span>
                 </div>
                 <div className="mt-5">
-                  <VisualPlaceholder
-                    type="route"
-                    label={state.currentRouteEvent.name}
-                    prompt={state.selectedRoute.visualPrompt}
-                    description="路線事件圖 placeholder"
+                  <GameImage
+                    src={
+                      state.currentRouteEvent.image.startsWith("/")
+                        ? state.currentRouteEvent.image
+                        : undefined
+                    }
+                    alt={`${state.currentRouteEvent.name}事件圖`}
+                    variant="vertical"
+                    className="mx-auto max-h-[360px] w-full max-w-[260px] rounded-md border border-white/10 sm:max-h-[420px]"
+                    imageClassName="object-cover"
+                    sizes="(min-width: 768px) 260px, 75vw"
+                    fallbackType="event"
+                    fallbackLabel={state.currentRouteEvent.name}
+                    fallbackPrompt={state.selectedRoute.visualPrompt}
+                    fallbackDescription="路線事件圖 placeholder"
                   />
                 </div>
                 <div className="mt-5 grid gap-4 md:grid-cols-2">

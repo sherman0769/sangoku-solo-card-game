@@ -263,6 +263,20 @@ describe("game engine", () => {
     expect(routeEvents).toHaveLength(9);
   });
 
+  it("uses imported route event images", () => {
+    expect(routeEvents.map((event) => event.image)).toEqual([
+      "/images/events/route-mountain-spring.png",
+      "/images/events/route-hermit-guidance.png",
+      "/images/events/route-misty-path.png",
+      "/images/events/route-post-station.png",
+      "/images/events/route-military-dispatch.png",
+      "/images/events/route-remnant-troops.png",
+      "/images/events/route-cliff-ambush.png",
+      "/images/events/route-battlefield-relic.png",
+      "/images/events/route-night-raid.png",
+    ]);
+  });
+
   it("keeps mountain and official road event text unchanged while raising dangerous pass costs", () => {
     expect(getRouteEventsForRoute("mountain-path").map((event) => event.options[0].description)).toEqual([
       "回復 2 點體力，不超過最大體力；若目前 HP <= 2，額外抽 1 張牌。",

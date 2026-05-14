@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { VisualPlaceholder, type VisualPlaceholderType } from "./VisualPlaceholder";
 
-export type GameImageVariant = "cover" | "portrait" | "card" | "background";
+export type GameImageVariant = "cover" | "portrait" | "card" | "background" | "vertical";
 
 interface GameImageProps {
   src?: string;
@@ -84,4 +84,5 @@ const gameImageVariantClasses = {
   portrait: "aspect-[3/4]",
   card: "aspect-[4/3]",
   background: "aspect-[16/9]",
+  vertical: "aspect-[9/16]",
 } satisfies Record<GameImageVariant, string>;
