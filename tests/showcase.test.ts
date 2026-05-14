@@ -24,7 +24,7 @@ import { canPlayVoice } from "@/lib/game/voice";
 
 describe("showcase and onboarding copy", () => {
   it("includes homepage how-to copy without version feature lists", () => {
-    expect(currentVersionLabel).toBe("v0.23.2 李詩民戰鬥語音導入版");
+    expect(currentVersionLabel).toBe("v0.24.0-pre 整體體驗評估與優化建議版");
     expect(howToSteps.map((step) => step.title)).toEqual([
       "選擇武將",
       "進入戰鬥",

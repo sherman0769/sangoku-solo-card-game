@@ -1,6 +1,6 @@
 import type { GamePhase } from "./types";
 
-export const currentVersionLabel = "v0.23.2 李詩民戰鬥語音導入版";
+export const currentVersionLabel = "v0.24.0-pre 整體體驗評估與優化建議版";
 
 export const gameLoadingCopy = {
   title: "戰局準備中……",
