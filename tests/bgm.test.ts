@@ -3,16 +3,23 @@ import { getSoundEnabledStorageKey } from "@/lib/game/audio";
 import {
   canPlayBgm,
   createBgmPlayer,
+  getBgmActivated,
+  getBgmActivatedStorageKey,
   getBgmActivationEnabled,
   getBgmEnabled,
   getBgmEnabledStorageKey,
+  getBgmPersistedPlaybackState,
+  getGameBgmTrackId,
   getBgmTrack,
   getBgmVolume,
   getBgmVolumeStorageKey,
   getBgmPlaybackFailureMessage,
   getDefaultBgmVolume,
+  setBgmActivated,
   setBgmEnabled,
+  setBgmPlaybackStateFromResult,
   setBgmVolume,
+  shouldAutoResumeBgm,
 } from "@/lib/game/bgm";
 import { BGM_TRACKS } from "@/lib/game/bgmManifest";
 import { getVoiceEnabledStorageKey } from "@/lib/game/voice";
@@ -44,8 +51,10 @@ describe("BGM manifest and playback helpers", () => {
 
   it("keeps localStorage helpers SSR safe in tests", () => {
     expect(() => setBgmEnabled(true)).not.toThrow();
+    expect(() => setBgmActivated(true)).not.toThrow();
     expect(() => setBgmVolume(0.8)).not.toThrow();
     expect(getBgmEnabled()).toBe(false);
+    expect(getBgmActivated()).toBe(false);
     expect(getBgmVolume()).toBe(0.35);
     expect(getDefaultBgmVolume()).toBe(0.35);
   });
@@ -63,12 +72,35 @@ describe("BGM manifest and playback helpers", () => {
   it("treats BGM as enabled only after successful playback", () => {
     expect(getBgmActivationEnabled(false)).toBe(false);
     expect(getBgmActivationEnabled(true)).toBe(true);
+    expect(getBgmPersistedPlaybackState(false)).toEqual({
+      enabled: false,
+      activated: false,
+    });
+    expect(getBgmPersistedPlaybackState(true)).toEqual({
+      enabled: true,
+      activated: true,
+    });
+    expect(setBgmPlaybackStateFromResult(false)).toEqual({
+      enabled: false,
+      activated: false,
+    });
     expect(getBgmPlaybackFailureMessage()).toContain("請點擊開啟 BGM");
+  });
+
+  it("resumes game BGM only after a successful prior activation", () => {
+    expect(shouldAutoResumeBgm(true, true)).toBe(true);
+    expect(shouldAutoResumeBgm(true, false)).toBe(false);
+    expect(shouldAutoResumeBgm(false, true)).toBe(false);
+    expect(shouldAutoResumeBgm(false, false)).toBe(false);
+    expect(getGameBgmTrackId("yellow-turban-soldier")).toBe("battle-theme");
+    expect(getGameBgmTrackId("lu-bu")).toBe("boss-theme");
   });
 
   it("keeps BGM settings separate from sound and voice settings", () => {
     expect(getBgmEnabledStorageKey()).not.toBe(getSoundEnabledStorageKey());
     expect(getBgmEnabledStorageKey()).not.toBe(getVoiceEnabledStorageKey());
+    expect(getBgmActivatedStorageKey()).not.toBe(getSoundEnabledStorageKey());
+    expect(getBgmActivatedStorageKey()).not.toBe(getVoiceEnabledStorageKey());
     expect(getBgmVolumeStorageKey()).not.toBe(getSoundEnabledStorageKey());
     expect(getBgmVolumeStorageKey()).not.toBe(getVoiceEnabledStorageKey());
   });

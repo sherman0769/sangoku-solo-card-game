@@ -60,7 +60,7 @@ describe("card image manifests", () => {
     expect(cardImageGap).toContain("status: ready");
   });
 
-  it("updates README through v0.24.2 without restoring homepage changelog sections", () => {
+  it("updates README through v0.24.3 without restoring homepage changelog sections", () => {
     const readme = readFileSync(readmePath, "utf-8");
     const homePageSource = readFileSync(join(process.cwd(), "app", "page.tsx"), "utf-8");
 
@@ -68,6 +68,8 @@ describe("card image manifests", () => {
     expect(readme).toContain("v0.24.1：導入 12 張卡牌圖片");
     expect(readme).toContain("v0.24.2 卡牌尺寸一致化修正版");
     expect(readme).toContain("v0.24.2：修正手牌卡牌尺寸不一致問題");
+    expect(readme).toContain("v0.24.3 卡牌寬度與 BGM 延續修正版");
+    expect(readme).toContain("v0.24.3：修正卡牌寬度與 BGM 跨頁延續");
     expect(homePageSource).not.toContain("查看目前版本特色");
   });
 });

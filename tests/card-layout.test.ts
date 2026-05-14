@@ -7,8 +7,14 @@ describe("card view layout", () => {
   it("keeps hand cards on fixed dimensions", () => {
     expect(CARD_VIEW_LAYOUT.cardRootClass).toContain("h-80");
     expect(CARD_VIEW_LAYOUT.cardRootClass).toContain("md:h-[21rem]");
+    expect(CARD_VIEW_LAYOUT.mobileWidthClass).toContain("w-40");
+    expect(CARD_VIEW_LAYOUT.mobileWidthClass).toContain("min-w-[10rem]");
+    expect(CARD_VIEW_LAYOUT.mobileWidthClass).toContain("max-w-[10rem]");
+    expect(CARD_VIEW_LAYOUT.desktopWidthClass).toContain("sm:w-44");
+    expect(CARD_VIEW_LAYOUT.desktopWidthClass).toContain("sm:min-w-[11rem]");
     expect(CARD_VIEW_LAYOUT.mobileCardWrapperClass).toContain("w-40");
-    expect(CARD_VIEW_LAYOUT.mobileCardWrapperClass).toContain("shrink-0");
+    expect(CARD_VIEW_LAYOUT.mobileCardWrapperClass).toContain(CARD_VIEW_LAYOUT.preventShrinkClass);
+    expect(CARD_VIEW_LAYOUT.cardRootClass).toContain(CARD_VIEW_LAYOUT.preventShrinkClass);
   });
 
   it("uses the 4:3 card image frame with compact fallback", () => {
@@ -33,6 +39,7 @@ describe("card view layout", () => {
     expect(cardViewSource).toContain("CARD_VIEW_LAYOUT.cardRootClass");
     expect(cardViewSource).toContain("CARD_VIEW_LAYOUT.descriptionClass");
     expect(cardViewSource).toContain("CARD_VIEW_LAYOUT.imageVariant");
+    expect(cardViewSource).toContain("CARD_VIEW_LAYOUT.imageFrameClass");
     expect(gameBoardSource).toContain("CARD_VIEW_LAYOUT.mobileCardWrapperClass");
     expect(cssSource).toContain(".card-description-clamp");
     expect(cssSource).toContain("-webkit-line-clamp: 3");

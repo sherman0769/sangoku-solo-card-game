@@ -35,7 +35,7 @@ describe("PWA manifest and sharing", () => {
   it("documents the current PWA release in README", () => {
     const readme = readFileSync(readmePath, "utf-8");
 
-    expect(readme).toContain("v0.24.2 卡牌尺寸一致化修正版");
+    expect(readme).toContain("v0.24.3 卡牌寬度與 BGM 延續修正版");
     expect(readme).toContain("AI 協作開發：李詩民");
   });
 

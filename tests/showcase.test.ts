@@ -24,7 +24,7 @@ import { canPlayVoice } from "@/lib/game/voice";
 
 describe("showcase and onboarding copy", () => {
   it("includes homepage how-to copy without version feature lists", () => {
-    expect(currentVersionLabel).toBe("v0.24.2 卡牌尺寸一致化修正版");
+    expect(currentVersionLabel).toBe("v0.24.3 卡牌寬度與 BGM 延續修正版");
     expect(howToSteps.map((step) => step.title)).toEqual([
       "選擇武將",
       "進入戰鬥",
@@ -44,9 +44,9 @@ describe("showcase and onboarding copy", () => {
 
   it("describes the corrected homepage start flow", () => {
     expect(homeMainFlowSteps).toEqual(["觀看開場動畫", "選擇武將", "開始遊戲"]);
-    expect(homeHeroSelectionCopy).toContain("卡牌圖片已補齊");
-    expect(homeHeroSelectionCopy).toContain("手牌尺寸更一致");
-    expect(homeHeroSelectionCopy).toContain("操作更穩定");
+    expect(homeHeroSelectionCopy).toContain("卡牌視覺與 BGM 體驗已優化");
+    expect(homeHeroSelectionCopy).toContain("手牌更整齊");
+    expect(homeHeroSelectionCopy).toContain("音樂可跨頁延續");
     expect(homeHeroPreviewCopy).toBe("開啟角色語音後，點選武將可試聽專屬選角語音。");
     expect(homeOpeningVideoEntry).toMatchObject({
       title: "開場動畫",

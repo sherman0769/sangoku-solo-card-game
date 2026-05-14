@@ -1,6 +1,7 @@
 import { BGM_TRACKS, type BgmTrack } from "./bgmManifest";
 
 const bgmEnabledStorageKey = "sangoku-solo-card-game:bgm-enabled";
+const bgmActivatedStorageKey = "sangoku-solo-card-game:bgm-activated";
 const bgmVolumeStorageKey = "sangoku-solo-card-game:bgm-volume";
 const defaultBgmVolume = 0.35;
 
@@ -126,6 +127,21 @@ export function getBgmActivationEnabled(playSucceeded: boolean) {
   return playSucceeded;
 }
 
+export function getBgmPersistedPlaybackState(playSucceeded: boolean) {
+  return {
+    enabled: playSucceeded,
+    activated: playSucceeded,
+  };
+}
+
+export function shouldAutoResumeBgm(enabled: boolean, activated: boolean) {
+  return enabled && activated;
+}
+
+export function getGameBgmTrackId(enemyId: string) {
+  return enemyId === "lu-bu" ? "boss-theme" : "battle-theme";
+}
+
 export function getBgmPlaybackFailureMessage() {
   return "音樂尚未啟動，請點擊開啟 BGM。";
 }
@@ -144,6 +160,35 @@ export function setBgmEnabled(enabled: boolean) {
   }
 
   window.localStorage.setItem(bgmEnabledStorageKey, String(enabled));
+}
+
+export function getBgmActivated() {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  return window.localStorage.getItem(bgmActivatedStorageKey) === "true";
+}
+
+export function setBgmActivated(activated: boolean) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  window.localStorage.setItem(bgmActivatedStorageKey, String(activated));
+}
+
+export function setBgmPlaybackStateFromResult(playSucceeded: boolean) {
+  const nextState = getBgmPersistedPlaybackState(playSucceeded);
+
+  setBgmEnabled(nextState.enabled);
+  setBgmActivated(nextState.activated);
+
+  return nextState;
+}
+
+export function shouldAutoResumeStoredBgm() {
+  return shouldAutoResumeBgm(getBgmEnabled(), getBgmActivated());
 }
 
 export function getBgmVolume() {
@@ -170,6 +215,10 @@ export function setBgmVolume(volume: number) {
 
 export function getBgmEnabledStorageKey() {
   return bgmEnabledStorageKey;
+}
+
+export function getBgmActivatedStorageKey() {
+  return bgmActivatedStorageKey;
 }
 
 export function getBgmVolumeStorageKey() {

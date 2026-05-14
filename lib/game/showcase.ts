@@ -1,6 +1,6 @@
 import type { GamePhase } from "./types";
 
-export const currentVersionLabel = "v0.24.2 卡牌尺寸一致化修正版";
+export const currentVersionLabel = "v0.24.3 卡牌寬度與 BGM 延續修正版";
 
 export const gameLoadingCopy = {
   title: "戰局準備中……",
@@ -20,7 +20,7 @@ export const homeOpeningVideoEntry = {
 } as const;
 
 export const homeHeroSelectionCopy =
-  "選擇一位角色，踏入第一章：黃巾之亂。卡牌圖片已補齊，手牌尺寸更一致、操作更穩定。";
+  "選擇一位角色，踏入第一章：黃巾之亂。卡牌視覺與 BGM 體驗已優化，手牌更整齊，音樂可跨頁延續。";
 
 export const homeHeroPreviewCopy = "開啟角色語音後，點選武將可試聽專屬選角語音。";
 

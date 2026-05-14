@@ -13,6 +13,8 @@ import {
   getBgmVolume,
   isBgmSupported,
   setBgmEnabled,
+  setBgmActivated,
+  setBgmPlaybackStateFromResult,
   setBgmVolume,
   type BgmPlayer,
 } from "@/lib/game/bgm";
@@ -101,6 +103,7 @@ export default function Home() {
     if (bgmEnabled) {
       setHomeBgmEnabled(false);
       setBgmEnabled(false);
+      setBgmActivated(false);
       setHomeBgmPlaybackMessage(null);
       shouldResumeBgmAfterVideoRef.current = false;
       player.stop();
@@ -109,7 +112,7 @@ export default function Home() {
 
     const played = await player.play("home-theme", { volume: bgmVolume });
     setHomeBgmEnabled(played);
-    setBgmEnabled(played);
+    setBgmPlaybackStateFromResult(played);
     setHomeBgmPlaybackMessage(played ? null : getBgmPlaybackFailureMessage());
   }
 
@@ -129,7 +132,13 @@ export default function Home() {
 
   function resumeHomeBgmAfterOpeningVideo() {
     if (bgmEnabled && shouldResumeBgmAfterVideoRef.current) {
-      void homeBgmPlayerRef.current?.play("home-theme", { volume: bgmVolume });
+      void homeBgmPlayerRef.current?.play("home-theme", { volume: bgmVolume }).then((played) => {
+        if (!played) {
+          setHomeBgmEnabled(false);
+          setBgmPlaybackStateFromResult(false);
+          setHomeBgmPlaybackMessage(getBgmPlaybackFailureMessage());
+        }
+      });
     }
 
     shouldResumeBgmAfterVideoRef.current = false;

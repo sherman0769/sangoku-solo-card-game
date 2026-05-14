@@ -31,10 +31,15 @@ import {
   createBgmPlayer,
   getBgmPlaybackFailureMessage,
   getBgmEnabled,
+  getBgmActivated,
+  getGameBgmTrackId,
   getBgmVolume,
   isBgmSupported,
+  setBgmActivated,
   setBgmEnabled,
+  setBgmPlaybackStateFromResult,
   setBgmVolume,
+  shouldAutoResumeBgm,
   type BgmPlayer,
 } from "@/lib/game/bgm";
 import {
@@ -195,6 +200,7 @@ function GameBoardContent({
   const stageTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastVoiceKeyRef = useRef<string | null>(null);
   const bgmPlayerRef = useRef<BgmPlayer | null>(null);
+  const initialBgmTrackIdRef = useRef(getGameBgmTrackId(initialState.enemy.id));
   const feedbackIdRef = useRef(0);
   const enemyPercent = useMemo(
     () => Math.max(0, Math.round((state.enemyHealth / state.enemy.maxHealth) * 100)),
@@ -223,7 +229,7 @@ function GameBoardContent({
   const stageBackgroundSrc = state.stageConfig.backgroundImage.startsWith("/")
     ? state.stageConfig.backgroundImage
     : undefined;
-  const activeBgmTrackId = state.enemy.id === "lu-bu" ? "boss-theme" : "battle-theme";
+  const activeBgmTrackId = getGameBgmTrackId(state.enemy.id);
   const enemyDefeated = state.enemyHealth <= 0 || state.status === "won";
   const enemyDefeatedStamp = getEnemyDefeatedStampLabel(state.enemy.type === "boss");
   const choicePhasePrompt = getChoicePhasePrompt(state.phase);
@@ -232,21 +238,41 @@ function GameBoardContent({
   const showMobileChoiceHint = isChoicePhase(state.phase);
 
   useEffect(() => {
+    let cancelled = false;
     const timer = window.setTimeout(() => {
       setAudioSupported(isAudioSupported());
       setSoundEnabled(readSoundEnabledSetting());
       setVoiceSupported(isVoiceSupported());
       setVoiceEnabled(readVoiceEnabledSetting());
       setBattleBgmSupported(isBgmSupported());
+      const storedBgmEnabled = getBgmEnabled();
+      const storedBgmActivated = getBgmActivated();
+      const storedBgmVolume = getBgmVolume();
+      const shouldResumeBgm = shouldAutoResumeBgm(storedBgmEnabled, storedBgmActivated);
+      const player = createBgmPlayer();
+
       setBattleBgmEnabled(false);
       setBattleBgmPlaybackMessage(
-        getBgmEnabled() ? "點擊開啟 BGM，以啟用戰鬥音樂。" : null,
+        storedBgmEnabled ? getBgmPlaybackFailureMessage() : null,
       );
-      setBattleBgmVolume(getBgmVolume());
-      bgmPlayerRef.current = createBgmPlayer();
+      setBattleBgmVolume(storedBgmVolume);
+      bgmPlayerRef.current = player;
+
+      if (shouldResumeBgm) {
+        void player.play(initialBgmTrackIdRef.current, { volume: storedBgmVolume }).then((played) => {
+          if (cancelled) {
+            return;
+          }
+
+          setBattleBgmEnabled(played);
+          setBgmPlaybackStateFromResult(played);
+          setBattleBgmPlaybackMessage(played ? null : getBgmPlaybackFailureMessage());
+        });
+      }
     }, 0);
 
     return () => {
+      cancelled = true;
       window.clearTimeout(timer);
       bgmPlayerRef.current?.stop();
     };
@@ -421,6 +447,7 @@ function GameBoardContent({
     if (bgmEnabled) {
       setBattleBgmEnabled(false);
       setBgmEnabled(false);
+      setBgmActivated(false);
       setBattleBgmPlaybackMessage(null);
       player.stop();
       return;
@@ -428,7 +455,7 @@ function GameBoardContent({
 
     const played = await player.play(activeBgmTrackId, { volume: bgmVolume });
     setBattleBgmEnabled(played);
-    setBgmEnabled(played);
+    setBgmPlaybackStateFromResult(played);
     setBattleBgmPlaybackMessage(played ? null : getBgmPlaybackFailureMessage());
   }
 
@@ -1705,6 +1732,9 @@ function BgmToggle({
 }) {
   return (
     <div className="min-w-[190px] rounded-md border border-emerald-500/50 bg-stone-950/60 px-3 py-2">
+      <p className="mb-2 text-[11px] font-black text-emerald-100">
+        戰鬥音樂｜BGM：{enabled ? "開" : "關"}
+      </p>
       <button
         type="button"
         onClick={onToggle}
