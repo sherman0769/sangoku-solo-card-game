@@ -27,7 +27,6 @@ import {
   homeHeroSelectionCopy,
   homeAuthorCopy,
   homeCollapsibleSections,
-  currentFeatureHighlights,
   currentVersionLabel,
   howToSteps,
 } from "@/lib/game/showcase";
@@ -381,70 +380,6 @@ export default function Home() {
             ))}
           </div>
         </details>
-
-        <details className="mt-5 rounded-xl border border-amber-700/40 bg-black/30 p-5 shadow-[0_18px_45px_rgba(0,0,0,0.28)]">
-          <summary className="cursor-pointer text-2xl font-black text-amber-50">
-            {homeCollapsibleSections[1].title}
-          </summary>
-          <h2 className="sr-only">v0.22.1 目前特色</h2>
-          <ul className="mt-5 grid gap-3 text-sm leading-6 text-stone-300 md:grid-cols-2">
-            {currentFeatureHighlights.map((feature) => (
-              <li
-                key={feature}
-                className="rounded-lg border border-stone-700/70 bg-stone-950/45 px-4 py-3"
-              >
-                {feature}
-              </li>
-            ))}
-          </ul>
-        </details>
-
-        <div className="mt-14 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {[
-            ["單人卡牌闖關", "每回合管理士氣與手牌，在攻防之間找出突破口。"],
-            ["三選一戰後強化", "擊敗敵人後選擇強化，讓武將逐步形成戰鬥風格。"],
-            ["隨機敵人池", "每局遭遇不同挑戰，前兩關不再固定敵人。"],
-            ["戰術卡牌", "連斬、固守、激勵、火攻，讓每回合選擇更豐富。"],
-            ["隨機事件考驗", "戰鬥之後可能遇到補給、策略或危險事件。"],
-            ["路線選擇", "山道、官道、險道代表不同劇情與資源方向，不再只是難度差異。"],
-            ["第一章 8 關流程", "從荒村初戰推進到虎牢關前，逐步累積資源與強化。"],
-            ["Mini-boss 張梁 / 張寶", "第 7 關黃巾祭壇將遭遇黃巾殘部的強敵。"],
-            ["挑戰最終 Boss 呂布", "前七關累積優勢，第八關迎戰真正的亂世猛將。"],
-            ["視覺呈現優化", "首頁、武將、敵人、Boss 與關卡背景已調整為更適合手機與展示。"],
-            ["人物台詞系統", "武將、敵人、旁白與勝敗結果會以文字台詞呈現。"],
-            ["音效系統測試版", "使用 Web Audio API 生成提示音，預設關閉，可在遊戲頁手動開啟。"],
-            ["TTS 配音規劃", "已建立配音素材清單，為角色語音與開場旁白做準備。"],
-            ["語音播放框架", "已建立 audioKey 對應與未來 TTS 音檔播放機制。"],
-            ["第一批 TTS 語音", "章節開場、三位武將登場與呂布登場語音已可在語音開啟後播放。"],
-            ["首頁武將試聽語音", "選角時可聽到專屬語音，與進入遊戲後登場語音分離。"],
-            ["第一章 TTS 補完規劃", "已整理八關旁白、敵人登場、擊敗語音與路線事件語音清單。"],
-            ["第一章 P0 語音已導入", "八關旁白、敵人登場、Boss 特性與勝敗語音陸續完成。"],
-            ["路線事件語音", "山道、官道、險道事件現在具備圖片與旁白語音。"],
-            ["開頭動畫", "以 AI 圖像、影片與音樂製作第一章開場，可觀看或略過後開始遊戲。"],
-            ["手機遊玩優化", "戰鬥 HUD、底部手牌操作區、紀錄與狀態設定收合，降低直屏滑動負擔。"],
-            ["首頁主流程", "首頁改為觀看開場動畫、選擇武將、開始遊戲，避免選角前直接進入遊戲。"],
-            ["卡牌音效系統", "不同類型卡牌已可對應不同音效，正式音檔尚未導入時會 fallback 到提示音。"],
-            ["真實卡牌音效", "斬、連斬、防禦、回復、策略、裝備、火攻 7 類 MP3 已導入。"],
-            ["分享與手機安裝", "可分享遊戲連結，也可加入手機主畫面，像手機遊戲一樣體驗。"],
-            ["戰鬥平衡分析", "使用模擬工具分析武將勝率、死亡關卡、敵人遭遇與路線選擇。"],
-            ["第一輪平衡微調", "諸葛亮 HP 提升至 4、呂布 HP 提升至 14，且未提高第 2～3 關敵人壓力。"],
-            ["後期難度微調", "張梁、張寶與呂布猛攻比例小幅提高，第一章後段更有挑戰。"],
-            ["路線劇情事件", "山道、官道、險道擁有不同遭遇與資源方向，選路不再只是固定數值。"],
-            ["險道風險再平衡", "絕壁伏擊、古戰場遺物與夜襲敵營代價提高，保留高報酬但更危險。"],
-            ["路線風格平衡", "山道偏生存補給，官道偏情報穩定，險道偏奇遇代價。"],
-            ["Boss 特性系統", "呂布具備無雙壓迫與戰神回血，最終戰更具壓迫感。"],
-            ["Boss 戰演出強化", "呂布發動無雙壓迫與戰神回血時，會有更明顯的畫面提示。"],
-            ["Hydration 修正", "/game 隨機敵人與初始手牌改為 client mounted 後生成，避免初始畫面不一致。"],
-          ].map(([title, text]) => (
-            <section
-              key={title}
-              className="rounded-xl border border-amber-700/40 bg-black/30 p-5 shadow-[0_18px_45px_rgba(0,0,0,0.28)]"
-            >
-              <h2 className="text-lg font-black text-amber-100">{title}</h2>
-              <p className="mt-3 text-sm leading-6 text-stone-300">{text}</p>
-            </section>
-          ))}
-        </div>
 
         <section className="mt-6 rounded-xl border border-red-900/50 bg-red-950/30 p-5">
           <h2 className="text-lg font-black text-red-100">玩法簡述</h2>

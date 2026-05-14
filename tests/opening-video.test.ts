@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import { getOpeningVideoConfig, OPENING_VIDEO_CONFIG } from "@/lib/game/openingVideo";
-import { currentFeatureHighlights } from "@/lib/game/showcase";
 
 describe("opening video config", () => {
   it("defines the ready opening intro video asset", () => {
@@ -19,7 +18,7 @@ describe("opening video config", () => {
     expect(getOpeningVideoConfig()).toBe(OPENING_VIDEO_CONFIG);
   });
 
-  it("includes the opening video in homepage feature copy", () => {
-    expect(currentFeatureHighlights).toContain("開頭動畫：以 AI 圖像、影片與音樂製作第一章開場");
+  it("keeps the opening video ready for the simplified homepage entry", () => {
+    expect(getOpeningVideoConfig().status).toBe("ready");
   });
 });
