@@ -3,11 +3,13 @@ import { getSoundEnabledStorageKey } from "@/lib/game/audio";
 import {
   canPlayBgm,
   createBgmPlayer,
+  getBgmActivationEnabled,
   getBgmEnabled,
   getBgmEnabledStorageKey,
   getBgmTrack,
   getBgmVolume,
   getBgmVolumeStorageKey,
+  getBgmPlaybackFailureMessage,
   getDefaultBgmVolume,
   setBgmEnabled,
   setBgmVolume,
@@ -48,14 +50,20 @@ describe("BGM manifest and playback helpers", () => {
     expect(getDefaultBgmVolume()).toBe(0.35);
   });
 
-  it("creates a no-op player safely without browser Audio", () => {
+  it("creates a no-op player safely without browser Audio", async () => {
     const player = createBgmPlayer();
 
-    expect(() => player.play("home-theme")).not.toThrow();
+    await expect(player.play("home-theme")).resolves.toBe(false);
     expect(() => player.setVolume(0.5)).not.toThrow();
     expect(() => player.pause()).not.toThrow();
     expect(() => player.stop()).not.toThrow();
     expect(player.getCurrentTrackId()).toBeNull();
+  });
+
+  it("treats BGM as enabled only after successful playback", () => {
+    expect(getBgmActivationEnabled(false)).toBe(false);
+    expect(getBgmActivationEnabled(true)).toBe(true);
+    expect(getBgmPlaybackFailureMessage()).toContain("請點擊開啟 BGM");
   });
 
   it("keeps BGM settings separate from sound and voice settings", () => {

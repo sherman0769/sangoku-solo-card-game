@@ -28,6 +28,7 @@ import {
 } from "@/lib/game/audio";
 import {
   createBgmPlayer,
+  getBgmPlaybackFailureMessage,
   getBgmEnabled,
   getBgmVolume,
   isBgmSupported,
@@ -184,6 +185,7 @@ function GameBoardContent({
   const [bgmEnabled, setBattleBgmEnabled] = useState(false);
   const [bgmSupported, setBattleBgmSupported] = useState(false);
   const [bgmVolume, setBattleBgmVolume] = useState(0.35);
+  const [bgmPlaybackMessage, setBattleBgmPlaybackMessage] = useState<string | null>(null);
   const eventTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const panelTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const bossTraitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -235,7 +237,10 @@ function GameBoardContent({
       setVoiceSupported(isVoiceSupported());
       setVoiceEnabled(readVoiceEnabledSetting());
       setBattleBgmSupported(isBgmSupported());
-      setBattleBgmEnabled(getBgmEnabled());
+      setBattleBgmEnabled(false);
+      setBattleBgmPlaybackMessage(
+        getBgmEnabled() ? "點擊開啟 BGM，以啟用戰鬥音樂。" : null,
+      );
       setBattleBgmVolume(getBgmVolume());
       bgmPlayerRef.current = createBgmPlayer();
     }, 0);
@@ -256,7 +261,23 @@ function GameBoardContent({
       return;
     }
 
-    player.play(activeBgmTrackId, { volume: bgmVolume });
+    let cancelled = false;
+
+    async function syncBattleBgm() {
+      const played = await player.play(activeBgmTrackId, { volume: bgmVolume });
+
+      if (!played && !cancelled) {
+        setBattleBgmEnabled(false);
+        setBgmEnabled(false);
+        setBattleBgmPlaybackMessage(getBgmPlaybackFailureMessage());
+      }
+    }
+
+    void syncBattleBgm();
+
+    return () => {
+      cancelled = true;
+    };
   }, [activeBgmTrackId, bgmEnabled, bgmVolume]);
 
   useEffect(() => {
@@ -392,10 +413,22 @@ function GameBoardContent({
     writeVoiceEnabledSetting(nextEnabled);
   }
 
-  function toggleBattleBgm() {
-    const nextEnabled = !bgmEnabled;
-    setBattleBgmEnabled(nextEnabled);
-    setBgmEnabled(nextEnabled);
+  async function toggleBattleBgm() {
+    const player = bgmPlayerRef.current ?? createBgmPlayer();
+    bgmPlayerRef.current = player;
+
+    if (bgmEnabled) {
+      setBattleBgmEnabled(false);
+      setBgmEnabled(false);
+      setBattleBgmPlaybackMessage(null);
+      player.stop();
+      return;
+    }
+
+    const played = await player.play(activeBgmTrackId, { volume: bgmVolume });
+    setBattleBgmEnabled(played);
+    setBgmEnabled(played);
+    setBattleBgmPlaybackMessage(played ? null : getBgmPlaybackFailureMessage());
   }
 
   function handleBattleBgmVolumeChange(volume: number) {
@@ -685,6 +718,7 @@ function GameBoardContent({
                 volume={bgmVolume}
                 onToggle={toggleBattleBgm}
                 onVolumeChange={handleBattleBgmVolumeChange}
+                playbackMessage={bgmPlaybackMessage}
               />
             </div>
           </div>
@@ -1128,6 +1162,7 @@ function GameBoardContent({
                 bgmEnabled={bgmEnabled}
                 bgmSupported={bgmSupported}
                 bgmVolume={bgmVolume}
+                bgmPlaybackMessage={bgmPlaybackMessage}
               />
             </div>
           </div>
@@ -1469,6 +1504,7 @@ function MobileStatusSettings({
   bgmEnabled,
   bgmSupported,
   bgmVolume,
+  bgmPlaybackMessage,
   equippedLabels,
   onBgmVolumeChange,
   onRestart,
@@ -1486,6 +1522,7 @@ function MobileStatusSettings({
   bgmEnabled: boolean;
   bgmSupported: boolean;
   bgmVolume: number;
+  bgmPlaybackMessage: string | null;
   equippedLabels: string[];
   onBgmVolumeChange: (volume: number) => void;
   onRestart: () => void;
@@ -1521,6 +1558,7 @@ function MobileStatusSettings({
             volume={bgmVolume}
             onToggle={onToggleBgm}
             onVolumeChange={onBgmVolumeChange}
+            playbackMessage={bgmPlaybackMessage}
           />
         </div>
         <MobileInfoBlock title="目前強化">
@@ -1654,12 +1692,14 @@ function BgmToggle({
   enabled,
   onToggle,
   onVolumeChange,
+  playbackMessage,
   volume,
 }: {
   bgmSupported: boolean;
   enabled: boolean;
   onToggle: () => void;
   onVolumeChange: (volume: number) => void;
+  playbackMessage?: string | null;
   volume: number;
 }) {
   return (
@@ -1673,7 +1713,7 @@ function BgmToggle({
             : "border border-stone-600 bg-stone-950/70 text-stone-100 hover:border-emerald-300"
         }`}
       >
-        BGM：{enabled ? "開" : "關"}
+        {enabled ? "關閉 BGM" : "開啟 BGM"}
       </button>
       <label className="mt-2 block text-[11px] font-bold leading-4 text-stone-300">
         音量 {Math.round(volume * 100)}%
@@ -1693,6 +1733,11 @@ function BgmToggle({
           ? "背景音樂獨立控制，Boss 戰會自動切換。"
           : "此瀏覽器不支援背景音樂播放。"}
       </p>
+      {playbackMessage ? (
+        <p className="mt-1 text-[11px] font-bold leading-4 text-amber-100">
+          {playbackMessage}
+        </p>
+      ) : null}
     </div>
   );
 }

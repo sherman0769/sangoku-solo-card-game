@@ -8,6 +8,7 @@ import { OpeningVideo } from "@/components/OpeningVideo";
 import { ShareGameButton } from "@/components/ShareGameButton";
 import {
   createBgmPlayer,
+  getBgmPlaybackFailureMessage,
   getBgmEnabled,
   getBgmVolume,
   isBgmSupported,
@@ -46,6 +47,7 @@ export default function Home() {
   const [bgmEnabled, setHomeBgmEnabled] = useState(false);
   const [bgmSupported, setHomeBgmSupported] = useState(false);
   const [bgmVolume, setHomeBgmVolume] = useState(0.35);
+  const [bgmPlaybackMessage, setHomeBgmPlaybackMessage] = useState<string | null>(null);
   const homeBgmPlayerRef = useRef<BgmPlayer | null>(null);
   const shouldResumeBgmAfterVideoRef = useRef(false);
   const selectedHero = heroes.find((hero) => hero.id === selectedHeroId) ?? heroes[0];
@@ -60,7 +62,10 @@ export default function Home() {
       setVoiceSupported(isVoiceSupported());
       setVoiceEnabled(readVoiceEnabledSetting());
       setHomeBgmSupported(isBgmSupported());
-      setHomeBgmEnabled(getBgmEnabled());
+      setHomeBgmEnabled(false);
+      setHomeBgmPlaybackMessage(
+        getBgmEnabled() ? "點擊開啟 BGM，以啟用首頁主題音樂。" : null,
+      );
       setHomeBgmVolume(getBgmVolume());
       homeBgmPlayerRef.current = createBgmPlayer();
     }, 0);
@@ -90,20 +95,23 @@ export default function Home() {
     writeVoiceEnabledSetting(nextEnabled);
   }
 
-  function toggleHomeBgm() {
+  async function toggleHomeBgm() {
     const player = homeBgmPlayerRef.current ?? createBgmPlayer();
     homeBgmPlayerRef.current = player;
-    const nextEnabled = !bgmEnabled;
-    setHomeBgmEnabled(nextEnabled);
-    setBgmEnabled(nextEnabled);
 
-    if (nextEnabled) {
-      player.play("home-theme", { volume: bgmVolume });
+    if (bgmEnabled) {
+      setHomeBgmEnabled(false);
+      setBgmEnabled(false);
+      setHomeBgmPlaybackMessage(null);
+      shouldResumeBgmAfterVideoRef.current = false;
+      player.stop();
       return;
     }
 
-    shouldResumeBgmAfterVideoRef.current = false;
-    player.stop();
+    const played = await player.play("home-theme", { volume: bgmVolume });
+    setHomeBgmEnabled(played);
+    setBgmEnabled(played);
+    setHomeBgmPlaybackMessage(played ? null : getBgmPlaybackFailureMessage());
   }
 
   function handleHomeBgmVolumeChange(volume: number) {
@@ -122,7 +130,7 @@ export default function Home() {
 
   function resumeHomeBgmAfterOpeningVideo() {
     if (bgmEnabled && shouldResumeBgmAfterVideoRef.current) {
-      homeBgmPlayerRef.current?.play("home-theme", { volume: bgmVolume });
+      void homeBgmPlayerRef.current?.play("home-theme", { volume: bgmVolume });
     }
 
     shouldResumeBgmAfterVideoRef.current = false;
@@ -171,7 +179,7 @@ export default function Home() {
                     : "border border-emerald-300/50 bg-stone-950/70 text-emerald-50 hover:border-emerald-100"
                 }`}
               >
-                BGM：{bgmEnabled ? "開" : "關"}
+                {bgmEnabled ? "關閉 BGM" : "開啟 BGM"}
               </button>
               <label className="text-xs font-bold text-stone-300">
                 音量 {Math.round(bgmVolume * 100)}%
@@ -190,6 +198,9 @@ export default function Home() {
                 <p className="text-xs font-bold text-stone-400">
                   此瀏覽器不支援背景音樂播放。
                 </p>
+              ) : null}
+              {bgmPlaybackMessage ? (
+                <p className="text-xs font-bold text-amber-100">{bgmPlaybackMessage}</p>
               ) : null}
             </div>
           </div>
@@ -375,7 +386,7 @@ export default function Home() {
           <summary className="cursor-pointer text-2xl font-black text-amber-50">
             {homeCollapsibleSections[1].title}
           </summary>
-          <h2 className="sr-only">v0.22.0 目前特色</h2>
+          <h2 className="sr-only">v0.22.1 目前特色</h2>
           <ul className="mt-5 grid gap-3 text-sm leading-6 text-stone-300 md:grid-cols-2">
             {currentFeatureHighlights.map((feature) => (
               <li

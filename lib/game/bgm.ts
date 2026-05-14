@@ -10,7 +10,7 @@ export interface BgmPlaybackOptions {
 }
 
 export interface BgmPlayer {
-  play: (trackId: string, options?: BgmPlaybackOptions) => void;
+  play: (trackId: string, options?: BgmPlaybackOptions) => Promise<boolean>;
   pause: () => void;
   stop: () => void;
   setVolume: (volume: number) => void;
@@ -56,28 +56,27 @@ export function createBgmPlayer(): BgmPlayer {
   }
 
   return {
-    play(trackId, options = {}) {
+    async play(trackId, options = {}) {
       const track = getBgmTrack(trackId);
 
       if (!track || !canPlayBgm(trackId)) {
-        return;
+        return false;
       }
 
       try {
         const nextAudio = ensureAudio(track);
 
         if (!nextAudio) {
-          return;
+          return false;
         }
 
         currentVolume = clampBgmVolume(options.volume ?? currentVolume);
         nextAudio.loop = options.loop ?? track.loop;
         nextAudio.volume = currentVolume;
-        void nextAudio.play().catch(() => {
-          // Browser autoplay rules or missing codecs should degrade silently.
-        });
+        await nextAudio.play();
+        return true;
       } catch {
-        // no-op
+        return false;
       }
     },
     pause() {
@@ -119,8 +118,16 @@ export function createBgmPlayer(): BgmPlayer {
 
 export function playBgm(trackId: string, options: BgmPlaybackOptions = {}) {
   const player = createBgmPlayer();
-  player.play(trackId, options);
+  void player.play(trackId, options);
   return player;
+}
+
+export function getBgmActivationEnabled(playSucceeded: boolean) {
+  return playSucceeded;
+}
+
+export function getBgmPlaybackFailureMessage() {
+  return "音樂尚未啟動，請點擊開啟 BGM。";
 }
 
 export function getBgmEnabled() {

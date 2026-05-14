@@ -23,7 +23,7 @@ import { canPlayVoice } from "@/lib/game/voice";
 
 describe("showcase and onboarding copy", () => {
   it("includes homepage how-to and current feature copy", () => {
-    expect(currentVersionLabel).toBe("v0.22.0 分享與 PWA 安裝版");
+    expect(currentVersionLabel).toBe("v0.22.1 LINE 開啟提醒與 BGM 啟動修正版");
     expect(howToSteps.map((step) => step.title)).toEqual([
       "選擇武將",
       "進入戰鬥",
@@ -64,6 +64,9 @@ describe("showcase and onboarding copy", () => {
     );
     expect(currentFeatureHighlights).toContain(
       "第一章 P0 語音已導入：八關旁白、敵人登場、Boss 特性與勝敗語音陸續完成。",
+    );
+    expect(currentFeatureHighlights).toContain(
+      "手機安裝提示優化：LINE 開啟時會提醒改用瀏覽器；BGM 需點擊啟用，避免自動播放限制。",
     );
     expect(currentFeatureHighlights).toContain(
       "支援分享與手機安裝：可加入主畫面，像手機遊戲一樣體驗。",
