@@ -8,7 +8,6 @@ import CardView from "@/components/CardView";
 import { GameImage } from "@/components/GameImage";
 import { VisualPlaceholder } from "@/components/VisualPlaceholder";
 import { playCardSound } from "@/lib/game/cardSoundManifest";
-import { equipmentEffects } from "@/lib/game/cards";
 import {
   getBossTraitAlert,
   getBossTraitDescription,
@@ -35,6 +34,12 @@ import {
   setBgmVolume,
   type BgmPlayer,
 } from "@/lib/game/bgm";
+import {
+  getEquippedItemBadges,
+  getEquippedItemFullLabels,
+  getEquippedItemShortLabels,
+  secondaryBattleActionCopy,
+} from "@/lib/game/equipmentDisplay";
 import {
   isVoiceSupported,
   playVoice,
@@ -202,7 +207,13 @@ function GameBoardContent({
     (traitId) => `Boss 特性｜${getBossTraitName(traitId)}：${getBossTraitDescription(traitId)}`,
   );
   const upgradeLabels = getUpgradeLabels(state.playerUpgrades);
-  const equippedLabels = getEquippedLabels(state.player.equippedItems);
+  const equippedBadges = getEquippedItemBadges(state.player.equippedItems);
+  const equippedLabels = getEquippedItemFullLabels(state.player.equippedItems);
+  const combatEquipmentLabels =
+    equippedBadges.length > 0
+      ? equippedBadges.map((badge) => badge.fullLabel)
+      : equippedLabels;
+  const mobileEquipmentLabels = getEquippedItemShortLabels(state.player.equippedItems);
   const phaseHint = getPhaseHint(state.phase);
   const currentHero = heroes.find((hero) => hero.id === state.player.heroId) ?? heroes[0];
   const stageBackgroundSrc = state.stageConfig.backgroundImage.startsWith("/")
@@ -389,6 +400,10 @@ function GameBoardContent({
   function handleBattleBgmVolumeChange(volume: number) {
     setBattleBgmVolume(volume);
     setBgmVolume(volume);
+  }
+
+  function restartCurrentGame() {
+    setState(createGame(initialHeroId, { enemyRandom: Math.random }));
   }
 
   useEffect(() => {
@@ -671,19 +686,6 @@ function GameBoardContent({
                 onVolumeChange={handleBattleBgmVolumeChange}
               />
             </div>
-            <button
-              type="button"
-              onClick={() => setState(createGame(initialHeroId, { enemyRandom: Math.random }))}
-              className="h-10 rounded-md border border-amber-600/60 bg-stone-950/70 px-4 text-sm font-bold text-amber-100 transition hover:border-amber-300 hover:bg-amber-950/70"
-            >
-              重新開始
-            </button>
-            <Link
-              href="/"
-              className="inline-flex h-10 items-center rounded-md border border-stone-600 bg-stone-950/70 px-4 text-sm font-bold text-stone-100 transition hover:border-stone-300 hover:bg-stone-800"
-            >
-              首頁
-            </Link>
           </div>
         </header>
 
@@ -714,6 +716,7 @@ function GameBoardContent({
               playerName={state.player.name}
               playerHealth={`${state.player.health}/${state.player.maxHealth}`}
               playerStatuses={playerStatuses}
+              playerEquipmentBadges={mobileEquipmentLabels}
               playerPortrait={currentHero.portrait}
               playerPrompt={currentHero.visualPrompt}
               playerFeedback={panelFeedback?.target === "player" ? panelFeedback : undefined}
@@ -806,6 +809,7 @@ function GameBoardContent({
                   state.player.skillText,
                 ]}
                 statuses={playerStatuses}
+                equipmentBadges={combatEquipmentLabels}
                 feedback={
                   panelFeedback?.target === "player" ? panelFeedback : undefined
                 }
@@ -1110,6 +1114,7 @@ function GameBoardContent({
                     : null,
                 ]}
                 equippedLabels={equippedLabels}
+                onRestart={restartCurrentGame}
                 onToggleSound={toggleSound}
                 onToggleVoice={toggleVoice}
                 onToggleBgm={toggleBattleBgm}
@@ -1147,15 +1152,28 @@ function GameBoardContent({
               )}
             </InfoPanel>
             <InfoPanel title="已裝備">
-              {equippedLabels.length > 0 ? (
-                <ul className="space-y-2 text-sm text-amber-50">
-                  {equippedLabels.map((label) => (
-                    <li key={label}>{label}</li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-sm text-stone-300">尚未裝備</p>
-              )}
+              <ul className="space-y-2 text-sm text-amber-50">
+                {equippedLabels.map((label) => (
+                  <li key={label}>{label}</li>
+                ))}
+              </ul>
+            </InfoPanel>
+            <InfoPanel title={secondaryBattleActionCopy.title}>
+              <div className="grid gap-3">
+                <button
+                  type="button"
+                  onClick={restartCurrentGame}
+                  className="h-10 rounded-md border border-amber-600/60 bg-stone-950/70 px-4 text-sm font-bold text-amber-100 transition hover:border-amber-300 hover:bg-amber-950/70"
+                >
+                  {secondaryBattleActionCopy.restart}
+                </button>
+                <Link
+                  href="/"
+                  className="inline-flex h-10 items-center justify-center rounded-md border border-stone-600 bg-stone-950/70 px-4 text-sm font-bold text-stone-100 transition hover:border-stone-300 hover:bg-stone-800"
+                >
+                  {secondaryBattleActionCopy.home}
+                </Link>
+              </div>
             </InfoPanel>
             <InfoPanel title="戰局">
               <p>
@@ -1229,6 +1247,7 @@ function MobileBattleHud({
   playerName,
   playerHealth,
   playerStatuses,
+  playerEquipmentBadges,
   playerPortrait,
   playerPrompt,
   playerFeedback,
@@ -1245,6 +1264,7 @@ function MobileBattleHud({
   playerName: string;
   playerHealth: string;
   playerStatuses: string[];
+  playerEquipmentBadges: string[];
   playerPortrait?: string;
   playerPrompt?: string;
   playerFeedback?: PanelFeedback;
@@ -1270,6 +1290,7 @@ function MobileBattleHud({
         title={playerName}
         health={playerHealth}
         statuses={playerStatuses}
+        equipmentBadges={playerEquipmentBadges}
         portrait={playerPortrait}
         visualLabel={playerName}
         visualPrompt={playerPrompt}
@@ -1336,6 +1357,7 @@ function MobileHudRow({
   title,
   health,
   statuses,
+  equipmentBadges = [],
   portrait,
   visualLabel,
   visualPrompt,
@@ -1348,6 +1370,7 @@ function MobileHudRow({
   title: string;
   health: string;
   statuses: string[];
+  equipmentBadges?: string[];
   portrait?: string;
   visualLabel: string;
   visualPrompt?: string;
@@ -1422,6 +1445,18 @@ function MobileHudRow({
           </span>
         ))}
       </div>
+      {equipmentBadges.length > 0 ? (
+        <div className="mt-2 flex gap-2 overflow-x-auto pb-1">
+          {equipmentBadges.map((label) => (
+            <span
+              key={label}
+              className="shrink-0 rounded-full border border-emerald-200/55 bg-emerald-500/15 px-3 py-1 text-[11px] font-black text-emerald-50"
+            >
+              {label}
+            </span>
+          ))}
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -1434,6 +1469,7 @@ function MobileStatusSettings({
   bgmVolume,
   equippedLabels,
   onBgmVolumeChange,
+  onRestart,
   onToggleBgm,
   onToggleSound,
   onToggleVoice,
@@ -1450,6 +1486,7 @@ function MobileStatusSettings({
   bgmVolume: number;
   equippedLabels: string[];
   onBgmVolumeChange: (volume: number) => void;
+  onRestart: () => void;
   onToggleBgm: () => void;
   onToggleSound: () => void;
   onToggleVoice: () => void;
@@ -1496,15 +1533,28 @@ function MobileStatusSettings({
           )}
         </MobileInfoBlock>
         <MobileInfoBlock title="已裝備">
-          {equippedLabels.length > 0 ? (
-            <ul className="space-y-2">
-              {equippedLabels.map((label) => (
-                <li key={label}>{label}</li>
-              ))}
-            </ul>
-          ) : (
-            <p>尚未裝備</p>
-          )}
+          <ul className="space-y-2">
+            {equippedLabels.map((label) => (
+              <li key={label}>{label}</li>
+            ))}
+          </ul>
+        </MobileInfoBlock>
+        <MobileInfoBlock title={secondaryBattleActionCopy.title}>
+          <div className="grid gap-3">
+            <button
+              type="button"
+              onClick={onRestart}
+              className="h-10 rounded-md border border-amber-600/60 bg-stone-950/80 px-4 text-sm font-bold text-amber-100 transition hover:border-amber-300 hover:bg-amber-950/70"
+            >
+              {secondaryBattleActionCopy.restart}
+            </button>
+            <Link
+              href="/"
+              className="inline-flex h-10 items-center justify-center rounded-md border border-stone-600 bg-stone-950/80 px-4 text-sm font-bold text-stone-100 transition hover:border-stone-300 hover:bg-stone-800"
+            >
+              {secondaryBattleActionCopy.home}
+            </Link>
+          </div>
         </MobileInfoBlock>
         <MobileInfoBlock title="快速規則">
           <ul className="space-y-2">
@@ -1661,6 +1711,7 @@ function CombatantPanel({
   defeatedStamp,
   details,
   statuses,
+  equipmentBadges = [],
   feedback,
 }: {
   tone: "player" | "enemy";
@@ -1679,6 +1730,7 @@ function CombatantPanel({
   defeatedStamp?: string;
   details: string[];
   statuses: string[];
+  equipmentBadges?: string[];
   feedback?: PanelFeedback;
 }) {
   const isPlayer = tone === "player";
@@ -1768,6 +1820,23 @@ function CombatantPanel({
               <li key={detail}>{detail}</li>
             ))}
           </ul>
+          {equipmentBadges.length > 0 ? (
+            <div className="mt-4 rounded-lg border border-emerald-300/35 bg-black/20 p-3">
+              <p className="text-xs font-black uppercase tracking-[0.16em] text-emerald-200">
+                裝備效果
+              </p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {equipmentBadges.map((label) => (
+                  <span
+                    key={label}
+                    className="rounded-full border border-emerald-200/55 bg-emerald-500/15 px-3 py-1 text-xs font-black text-emerald-50"
+                  >
+                    {label}
+                  </span>
+                ))}
+              </div>
+            </div>
+          ) : null}
           <div className="mt-4 flex flex-wrap gap-2">
             {statuses.map((status) => (
               <span
@@ -2065,20 +2134,6 @@ function getCardToast(cardName: string, heroId: string): Pick<EventToast, "text"
   }
 
   return { text: "🛡 閃避！", tone: "guard" };
-}
-
-function getEquippedLabels(equippedItems: ReturnType<typeof createGame>["player"]["equippedItems"]) {
-  return equippedItems.map((item) => {
-    if (item.name === "青龍偃月刀") {
-      return `青龍偃月刀：${equipmentEffects.greenDragonBlade}`;
-    }
-
-    if (item.name === "的盧馬") {
-      return `的盧馬：${equipmentEffects.diluHorse}`;
-    }
-
-    return `太平要術：${equipmentEffects.taipingManual}`;
-  });
 }
 
 function getDefenseButtonLabel(state: ReturnType<typeof createGame>) {
