@@ -6,6 +6,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import BattleLog from "@/components/BattleLog";
 import CardView from "@/components/CardView";
 import { GameImage } from "@/components/GameImage";
+import { ShareGameButton } from "@/components/ShareGameButton";
 import { VisualPlaceholder } from "@/components/VisualPlaceholder";
 import { playCardSound } from "@/lib/game/cardSoundManifest";
 import {
@@ -1173,6 +1174,7 @@ function GameBoardContent({
                 >
                   {secondaryBattleActionCopy.home}
                 </Link>
+                <ShareGameButton compact />
               </div>
             </InfoPanel>
             <InfoPanel title="戰局">
@@ -1554,6 +1556,7 @@ function MobileStatusSettings({
             >
               {secondaryBattleActionCopy.home}
             </Link>
+            <ShareGameButton compact />
           </div>
         </MobileInfoBlock>
         <MobileInfoBlock title="快速規則">

@@ -1,6 +1,6 @@
 import type { GamePhase } from "./types";
 
-export const currentVersionLabel = "v0.21.2 戰鬥資訊與低頻操作整理版";
+export const currentVersionLabel = "v0.22.0 分享與 PWA 安裝版";
 
 export const gameLoadingCopy = {
   title: "戰局準備中……",
@@ -22,6 +22,9 @@ export const homeOpeningVideoEntry = {
 export const homeHeroSelectionCopy = "先選擇你的武將，再開始遊戲。";
 
 export const homeHeroPreviewCopy = "開啟角色語音後，點選武將可試聽專屬選角語音。";
+
+export const homeAuthorCopy =
+  "本作品由李詩民以 AI 協作流程打造，整合文、圖、聲、影與互動遊戲開發。";
 
 export const routeSelectionCopy = {
   title: "選擇路線",
@@ -70,6 +73,7 @@ export const currentFeatureHighlights = [
   "第一批 AI 圖像：首頁主視覺、關羽、趙雲、諸葛亮",
   "第二批敵人圖像：黃巾兵、山賊頭目、西涼騎兵、呂布",
   "第一批關卡背景：荒村初戰、虎牢關前",
+  "支援分享與手機安裝：可加入主畫面，像手機遊戲一樣體驗。",
   "戰鬥資訊整理：裝備效果直接顯示在對戰 HUD，低頻操作移入更多設定。",
   "手機戰鬥 UX 強化：底部操作區更集中，敵人敗退與選擇階段提示更清楚。",
   "背景音樂系統：首頁、一般戰鬥與 Boss 戰已導入不同 BGM。",

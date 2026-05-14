@@ -8,6 +8,7 @@ import {
   getHeroStartLabel,
   gameLoadingCopy,
   homeCollapsibleSections,
+  homeAuthorCopy,
   homeHeroPreviewCopy,
   homeHeroSelectionCopy,
   homeMainFlowSteps,
@@ -22,7 +23,7 @@ import { canPlayVoice } from "@/lib/game/voice";
 
 describe("showcase and onboarding copy", () => {
   it("includes homepage how-to and current feature copy", () => {
-    expect(currentVersionLabel).toBe("v0.21.2 戰鬥資訊與低頻操作整理版");
+    expect(currentVersionLabel).toBe("v0.22.0 分享與 PWA 安裝版");
     expect(howToSteps.map((step) => step.title)).toEqual([
       "選擇武將",
       "進入戰鬥",
@@ -63,6 +64,9 @@ describe("showcase and onboarding copy", () => {
     );
     expect(currentFeatureHighlights).toContain(
       "第一章 P0 語音已導入：八關旁白、敵人登場、Boss 特性與勝敗語音陸續完成。",
+    );
+    expect(currentFeatureHighlights).toContain(
+      "支援分享與手機安裝：可加入主畫面，像手機遊戲一樣體驗。",
     );
     expect(currentFeatureHighlights).toContain(
       "戰鬥資訊整理：裝備效果直接顯示在對戰 HUD，低頻操作移入更多設定。",
@@ -147,6 +151,7 @@ describe("showcase and onboarding copy", () => {
     });
     expect(Object.values(homeOpeningVideoEntry).join(" ")).not.toContain("略過動畫，直接開始");
     expect(getHeroStartLabel("關羽")).toBe("以關羽開始遊戲");
+    expect(homeAuthorCopy).toContain("李詩民");
   });
 
   it("keeps opening video modal start actions", () => {

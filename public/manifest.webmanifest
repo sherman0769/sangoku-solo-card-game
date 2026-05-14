@@ -1,0 +1,30 @@
+{
+  "name": "三國單騎傳｜李詩民 AI 協作開發",
+  "short_name": "三國單騎傳",
+  "description": "李詩民以 AI 協作打造的三國單人卡牌 Roguelike 遊戲。",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#140c09",
+  "theme_color": "#f59e0b",
+  "orientation": "portrait",
+  "lang": "zh-TW",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ShareGameButton } from "@/components/ShareGameButton";
 import { getGameResultDialogue } from "@/lib/game/dialogues";
 
 export default async function ResultPage({
@@ -31,6 +32,9 @@ export default async function ResultPage({
           <p className="mt-6 max-w-[300px] break-words text-base leading-8 text-stone-300 [overflow-wrap:anywhere] sm:max-w-none sm:text-lg">
             {message}
           </p>
+          <p className="mt-4 text-sm font-bold leading-6 text-amber-100">
+            喜歡這個 AI 協作遊戲作品，也可以分享給朋友體驗。
+          </p>
           <div className="mt-10 flex flex-wrap gap-3">
             <Link
               href="/game"
@@ -42,8 +46,9 @@ export default async function ResultPage({
               href="/"
               className="inline-flex h-12 items-center justify-center rounded-md border border-amber-700/60 bg-stone-950/60 px-6 text-sm font-bold text-amber-100 transition hover:border-amber-300 hover:bg-amber-950/60"
             >
-              回首頁
+              返回首頁
             </Link>
+            <ShareGameButton />
           </div>
         </div>
       </section>

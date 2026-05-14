@@ -3,7 +3,9 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { GameImage } from "@/components/GameImage";
+import { InstallPrompt } from "@/components/InstallPrompt";
 import { OpeningVideo } from "@/components/OpeningVideo";
+import { ShareGameButton } from "@/components/ShareGameButton";
 import {
   createBgmPlayer,
   getBgmEnabled,
@@ -22,6 +24,7 @@ import {
   getHeroStartLabel,
   homeHeroPreviewCopy,
   homeHeroSelectionCopy,
+  homeAuthorCopy,
   homeCollapsibleSections,
   currentFeatureHighlights,
   currentVersionLabel,
@@ -134,6 +137,19 @@ export default function Home() {
           onModalOpen={pauseHomeBgmForOpeningVideo}
           startHref={selectedHeroStartHref}
         />
+
+        <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-stretch">
+          <InstallPrompt />
+          <section className="rounded-xl border border-amber-700/40 bg-black/30 p-4 shadow-[0_18px_45px_rgba(0,0,0,0.24)]">
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-amber-300">
+              AI 協作開發
+            </p>
+            <p className="mt-2 max-w-2xl text-sm font-bold leading-6 text-stone-200">
+              {homeAuthorCopy}
+            </p>
+            <ShareGameButton className="mt-3" />
+          </section>
+        </div>
 
         <section className="mt-4 rounded-xl border border-emerald-500/35 bg-emerald-950/20 p-4 shadow-[0_18px_45px_rgba(0,0,0,0.24)]">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -331,6 +347,7 @@ export default function Home() {
             >
               {selectedHeroStartLabel}
             </Link>
+            <ShareGameButton />
           </div>
         </section>
 
@@ -358,7 +375,7 @@ export default function Home() {
           <summary className="cursor-pointer text-2xl font-black text-amber-50">
             {homeCollapsibleSections[1].title}
           </summary>
-          <h2 className="sr-only">v0.21.2 目前特色</h2>
+          <h2 className="sr-only">v0.22.0 目前特色</h2>
           <ul className="mt-5 grid gap-3 text-sm leading-6 text-stone-300 md:grid-cols-2">
             {currentFeatureHighlights.map((feature) => (
               <li
@@ -397,6 +414,7 @@ export default function Home() {
             ["首頁主流程", "首頁改為觀看開場動畫、選擇武將、開始遊戲，避免選角前直接進入遊戲。"],
             ["卡牌音效系統", "不同類型卡牌已可對應不同音效，正式音檔尚未導入時會 fallback 到提示音。"],
             ["真實卡牌音效", "斬、連斬、防禦、回復、策略、裝備、火攻 7 類 MP3 已導入。"],
+            ["分享與手機安裝", "可分享遊戲連結，也可加入手機主畫面，像手機遊戲一樣體驗。"],
             ["戰鬥平衡分析", "使用模擬工具分析武將勝率、死亡關卡、敵人遭遇與路線選擇。"],
             ["第一輪平衡微調", "諸葛亮 HP 提升至 4、呂布 HP 提升至 14，且未提高第 2～3 關敵人壓力。"],
             ["後期難度微調", "張梁、張寶與呂布猛攻比例小幅提高，第一章後段更有挑戰。"],
@@ -426,7 +444,7 @@ export default function Home() {
           </p>
         </section>
         <p className="mt-8 text-xs font-bold uppercase tracking-[0.18em] text-stone-500">
-          版本：{currentVersionLabel}
+          AI 協作開發｜李詩民 · 版本：{currentVersionLabel}
         </p>
       </section>
     </main>
