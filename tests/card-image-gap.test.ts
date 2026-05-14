@@ -10,7 +10,7 @@ const qaPlanPath = join(process.cwd(), "docs", "qa-fix-plan-v0.24.0.md");
 const cardImageGapPath = join(process.cwd(), "docs", "card-image-gap-v0.24.0.md");
 const readmePath = join(process.cwd(), "README.md");
 
-describe("v0.24.1 card image manifests", () => {
+describe("card image manifests", () => {
   it("adds the QA plan and card image gap documents", () => {
     expect(existsSync(qaPlanPath)).toBe(true);
     expect(existsSync(cardImageGapPath)).toBe(true);
@@ -60,12 +60,14 @@ describe("v0.24.1 card image manifests", () => {
     expect(cardImageGap).toContain("status: ready");
   });
 
-  it("updates README for v0.24.1 without restoring homepage changelog sections", () => {
+  it("updates README through v0.24.2 without restoring homepage changelog sections", () => {
     const readme = readFileSync(readmePath, "utf-8");
     const homePageSource = readFileSync(join(process.cwd(), "app", "page.tsx"), "utf-8");
 
     expect(readme).toContain("v0.24.1 卡牌圖片導入版");
     expect(readme).toContain("v0.24.1：導入 12 張卡牌圖片");
+    expect(readme).toContain("v0.24.2 卡牌尺寸一致化修正版");
+    expect(readme).toContain("v0.24.2：修正手牌卡牌尺寸不一致問題");
     expect(homePageSource).not.toContain("查看目前版本特色");
   });
 });

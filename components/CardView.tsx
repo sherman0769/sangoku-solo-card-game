@@ -1,6 +1,6 @@
 import type { Card } from "@/lib/game/types";
+import { CARD_VIEW_LAYOUT } from "@/lib/game/cardLayout";
 import { GameImage } from "./GameImage";
-import { VisualPlaceholder } from "./VisualPlaceholder";
 
 interface CardViewProps {
   card: Card;
@@ -20,12 +20,12 @@ export default function CardView({
       type="button"
       disabled={disabled}
       onClick={() => onPlay?.(card.id)}
-      className={`relative flex min-h-40 flex-col justify-between overflow-hidden rounded-lg border p-3 text-left shadow-[0_16px_30px_rgba(0,0,0,0.28)] transition duration-200 enabled:cursor-pointer enabled:hover:-translate-y-1 enabled:hover:shadow-[0_22px_44px_rgba(0,0,0,0.42)] enabled:active:scale-[0.98] disabled:cursor-not-allowed disabled:grayscale disabled:opacity-40 disabled:hover:translate-y-0 sm:min-h-48 sm:p-4 ${style.card}`}
+      className={`relative flex ${CARD_VIEW_LAYOUT.cardRootClass} flex-col overflow-hidden rounded-lg border p-3 text-left shadow-[0_16px_30px_rgba(0,0,0,0.28)] transition duration-200 enabled:cursor-pointer enabled:hover:-translate-y-1 enabled:hover:shadow-[0_22px_44px_rgba(0,0,0,0.42)] enabled:active:scale-[0.98] disabled:cursor-not-allowed disabled:grayscale disabled:opacity-40 disabled:hover:translate-y-0 sm:p-4 ${style.card}`}
     >
       <span className={`absolute inset-x-0 top-0 h-1 ${style.bar}`} />
-      <div>
+      <div className={CARD_VIEW_LAYOUT.headerClass}>
         <div className="flex items-start justify-between gap-3">
-          <h3 className="text-lg font-black leading-6 text-stone-50 sm:text-xl">{card.name}</h3>
+          <h3 className="line-clamp-2 text-lg font-black leading-6 text-stone-50 sm:text-xl">{card.name}</h3>
           <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-sm font-black sm:h-9 sm:w-9 ${style.cost}`}>
             {card.cost}
           </span>
@@ -33,31 +33,22 @@ export default function CardView({
         <p className={`mt-3 inline-flex rounded-full border px-2.5 py-1 text-xs font-bold ${style.badge}`}>
           {style.label}
         </p>
-        <div className="mt-3 sm:mt-4">
-          {card.image ? (
-            <GameImage
-              src={card.image}
-              alt={`${card.name}卡牌插圖`}
-              variant="card"
-              className="border border-white/10 bg-black/20"
-              imageClassName="object-cover"
-              sizes="(min-width: 768px) 220px, 160px"
-              fallbackType="card"
-              fallbackLabel={card.name}
-              fallbackPrompt={card.visualPrompt}
-              fallbackCompact
-            />
-          ) : (
-            <VisualPlaceholder
-              type="card"
-              label={card.name}
-              prompt={card.visualPrompt}
-              compact
-            />
-          )}
-        </div>
       </div>
-      <p className="mt-3 text-xs leading-5 text-stone-200 sm:mt-4 sm:text-sm sm:leading-6">
+      <div className="mt-3 shrink-0 sm:mt-4">
+        <GameImage
+          src={card.image}
+          alt={`${card.name}卡牌插圖`}
+          variant={CARD_VIEW_LAYOUT.imageVariant}
+          className={CARD_VIEW_LAYOUT.imageFrameClass}
+          imageClassName="object-cover"
+          sizes="(min-width: 768px) 220px, 160px"
+          fallbackType="card"
+          fallbackLabel={card.name}
+          fallbackPrompt={card.visualPrompt}
+          fallbackCompact={CARD_VIEW_LAYOUT.fallbackCompact}
+        />
+      </div>
+      <p className={CARD_VIEW_LAYOUT.descriptionClass}>
         {card.text}
       </p>
     </button>

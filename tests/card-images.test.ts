@@ -72,7 +72,7 @@ describe("card illustrations", () => {
     const homePageSource = readFileSync(join(process.cwd(), "app", "page.tsx"), "utf-8");
 
     expect(cardViewSource).toContain("GameImage");
-    expect(cardViewSource).toContain('variant="card"');
+    expect(cardViewSource).toContain("CARD_VIEW_LAYOUT.imageVariant");
     expect(cardViewSource).toContain("fallbackType=\"card\"");
     expect(homePageSource).not.toContain("查看目前版本特色");
   });

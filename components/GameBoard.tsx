@@ -9,6 +9,7 @@ import { GameImage } from "@/components/GameImage";
 import { ShareGameButton } from "@/components/ShareGameButton";
 import { VisualPlaceholder } from "@/components/VisualPlaceholder";
 import { playCardSound } from "@/lib/game/cardSoundManifest";
+import { CARD_VIEW_LAYOUT } from "@/lib/game/cardLayout";
 import {
   getBossTraitAlert,
   getBossTraitDescription,
@@ -1116,7 +1117,7 @@ function GameBoardContent({
                 ) : null}
                 <div className={`${showMobileHand ? "mt-3 flex" : "hidden md:grid"} -mx-3 gap-3 overflow-x-auto px-3 pb-2 md:mx-0 md:mt-4 md:grid md:grid-cols-2 md:gap-4 md:overflow-visible md:px-0 md:pb-0 xl:grid-cols-3`}>
                   {state.hand.map((card) => (
-                    <div key={card.id} className="w-40 shrink-0 md:w-auto">
+                    <div key={card.id} className={CARD_VIEW_LAYOUT.mobileCardWrapperClass}>
                       <CardView
                         card={card}
                         disabled={
