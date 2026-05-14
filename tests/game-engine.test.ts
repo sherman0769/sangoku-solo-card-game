@@ -221,6 +221,11 @@ describe("game engine", () => {
 
   it("includes the first route set", () => {
     expect(stageRoutes.map((route) => route.name)).toEqual(["山道", "官道", "險道"]);
+    expect(stageRoutes.map((route) => route.image)).toEqual([
+      "/images/routes/mountain-path.png",
+      "/images/routes/official-road.png",
+      "/images/routes/dangerous-pass.png",
+    ]);
   });
 
   it("defines routes as playstyle choices instead of fixed number modifiers", () => {

@@ -1617,11 +1617,17 @@ function RouteCard({ route, onChoose }: { route: StageRoute; onChoose: () => voi
       onClick={onChoose}
       className={`min-h-56 rounded-lg border p-4 text-left shadow-[0_16px_34px_rgba(0,0,0,0.34)] transition hover:-translate-y-1 ${getRouteButtonClass(route.id)}`}
     >
-      <VisualPlaceholder
-        type="route"
-        label={route.name}
-        prompt={route.visualPrompt}
-        compact
+      <GameImage
+        src={route.image.startsWith("/") ? route.image : undefined}
+        alt={`${route.name}路線圖`}
+        variant="card"
+        className="max-h-32 rounded-md border border-white/10 sm:max-h-36"
+        imageClassName="object-cover"
+        sizes="(min-width: 768px) 280px, 100vw"
+        fallbackType="route"
+        fallbackLabel={route.name}
+        fallbackPrompt={route.visualPrompt}
+        fallbackCompact
       />
       <span className="mt-4 inline-flex rounded-full border border-white/25 bg-black/25 px-3 py-1 text-xs font-black text-stone-100">
         {route.theme}

@@ -15,6 +15,7 @@ export type ReadyImageAssetType =
   | "enemy"
   | "mini-boss"
   | "boss"
+  | "route"
   | "stage-background";
 
 export interface ReadyImageAsset {
@@ -212,54 +213,33 @@ export const CHAPTER_1_READY_IMAGE_MANIFEST: ReadyImageAsset[] = [
     usage: "第 7 關背景",
     status: "ready",
   },
-];
-
-export const CHAPTER_1_IMAGE_GAP_MANIFEST: ImageGapAsset[] = [
   {
     id: "route-mountain-path",
     name: "山道",
     type: "route",
-    priority: "P1",
-    aspectRatio: "9:16",
-    path: "public/images/routes/mountain-path.png",
+    path: "/images/routes/mountain-path.png",
     usage: "路線選擇卡：山道",
-    promptZh:
-      "三國亂世山道路線圖，崎嶇小徑穿過深林與山霧，遠處有清泉微光與隱約軍旗，生存補給感，手機直屏 9:16，東方史詩卡牌風，半寫實，無文字",
-    promptEn:
-      "A mountain path route image in the chaotic Three Kingdoms era, rugged trail through deep forest and mist, faint spring glow and distant banners, survival and supply mood, mobile vertical 9:16, eastern epic card game style, semi-realistic, no text.",
-    negativePrompt: sharedNegativePrompt,
-    status: "planned",
+    status: "ready",
   },
   {
     id: "route-official-road",
     name: "官道",
     type: "route",
-    priority: "P1",
-    aspectRatio: "9:16",
-    path: "public/images/routes/official-road.png",
+    path: "/images/routes/official-road.png",
     usage: "路線選擇卡：官道",
-    promptZh:
-      "三國亂世官道路線圖，古代大道延伸遠方，車轍、驛站旗幟與殘存軍令木牌，穩定情報與主線推進感，手機直屏 9:16，東方史詩卡牌風，半寫實，無文字",
-    promptEn:
-      "An official road route image in the chaotic Three Kingdoms era, ancient road stretching into the distance, wheel tracks, relay station banners and remnant military order markers, stable intelligence and main-route feeling, mobile vertical 9:16, eastern epic card game style, semi-realistic, no text.",
-    negativePrompt: sharedNegativePrompt,
-    status: "planned",
+    status: "ready",
   },
   {
     id: "route-dangerous-pass",
     name: "險道",
     type: "route",
-    priority: "P1",
-    aspectRatio: "9:16",
-    path: "public/images/routes/dangerous-pass.png",
+    path: "/images/routes/dangerous-pass.png",
     usage: "路線選擇卡：險道",
-    promptZh:
-      "三國亂世險道路線圖，絕壁山隘、破碎古戰場遺跡與遠處伏兵火光，危險與奇遇並存，手機直屏 9:16，東方史詩卡牌風，半寫實，電影感光影，無文字",
-    promptEn:
-      "A dangerous pass route image in the chaotic Three Kingdoms era, cliffside mountain pass, broken ancient battlefield relics and distant ambush firelight, danger and rare opportunity together, mobile vertical 9:16, eastern epic card game style, semi-realistic, cinematic lighting, no text.",
-    negativePrompt: sharedNegativePrompt,
-    status: "planned",
+    status: "ready",
   },
+];
+
+export const CHAPTER_1_IMAGE_GAP_MANIFEST: ImageGapAsset[] = [
   {
     id: "route-mountain-spring",
     name: "山泉療傷",

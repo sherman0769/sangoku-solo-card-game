@@ -6,12 +6,13 @@ import {
 } from "@/components/GameImage";
 import { enemyPool } from "@/lib/game/enemies";
 import { heroes } from "@/lib/game/heroes";
+import { stageRoutes } from "@/lib/game/routes";
 import { getStageConfig } from "@/lib/game/stages";
 import { VISUAL_ASSET_MANIFEST } from "@/lib/game/visualAssetManifest";
 
 describe("visual asset manifest", () => {
   it("contains the imported visual assets", () => {
-    expect(VISUAL_ASSET_MANIFEST).toHaveLength(21);
+    expect(VISUAL_ASSET_MANIFEST).toHaveLength(24);
   });
 
   it("includes required fields for every asset", () => {
@@ -66,6 +67,14 @@ describe("visual asset manifest", () => {
       "stage-ancient-battlefield",
       "stage-yellow-turban-altar",
       "stage-hulao-gate",
+    ]);
+  });
+
+  it("includes all three route image assets", () => {
+    expect(getAssetIdsByType("route")).toEqual([
+      "route-mountain-path",
+      "route-official-road",
+      "route-dangerous-pass",
     ]);
   });
 
@@ -145,6 +154,18 @@ describe("visual asset manifest", () => {
     expect(getAssetPath("stage-hulao-gate")).toBe("/images/stages/hulao-gate.png");
   });
 
+  it("uses imported PNG images for all route choices", () => {
+    expect(getRouteImage("mountain-path")).toBe("/images/routes/mountain-path.png");
+    expect(getRouteImage("official-road")).toBe("/images/routes/official-road.png");
+    expect(getRouteImage("dangerous-pass")).toBe("/images/routes/dangerous-pass.png");
+  });
+
+  it("updates imported route manifest paths to PNG", () => {
+    expect(getAssetPath("route-mountain-path")).toBe("/images/routes/mountain-path.png");
+    expect(getAssetPath("route-official-road")).toBe("/images/routes/official-road.png");
+    expect(getAssetPath("route-dangerous-pass")).toBe("/images/routes/dangerous-pass.png");
+  });
+
   it("uses image paths when available and falls back when missing or failed", () => {
     expect(getGameImageRenderMode("/images/heroes/guan-yu.png")).toBe("image");
     expect(getGameImageRenderMode(undefined)).toBe("fallback");
@@ -171,6 +192,10 @@ function getHeroPortrait(heroId: string) {
 
 function getEnemyPortrait(enemyId: string) {
   return enemyPool.find((enemy) => enemy.id === enemyId)?.portrait;
+}
+
+function getRouteImage(routeId: string) {
+  return stageRoutes.find((route) => route.id === routeId)?.image;
 }
 
 function getAssetPath(assetId: string) {

@@ -9,7 +9,7 @@ export const stageRoutes: StageRoute[] = [
     focus: "補給與探索",
     playStyle: "適合血量偏低或想穩定整理資源時選擇。",
     flavorText: "山路崎嶇，林霧深重，清泉與小徑常藏在枝葉之間。",
-    image: "route-mountain-path",
+    image: "/images/routes/mountain-path.png",
     visualPrompt: "崎嶇山道，霧中小徑與山泉，三國亂世中的生存補給路線選擇圖",
   },
   {
@@ -20,7 +20,7 @@ export const stageRoutes: StageRoute[] = [
     focus: "情報與穩定",
     playStyle: "適合想穩定推進與取得戰術優勢時選擇。",
     flavorText: "旌旗隱現，車轍仍在，殘存軍令與支援可循。",
-    image: "route-official-road",
+    image: "/images/routes/official-road.png",
     visualPrompt: "古代官道延伸遠方，旌旗與車轍清晰，情報穩定的三國行軍路線圖",
   },
   {
@@ -31,7 +31,7 @@ export const stageRoutes: StageRoute[] = [
     focus: "稀有收益與代價",
     playStyle: "適合想賭特殊收益與劇情變化時選擇。",
     flavorText: "絕壁與古戰場相連，危局之中也可能藏著名將遺物。",
-    image: "route-dangerous-pass",
+    image: "/images/routes/dangerous-pass.png",
     visualPrompt: "險峻山隘，古戰場殘光與伏兵火光，奇遇與代價並存的三國路線選擇圖",
   },
 ];

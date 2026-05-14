@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "三國單騎傳",
-  description: "v0.19.0 第一章 P0 圖片導入版：第一章所有敵人圖與 8 個關卡背景圖已補齊。",
+  description: "v0.19.1 路線圖片導入版：山道、官道、險道在路線選擇畫面中呈現不同視覺風格。",
 };
 
 export default function RootLayout({

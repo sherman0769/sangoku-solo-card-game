@@ -19,7 +19,7 @@ const importedP0ImageIds = [
   "stage-yellow-turban-altar",
 ] as const;
 
-const routeGapIds = [
+const importedRouteImageIds = [
   "route-mountain-path",
   "route-official-road",
   "route-dangerous-pass",
@@ -39,7 +39,7 @@ const routeEventGapIds = [
 
 describe("chapter one image gap manifest", () => {
   it("contains planned chapter one image gaps", () => {
-    expect(CHAPTER_1_IMAGE_GAP_MANIFEST).toHaveLength(12);
+    expect(CHAPTER_1_IMAGE_GAP_MANIFEST).toHaveLength(9);
     expect(CHAPTER_1_IMAGE_GAP_MANIFEST.every((item) => item.status === "planned")).toBe(true);
   });
 
@@ -48,6 +48,16 @@ describe("chapter one image gap manifest", () => {
     const readyIds = CHAPTER_1_READY_IMAGE_MANIFEST.map((item) => item.id);
 
     importedP0ImageIds.forEach((id) => {
+      expect(gapIds).not.toContain(id);
+      expect(readyIds).toContain(id);
+    });
+  });
+
+  it("moves imported route images out of the gap manifest", () => {
+    const gapIds = CHAPTER_1_IMAGE_GAP_MANIFEST.map((item) => item.id);
+    const readyIds = CHAPTER_1_READY_IMAGE_MANIFEST.map((item) => item.id);
+
+    importedRouteImageIds.forEach((id) => {
       expect(gapIds).not.toContain(id);
       expect(readyIds).toContain(id);
     });
@@ -67,11 +77,10 @@ describe("chapter one image gap manifest", () => {
     expect(stageGaps).toHaveLength(0);
   });
 
-  it("contains three route image gaps", () => {
+  it("contains no route image gaps", () => {
     const routeGaps = CHAPTER_1_IMAGE_GAP_MANIFEST.filter((item) => item.type === "route");
 
-    expect(routeGaps).toHaveLength(3);
-    expect(routeGaps.map((item) => item.id)).toEqual(routeGapIds);
+    expect(routeGaps).toHaveLength(0);
   });
 
   it("contains nine route event image gaps", () => {
@@ -121,9 +130,12 @@ describe("chapter one image gap manifest", () => {
         "stage-ancient-battlefield",
         "stage-yellow-turban-altar",
         "stage-hulao-gate",
+        "route-mountain-path",
+        "route-official-road",
+        "route-dangerous-pass",
       ]),
     );
-    expect(CHAPTER_1_READY_IMAGE_MANIFEST).toHaveLength(21);
+    expect(CHAPTER_1_READY_IMAGE_MANIFEST).toHaveLength(24);
     expect(CHAPTER_1_READY_IMAGE_MANIFEST.every((item) => item.status === "ready")).toBe(true);
   });
 

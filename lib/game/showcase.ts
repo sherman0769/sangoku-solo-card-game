@@ -1,6 +1,6 @@
 import type { GamePhase } from "./types";
 
-export const currentVersionLabel = "v0.19.0 第一章 P0 圖片導入版";
+export const currentVersionLabel = "v0.19.1 路線圖片導入版";
 
 export const gameLoadingCopy = {
   title: "戰局準備中……",
@@ -70,7 +70,7 @@ export const currentFeatureHighlights = [
   "第一批 AI 圖像：首頁主視覺、關羽、趙雲、諸葛亮",
   "第二批敵人圖像：黃巾兵、山賊頭目、西涼騎兵、呂布",
   "第一批關卡背景：荒村初戰、虎牢關前",
-  "第一章 P0 圖片已導入：敵人圖與八關背景圖補齊，路線與事件圖片將陸續補完。",
+  "三條路線圖片已導入：山道、官道、險道在選擇畫面中呈現不同視覺風格。",
   "視覺呈現優化：首頁、武將、敵人、Boss 與關卡背景手機版顯示",
   "人物台詞系統：武將台詞、敵人登場、章節旁白與勝敗旁白",
   "第一版音效系統：Web Audio API 提示音、手動開關與本機設定保存",
