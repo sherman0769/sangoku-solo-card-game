@@ -50,6 +50,7 @@ export interface RunSimulationResult {
   eventsEncountered: string[];
   routeEventsEncountered: string[];
   bossTraitTriggers: string[];
+  enemyHealTriggers: number;
   damageTaken: number;
   cardsPlayed: Record<string, number>;
   defeatReason?: string;
@@ -77,6 +78,7 @@ export interface BalanceSimulationSummary {
   routeEventStats: Record<string, number>;
   routeEventDeathStats: Record<string, number>;
   bossTraitStats: Record<string, number>;
+  enemyHealTriggerCount: number;
   results: RunSimulationResult[];
 }
 
@@ -102,6 +104,7 @@ export function simulateRun(options: RunSimulationOptions): RunSimulationResult 
     const routeEventsEncountered: string[] = [];
     const cardsPlayed: Record<string, number> = {};
     let damageTaken = 0;
+    let enemyHealTriggers = 0;
     let steps = 0;
 
     while (state.status === "playing" && steps < maxTurns) {
@@ -156,9 +159,12 @@ export function simulateRun(options: RunSimulationOptions): RunSimulationResult 
       }
 
       damageTaken += Math.max(0, beforeHealth - state.player.health);
+      enemyHealTriggers += countNewEnemyHealLogs(previousState, state);
 
       if (state === previousState && state.enemyIndex === beforeEnemyIndex) {
+        const beforeFallback = state;
         state = endTurn(state);
+        enemyHealTriggers += countNewEnemyHealLogs(beforeFallback, state);
       }
     }
 
@@ -176,6 +182,7 @@ export function simulateRun(options: RunSimulationOptions): RunSimulationResult 
       eventsEncountered,
       routeEventsEncountered,
       bossTraitTriggers: state.bossTraitHistory,
+      enemyHealTriggers,
       damageTaken,
       cardsPlayed,
       defeatReason: timedOut ? `超過 ${maxTurns} 步仍未結束` : getDefeatReason(state),
@@ -212,6 +219,7 @@ export function summarizeResults(results: RunSimulationResult[]): BalanceSimulat
   const routeEventStats: Record<string, number> = {};
   const routeEventDeathStats: Record<string, number> = {};
   const bossTraitStats: Record<string, number> = {};
+  let enemyHealTriggerCount = 0;
 
   results.forEach((result) => {
     if (!result.won) {
@@ -239,6 +247,8 @@ export function summarizeResults(results: RunSimulationResult[]): BalanceSimulat
       const traitName = getBossTraitName(traitId as BossTraitId);
       bossTraitStats[traitName] = (bossTraitStats[traitName] ?? 0) + 1;
     });
+
+    enemyHealTriggerCount += result.enemyHealTriggers;
 
     if (!result.won) {
       const lastRouteEvent = result.routeEventsEncountered.at(-1);
@@ -279,6 +289,7 @@ export function summarizeResults(results: RunSimulationResult[]): BalanceSimulat
     routeEventStats,
     routeEventDeathStats,
     bossTraitStats,
+    enemyHealTriggerCount,
     results,
   };
 }
@@ -384,6 +395,15 @@ function getDefeatReason(state: GameState) {
   }
 
   return undefined;
+}
+
+function countNewEnemyHealLogs(previousState: GameState, nextState: GameState) {
+  if (nextState.log === previousState.log) {
+    return 0;
+  }
+
+  const previousLog = new Set(previousState.log);
+  return nextState.log.filter((entry) => !previousLog.has(entry) && entry.includes("敵人回復")).length;
 }
 
 function withSeededMathRandom<T>(random: () => number, action: () => T) {

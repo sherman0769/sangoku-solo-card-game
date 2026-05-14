@@ -8,6 +8,7 @@ const actionTemplates = {
   fierce4: { kind: "fierce", label: "猛攻", text: "造成 4 點傷害。" },
   guard: { kind: "guard", label: "防守", text: "進入防守狀態，下次受到的傷害 -1。" },
   charge: { kind: "charge", label: "蓄力", text: "下次攻擊傷害 +1。" },
+  heal2: { kind: "heal", label: "回復", text: "回復 2 點體力；滿血時改為防守。" },
 } satisfies Record<string, EnemyAction>;
 
 function createEnemy(
@@ -167,6 +168,7 @@ export const enemyPool: Enemy[] = [
     visualPrompt: "張寶，黃巾術士將領，符紙法杖與詭異光芒，妖術防守型敵人，三國卡牌立繪",
     actionDeck: [
       actionTemplates.guard,
+      actionTemplates.heal2,
       actionTemplates.charge,
       actionTemplates.attack2,
       actionTemplates.guard,
@@ -224,7 +226,36 @@ export function selectEnemyForStage(
         pool[Math.floor(random() * pool.length)] ??
         pool[0]);
 
-  return cloneEnemyForStage(selected, stage);
+  return applyLateStageHpScaling(cloneEnemyForStage(selected, stage), stage);
+}
+
+export function applyLateStageHpScaling(enemy: Enemy, stage: EnemyStage): Enemy {
+  const hpBonus = getLateStageHpBonus(enemy, stage);
+
+  if (hpBonus === 0) {
+    return enemy;
+  }
+
+  const maxHealth = enemy.maxHealth + hpBonus;
+
+  return {
+    ...enemy,
+    maxHp: maxHealth,
+    maxHealth,
+    traits: [...enemy.traits, `後期耐久 +${hpBonus}`],
+  };
+}
+
+export function getLateStageHpBonus(enemy: Pick<Enemy, "type">, stage: EnemyStage) {
+  if (stage === 8 && enemy.type === "boss") {
+    return 2;
+  }
+
+  if (stage >= 5 && stage <= 7) {
+    return 1;
+  }
+
+  return 0;
 }
 
 export function cloneEnemy(enemy: Enemy): Enemy {

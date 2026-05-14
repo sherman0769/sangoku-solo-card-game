@@ -28,6 +28,7 @@ describe("battle balance simulator", () => {
     expect(result.enemiesEncountered.length).toBeGreaterThan(0);
     expect(Array.isArray(result.routeEventsEncountered)).toBe(true);
     expect(Array.isArray(result.bossTraitTriggers)).toBe(true);
+    expect(result.enemyHealTriggers).toBeGreaterThanOrEqual(0);
   });
 
   it("summarizes multiple runs for all heroes", () => {
@@ -51,6 +52,7 @@ describe("battle balance simulator", () => {
     expect(summary.routeEventStats).toBeDefined();
     expect(summary.routeDecisionStats).toBeDefined();
     expect(summary.bossTraitStats).toBeDefined();
+    expect(summary.enemyHealTriggerCount).toBeGreaterThanOrEqual(0);
   });
 
   it("generates a Traditional Chinese Markdown report", () => {
@@ -89,7 +91,26 @@ describe("battle balance simulator", () => {
     expect(report).toContain("路線風格決策分佈");
     expect(report).toContain("路線事件分佈");
     expect(report).toContain("Boss 特性觸發次數");
+    expect(report).toContain("敵人回血觸發次數");
     expect(report).toContain("是否達到平衡目標");
+  });
+
+  it("tracks enemy heal triggers for v0.25.0 balance reports", () => {
+    const summary = simulateManyRuns({
+      heroIds: ["guan-yu"],
+      runsPerHero: 2,
+      seed: "enemy-heal-report-test",
+      maxTurns: 240,
+      strategy: "basic-safe-strategy",
+    });
+    const report = generateBalanceReport(summary, {
+      title: "# v0.25.0 強化回饋與敵人行動升級平衡報告",
+      adjustments: ["張寶新增回復行動。"],
+    });
+
+    expect(summary.enemyHealTriggerCount).toBeGreaterThanOrEqual(0);
+    expect(report).toContain("敵人回血");
+    expect(report).toContain("v0.25.0");
   });
 
   it("chooses routes by health and state for basic-safe-strategy", () => {

@@ -28,9 +28,11 @@ import {
   selectRoute,
 } from "@/lib/game/engine";
 import {
+  applyLateStageHpScaling,
   bossEnemy,
   enemyPool,
   firstStageEnemyPool,
+  getLateStageHpBonus,
   getEnemiesForStage,
   secondStageEnemyPool,
   selectEnemyForStage,
@@ -210,6 +212,18 @@ describe("game engine", () => {
     expect(selectEnemyForStage(1, "yellow-turban-archer").name).toBe("黃巾弓手");
     expect(selectEnemyForStage(4, "black-mountain-general").name).toBe("黑山賊將");
     expect(selectEnemyForStage(8, "yellow-turban-soldier").name).toBe("呂布");
+  });
+
+  it("applies only late-stage HP scaling to cloned enemies", () => {
+    const xiliangBase = enemyPool.find((enemy) => enemy.id === "xiliang-cavalry")!;
+    const zhangBaoBase = enemyPool.find((enemy) => enemy.id === "zhang-bao")!;
+    const luBuBase = enemyPool.find((enemy) => enemy.id === "lu-bu")!;
+
+    expect(getLateStageHpBonus(selectEnemyForStage(1, "yellow-turban-soldier"), 1)).toBe(0);
+    expect(selectEnemyForStage(5, "xiliang-cavalry").maxHealth).toBe(xiliangBase.maxHealth + 1);
+    expect(selectEnemyForStage(7, "zhang-bao").maxHealth).toBe(zhangBaoBase.maxHealth + 1);
+    expect(selectEnemyForStage(8, "lu-bu").maxHealth).toBe(luBuBase.maxHealth + 2);
+    expect(applyLateStageHpScaling(xiliangBase, 4).maxHealth).toBe(xiliangBase.maxHealth);
   });
 
   it("uses higher event chance for event-heavy stages", () => {
@@ -526,6 +540,31 @@ describe("game engine", () => {
     expect(charged.log[0]).toContain("蓄力");
   });
 
+  it("supports enemy heal actions without exceeding max HP", () => {
+    const zhangBao = selectEnemyForStage(7, "zhang-bao");
+    const state = {
+      ...createGame(),
+      enemy: zhangBao,
+      enemyHealth: zhangBao.maxHealth - 3,
+      enemyActionIndex: zhangBao.actions.findIndex((action) => action.kind === "heal"),
+      hand: [],
+    };
+    const healed = endTurn(state);
+
+    expect(zhangBao.actions.some((action) => action.kind === "heal")).toBe(true);
+    expect(healed.enemyHealth).toBe(zhangBao.maxHealth - 1);
+    expect(healed.log[0]).toBe("敵人回復 2 點體力。");
+
+    const fullHealth = endTurn({
+      ...state,
+      enemyHealth: zhangBao.maxHealth,
+    });
+
+    expect(fullHealth.enemyHealth).toBe(zhangBao.maxHealth);
+    expect(fullHealth.enemyGuarding).toBe(true);
+    expect(fullHealth.log[0]).toContain("體力已滿");
+  });
+
   it("enters reward selection after defeating the first enemy", () => {
     const state = createGame();
     const slash = state.hand.find((card) => card.name === "斬")!;
@@ -689,6 +728,7 @@ describe("game engine", () => {
     expect(next.player.maxHealth).toBe(6);
     expect(next.player.health).toBe(4);
     expect(next.playerUpgrades.maxHpBonus).toBe(1);
+    expect(next.log.join("\n")).toContain("獲得強化：最大體力 +1");
   });
 
   it("increases slash damage after choosing slash reward", () => {
@@ -1181,7 +1221,7 @@ describe("game engine", () => {
     });
 
     expect(next.enemy.name).toBe("西涼騎兵");
-    expect(next.enemy.maxHealth).toBe(5);
+    expect(next.enemy.maxHealth).toBe(6);
     expect(next.stageConfig.name).toBe("西涼突騎");
     expect(next.encounteredEnemyIds.at(-1)).toBe("xiliang-cavalry");
   });

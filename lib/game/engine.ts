@@ -342,6 +342,21 @@ export function endTurn(state: GameState): GameState {
     );
   }
 
+  if (action.kind === "heal") {
+    if (next.enemyHealth >= next.enemy.maxHealth) {
+      next.enemyGuarding = true;
+      return startNextTurn(
+        appendLog(next, `${next.enemy.name} 體力已滿，改為進入防守狀態。`),
+      );
+    }
+
+    const beforeHeal = next.enemyHealth;
+    next.enemyHealth = Math.min(next.enemy.maxHealth, next.enemyHealth + 2);
+    return startNextTurn(
+      appendLog(next, `敵人回復 ${next.enemyHealth - beforeHeal} 點體力。`),
+    );
+  }
+
   const baseDamage = action.kind === "fierce" ? next.enemy.attack + 1 : next.enemy.attack;
   const chargedBonus = next.enemyCharged ? 1 : 0;
   const initialDamage = baseDamage + chargedBonus;
@@ -504,7 +519,7 @@ export function selectReward(state: GameState, rewardId: RewardId): GameState {
     availableRoutes: stageRoutes.map((route) => ({ ...route })),
     log: [
       "進入路線選擇，決定下一段遭遇與資源方向。",
-      `獲得獎勵：${reward.name}。${reward.text}`,
+      `獲得強化：${reward.name}。${reward.text}`,
       ...next.log,
     ].slice(0, logLimit),
   };

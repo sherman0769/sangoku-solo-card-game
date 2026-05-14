@@ -10,7 +10,7 @@ export type CardKind =
   | "rally"
   | "fire";
 
-export type EnemyActionKind = "attack" | "fierce" | "guard" | "charge";
+export type EnemyActionKind = "attack" | "fierce" | "guard" | "charge" | "heal";
 
 export type EnemyStage = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 

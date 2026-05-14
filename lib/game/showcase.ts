@@ -1,6 +1,6 @@
 import type { GamePhase } from "./types";
 
-export const currentVersionLabel = "v0.24.4 BGM 跨頁延續實機修正版";
+export const currentVersionLabel = "v0.25.0 強化回饋與敵人行動升級版";
 
 export const gameLoadingCopy = {
   title: "戰局準備中……",
@@ -20,7 +20,7 @@ export const homeOpeningVideoEntry = {
 } as const;
 
 export const homeHeroSelectionCopy =
-  "選擇一位角色，踏入第一章：黃巾之亂。卡牌視覺與 BGM 體驗已優化，手牌更整齊，音樂可跨頁延續。";
+  "選擇一位角色，踏入第一章：黃巾之亂。戰鬥回饋升級，強化、敵人行動與狀態提示更清楚。";
 
 export const homeHeroPreviewCopy = "開啟角色語音後，點選武將可試聽專屬選角語音。";
 

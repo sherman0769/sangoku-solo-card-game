@@ -47,6 +47,10 @@ import {
   secondaryBattleActionCopy,
 } from "@/lib/game/equipmentDisplay";
 import {
+  getRewardFeedbackSubtitle,
+  getUpgradeSummary,
+} from "@/lib/game/upgradeDisplay";
+import {
   isVoiceSupported,
   playVoice,
   readVoiceEnabledSetting,
@@ -85,9 +89,9 @@ import { totalStages } from "@/lib/game/stages";
 import type { SoundCue } from "@/lib/game/sounds";
 import type {
   DialogueLine,
+  EnemyActionKind,
   GameEvent,
   GameState,
-  PlayerUpgrades,
   Reward,
   RouteEvent,
   StageRoute,
@@ -96,13 +100,14 @@ import type {
 interface EventToast {
   id: number;
   text: string;
+  subtitle?: string;
   tone: "attack" | "guard" | "heal" | "strategy" | "reward" | "danger";
 }
 
 interface PanelFeedback {
   id: number;
   target: "player" | "enemy";
-  tone: "hit" | "heal" | "boss";
+  tone: "hit" | "heal" | "boss" | "guard";
   text: string;
 }
 
@@ -215,7 +220,9 @@ function GameBoardContent({
   const enemyBossTraitDetails = state.enemy.bossTraits.map(
     (traitId) => `Boss 特性｜${getBossTraitName(traitId)}：${getBossTraitDescription(traitId)}`,
   );
-  const upgradeLabels = getUpgradeLabels(state.playerUpgrades);
+  const upgradeSummary = getUpgradeSummary(state);
+  const upgradeLabels = upgradeSummary.fullLabels;
+  const mobileUpgradeLabels = upgradeSummary.shortLabels;
   const equippedBadges = getEquippedItemBadges(state.player.equippedItems);
   const equippedLabels = getEquippedItemFullLabels(state.player.equippedItems);
   const combatEquipmentLabels =
@@ -348,13 +355,13 @@ function GameBoardContent({
     return feedbackIdRef.current;
   }
 
-  function showEventToast(text: string, tone: EventToast["tone"]) {
+  function showEventToast(text: string, tone: EventToast["tone"], subtitle?: string) {
     if (eventTimerRef.current) {
       clearTimeout(eventTimerRef.current);
     }
 
-    setEventToast({ id: nextFeedbackId(), text, tone });
-    eventTimerRef.current = setTimeout(() => setEventToast(null), 1000);
+    setEventToast({ id: nextFeedbackId(), text, tone, subtitle });
+    eventTimerRef.current = setTimeout(() => setEventToast(null), subtitle ? 1600 : 1000);
   }
 
   function showPanelFeedback(
@@ -556,7 +563,21 @@ function GameBoardContent({
 
   function handleEndTurn() {
     const beforePlayerHealth = state.player.health;
+    const beforeEnemyHealth = state.enemyHealth;
+    const action = getCurrentEnemyAction(state);
     const next = endTurn(state);
+
+    if (next !== state && state.phase === "player") {
+      const presentation = getEnemyActionPresentation(
+        action.kind === "heal" && next.enemyHealth <= beforeEnemyHealth ? "guard" : action.kind,
+      );
+      showEventToast(presentation.toastText, presentation.toastTone);
+      emitSound(presentation.soundCue);
+
+      if (presentation.panelFeedback) {
+        showPanelFeedback("enemy", presentation.panelFeedback.tone, presentation.panelFeedback.text);
+      }
+    }
 
     if (next.player.health < beforePlayerHealth) {
       const text = next.player.health === 1 ? "瀕死！" : "受到傷害";
@@ -611,7 +632,7 @@ function GameBoardContent({
     const next = selectReward(state, reward.id);
 
     if (next !== state) {
-      showEventToast(`獲得強化：${reward.name}`, "reward");
+      showEventToast("獲得強化！", "reward", getRewardFeedbackSubtitle(reward));
       emitSound("reward");
 
       if (next.player.health > beforePlayerHealth) {
@@ -787,6 +808,7 @@ function GameBoardContent({
               playerHealth={`${state.player.health}/${state.player.maxHealth}`}
               playerStatuses={playerStatuses}
               playerEquipmentBadges={mobileEquipmentLabels}
+              playerUpgradeBadges={mobileUpgradeLabels}
               playerPortrait={currentHero.portrait || undefined}
               playerPrompt={currentHero.visualPrompt}
               playerFeedback={panelFeedback?.target === "player" ? panelFeedback : undefined}
@@ -880,6 +902,7 @@ function GameBoardContent({
                 ]}
                 statuses={playerStatuses}
                 equipmentBadges={combatEquipmentLabels}
+                upgradeBadges={upgradeLabels}
                 feedback={
                   panelFeedback?.target === "player" ? panelFeedback : undefined
                 }
@@ -1320,6 +1343,7 @@ function MobileBattleHud({
   playerHealth,
   playerStatuses,
   playerEquipmentBadges,
+  playerUpgradeBadges,
   playerPortrait,
   playerPrompt,
   playerFeedback,
@@ -1337,6 +1361,7 @@ function MobileBattleHud({
   playerHealth: string;
   playerStatuses: string[];
   playerEquipmentBadges: string[];
+  playerUpgradeBadges: string[];
   playerPortrait?: string;
   playerPrompt?: string;
   playerFeedback?: PanelFeedback;
@@ -1363,6 +1388,7 @@ function MobileBattleHud({
         health={playerHealth}
         statuses={playerStatuses}
         equipmentBadges={playerEquipmentBadges}
+        upgradeBadges={playerUpgradeBadges}
         portrait={playerPortrait}
         visualLabel={playerName}
         visualPrompt={playerPrompt}
@@ -1430,6 +1456,7 @@ function MobileHudRow({
   health,
   statuses,
   equipmentBadges = [],
+  upgradeBadges = [],
   portrait,
   visualLabel,
   visualPrompt,
@@ -1443,6 +1470,7 @@ function MobileHudRow({
   health: string;
   statuses: string[];
   equipmentBadges?: string[];
+  upgradeBadges?: string[];
   portrait?: string;
   visualLabel: string;
   visualPrompt?: string;
@@ -1459,6 +1487,8 @@ function MobileHudRow({
   const feedbackClass =
     feedback?.tone === "heal"
       ? "animate-pulse-heal"
+      : feedback?.tone === "guard"
+        ? "animate-status-badge-pulse"
       : feedback?.tone === "boss"
         ? "animate-boss-panel-flash animate-shake-hit"
         : feedback
@@ -1523,6 +1553,18 @@ function MobileHudRow({
             <span
               key={label}
               className="shrink-0 rounded-full border border-emerald-200/55 bg-emerald-500/15 px-3 py-1 text-[11px] font-black text-emerald-50"
+            >
+              {label}
+            </span>
+          ))}
+        </div>
+      ) : null}
+      {upgradeBadges.length > 0 ? (
+        <div className="mt-2 flex gap-2 overflow-x-auto pb-1">
+          {upgradeBadges.map((label) => (
+            <span
+              key={label}
+              className="shrink-0 rounded-full border border-amber-200/60 bg-amber-500/15 px-3 py-1 text-[11px] font-black text-amber-50"
             >
               {label}
             </span>
@@ -1798,6 +1840,7 @@ function CombatantPanel({
   details,
   statuses,
   equipmentBadges = [],
+  upgradeBadges = [],
   feedback,
 }: {
   tone: "player" | "enemy";
@@ -1817,6 +1860,7 @@ function CombatantPanel({
   details: string[];
   statuses: string[];
   equipmentBadges?: string[];
+  upgradeBadges?: string[];
   feedback?: PanelFeedback;
 }) {
   const isPlayer = tone === "player";
@@ -1839,6 +1883,8 @@ function CombatantPanel({
   const feedbackClass =
     feedback?.tone === "heal"
       ? "animate-pulse-heal"
+      : feedback?.tone === "guard"
+        ? "animate-status-badge-pulse"
       : feedback?.tone === "boss"
         ? "animate-boss-panel-flash animate-shake-hit"
         : feedback
@@ -1853,6 +1899,8 @@ function CombatantPanel({
           className={`pointer-events-none absolute right-4 top-4 rounded-full border px-3 py-1 text-xs font-black ${
             feedback.tone === "heal"
               ? "border-emerald-200/70 bg-emerald-500/25 text-emerald-50"
+              : feedback.tone === "guard"
+                ? "border-sky-200/70 bg-sky-500/25 text-sky-50"
               : feedback.tone === "boss"
                 ? "border-amber-200/80 bg-red-500/35 text-amber-50"
               : "border-red-200/70 bg-red-500/25 text-red-50"
@@ -1923,6 +1971,23 @@ function CombatantPanel({
               </div>
             </div>
           ) : null}
+          {upgradeBadges.length > 0 ? (
+            <div className="mt-4 rounded-lg border border-amber-300/35 bg-black/20 p-3">
+              <p className="text-xs font-black uppercase tracking-[0.16em] text-amber-200">
+                強化效果
+              </p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {upgradeBadges.map((label) => (
+                  <span
+                    key={label}
+                    className="rounded-full border border-amber-200/55 bg-amber-500/15 px-3 py-1 text-xs font-black text-amber-50"
+                  >
+                    {label}
+                  </span>
+                ))}
+              </div>
+            </div>
+          ) : null}
           <div className="mt-4 flex flex-wrap gap-2">
             {statuses.map((status) => (
               <span
@@ -1945,7 +2010,7 @@ function EventToastView({ toast }: { toast: EventToast }) {
     guard: "border-sky-300/70 bg-sky-950/90 text-sky-50",
     heal: "border-emerald-300/70 bg-emerald-950/90 text-emerald-50",
     strategy: "border-purple-300/70 bg-purple-950/90 text-purple-50",
-    reward: "border-amber-300/70 bg-amber-950/90 text-amber-50",
+    reward: "border-amber-300/80 bg-[radial-gradient(circle_at_center,rgba(251,191,36,0.28),rgba(88,28,135,0.9)_58%,rgba(8,5,4,0.95))] text-amber-50 shadow-[0_0_58px_rgba(251,191,36,0.24)]",
     danger: "border-red-200/80 bg-red-900/95 text-red-50",
   }[toast.tone];
 
@@ -1954,9 +2019,12 @@ function EventToastView({ toast }: { toast: EventToast }) {
       <div
         className={`animate-float-up rounded-xl border px-5 py-3 text-center text-xl font-black shadow-[0_18px_45px_rgba(0,0,0,0.45)] ${toneClass}`}
       >
-        {toast.text}
+          <span className="block">{toast.text}</span>
+          {toast.subtitle ? (
+            <span className="mt-2 block text-sm font-bold text-amber-100">{toast.subtitle}</span>
+          ) : null}
+        </div>
       </div>
-    </div>
   );
 }
 
@@ -2154,22 +2222,6 @@ function getStatusBadgeClass(status: string) {
   return "border-amber-300/30 bg-black/25 text-amber-100";
 }
 
-function getUpgradeLabels(upgrades: PlayerUpgrades) {
-  return [
-    upgrades.maxHpBonus > 0 ? `最大體力 +${upgrades.maxHpBonus}` : null,
-    upgrades.startingDrawBonus > 0
-      ? `每關開始抽牌 +${upgrades.startingDrawBonus}`
-      : null,
-    upgrades.slashDamageBonus > 0 ? `斬傷害 +${upgrades.slashDamageBonus}` : null,
-    upgrades.strategyDrawBonus > 0
-      ? `兵書抽牌 +${upgrades.strategyDrawBonus}`
-      : null,
-    upgrades.armorBreakDamageBonus > 0
-      ? `破甲後斬傷害額外 +${upgrades.armorBreakDamageBonus}`
-      : null,
-  ].filter((label): label is string => Boolean(label));
-}
-
 function getRewardStyleHint(rewardId: Reward["id"]) {
   if (rewardId === "max-health") {
     return "續航流";
@@ -2180,6 +2232,56 @@ function getRewardStyleHint(rewardId: Reward["id"]) {
   }
 
   return "攻擊流";
+}
+
+function getEnemyActionPresentation(kind: EnemyActionKind): {
+  toastText: string;
+  toastTone: EventToast["tone"];
+  soundCue: SoundCue;
+  panelFeedback?: Pick<PanelFeedback, "tone" | "text">;
+} {
+  if (kind === "fierce") {
+    return {
+      toastText: "敵人發動猛攻！",
+      toastTone: "danger",
+      soundCue: "boss",
+      panelFeedback: { tone: "boss", text: "猛攻" },
+    };
+  }
+
+  if (kind === "guard") {
+    return {
+      toastText: "敵人進入防守！",
+      toastTone: "guard",
+      soundCue: "dodge",
+      panelFeedback: { tone: "guard", text: "防守中" },
+    };
+  }
+
+  if (kind === "charge") {
+    return {
+      toastText: "敵人正在蓄力！",
+      toastTone: "danger",
+      soundCue: "boss",
+      panelFeedback: { tone: "boss", text: "蓄力中" },
+    };
+  }
+
+  if (kind === "heal") {
+    return {
+      toastText: "敵人回復！",
+      toastTone: "heal",
+      soundCue: "heal",
+      panelFeedback: { tone: "heal", text: "回復體力" },
+    };
+  }
+
+  return {
+    toastText: "敵人攻擊！",
+    toastTone: "attack",
+    soundCue: "hit",
+    panelFeedback: { tone: "hit", text: "攻擊" },
+  };
 }
 
 function getCardToast(cardName: string, heroId: string): Pick<EventToast, "text" | "tone"> {

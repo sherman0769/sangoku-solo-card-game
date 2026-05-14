@@ -3,27 +3,27 @@ import { dirname, resolve } from "node:path";
 import { generateBalanceReport } from "../lib/game/balanceReport";
 import { simulateManyRuns } from "../lib/game/balanceSimulator";
 
-const reportPath = resolve("docs/balance-report-v0.23.0.md");
+const reportPath = resolve("docs/balance-report-v0.25.0.md");
 
 async function main() {
   const summary = simulateManyRuns({
     heroIds: ["guan-yu", "zhao-yun", "zhuge-liang", "li-shimin-ai-architect"],
     runsPerHero: 50,
-    seed: "v0.23.0-balance",
+    seed: "v0.25.0-balance",
     maxTurns: 360,
     strategy: "basic-safe-strategy",
   });
 
   const report = generateBalanceReport(summary, {
-    title: "# v0.23.0 第四位彩蛋角色平衡報告",
+    title: "# v0.25.0 強化回饋與敵人行動升級平衡報告",
     preAdjustmentSummary: [
-      "v0.22.2 以前共有三位武將：關羽、趙雲、諸葛亮。",
-      "v0.23.0 新增彩蛋角色李詩民｜AI 架構師，先觀察架構推演對策略牌與路線事件的穩定度影響。",
+      "v0.24.4 已完成首頁到遊戲頁 BGM 延續、卡牌圖與手機戰鬥 UX 基礎修正。",
+      "本次以小幅方式提高後期敵人耐久，並讓張寶新增回復行動，觀察第 7～8 關節奏是否更穩定。",
     ],
     adjustments: [
-      "新增第四位可選角色李詩民｜AI 架構師，最大體力 4。",
-      "架構推演：每回合第一次使用策略牌時抽 1 張；處理路線事件後，下一場戰鬥第一回合內首次策略牌額外回復 1 點體力。",
-      "本次不調整第 1～8 關敵人、Boss 特性、玩家牌組、路線事件、獎勵系統與模擬策略。",
+      "第 5～7 關敵人 clone 進場時最大體力 +1，第 8 關 Boss 呂布最大體力 +2。",
+      "張寶 actionDeck 新增一張回復行動：非滿血時回復 2 點體力，滿血時改為防守。",
+      "本次不調整第 1～4 關、玩家牌組、獎勵數值與路線事件收益。",
     ],
     goalAssessment: createGoalAssessment(summary),
   });
@@ -48,6 +48,7 @@ function createGoalAssessment(summary: ReturnType<typeof simulateManyRuns>) {
     `四位角色勝率差距為 ${formatPercent(gap)}。`,
     `路線事件共觸發 ${getTotalRouteEvents(summary)} 次。`,
     `Boss 特性觸發統計：${formatBossTraitStats(summary)}。`,
+    `敵人回血行動觸發 ${summary.enemyHealTriggerCount} 次。`,
     `低血量選山道 ${summary.routeDecisionStats["低血量｜山道"] ?? 0} 次；中等血量選官道 ${summary.routeDecisionStats["中等血量｜官道"] ?? 0} 次；高血量狀態好選險道 ${summary.routeDecisionStats["高血量｜險道"] ?? 0} 次。`,
     summary.overallWinRate > 0.8
       ? "整體勝率仍偏高，需觀察呂布 Boss 特性是否需要再加強或加入第二階段行動。"
