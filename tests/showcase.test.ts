@@ -24,7 +24,7 @@ import { canPlayVoice } from "@/lib/game/voice";
 
 describe("showcase and onboarding copy", () => {
   it("includes homepage how-to copy without version feature lists", () => {
-    expect(currentVersionLabel).toBe("v0.26.1 敵方反制與行動節奏版");
+    expect(currentVersionLabel).toBe("v0.26.2 實機聲音與開場流程修正版");
     expect(howToSteps.map((step) => step.title)).toEqual([
       "選擇武將",
       "進入戰鬥",
@@ -57,10 +57,11 @@ describe("showcase and onboarding copy", () => {
     expect(homeAuthorCopy).toContain("李詩民");
   });
 
-  it("keeps opening video modal start actions", () => {
-    expect(openingVideoModalActions).toContain("略過動畫，開始遊戲");
-    expect(openingVideoModalActions).toContain("開始遊戲");
+  it("keeps opening video modal return actions", () => {
+    expect(openingVideoModalActions).toContain("略過動畫，返回選擇武將");
+    expect(openingVideoModalActions).toContain("返回選擇武將");
     expect(openingVideoModalActions).toContain("重新播放");
+    expect(openingVideoModalActions.join(" ")).not.toContain("開始遊戲");
   });
 
   it("maps game phases to tutorial hints", () => {
@@ -123,7 +124,18 @@ describe("showcase and onboarding copy", () => {
     expect(homePageSource).toContain("選擇武將");
     expect(homePageSource).toContain("OpeningVideo");
     expect(homePageSource).toContain("ShareGameButton");
+    expect(homePageSource).toContain("開啟 BGM 時會一併開啟音效，語音可另外控制。");
     expect(homeAuthorCopy).toContain("李詩民");
+  });
+
+  it("keeps the main game start CTA in the hero selection section", () => {
+    const homePageSource = readFileSync(join(process.cwd(), "app", "page.tsx"), "utf-8");
+    const heroSelectIndex = homePageSource.indexOf('id="hero-select"');
+    const startHrefIndex = homePageSource.indexOf("href={selectedHeroStartHref}");
+
+    expect(heroSelectIndex).toBeGreaterThan(-1);
+    expect(startHrefIndex).toBeGreaterThan(heroSelectIndex);
+    expect(homePageSource).toContain("{selectedHeroStartLabel}");
   });
 
   it("maps homepage hero selection to ready preview audio instead of intro audio", () => {

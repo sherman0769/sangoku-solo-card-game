@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { getSoundEnabledStorageKey } from "@/lib/game/audio";
 import {
   canPlayBgm,
@@ -8,7 +8,10 @@ import {
   getBgmActivationEnabled,
   getBgmEnabled,
   getBgmEnabledStorageKey,
+  getBgmNeedsResume,
+  getBgmNeedsResumeStorageKey,
   getBgmPersistedPlaybackState,
+  getBgmResumeRequiredMessage,
   getBgmResumeIntent,
   getGameBgmTrackId,
   getBgmTrack,
@@ -17,6 +20,9 @@ import {
   getBgmPlaybackFailureMessage,
   getDefaultBgmVolume,
   getSharedBgmPlayer,
+  markBgmNeedsResume,
+  pauseBgmForPageHide,
+  registerBgmLifecycleHandlers,
   resetSharedBgmPlayerForTests,
   setBgmActivated,
   setBgmEnabled,
@@ -56,6 +62,7 @@ describe("BGM manifest and playback helpers", () => {
     expect(() => setBgmEnabled(true)).not.toThrow();
     expect(() => setBgmActivated(true)).not.toThrow();
     expect(() => setBgmVolume(0.8)).not.toThrow();
+    expect(() => registerBgmLifecycleHandlers()).not.toThrow();
     expect(getBgmEnabled()).toBe(false);
     expect(getBgmActivated()).toBe(false);
     expect(getBgmVolume()).toBe(0.35);
@@ -122,6 +129,7 @@ describe("BGM manifest and playback helpers", () => {
         enabled: true,
         activated: true,
         volume: 0.35,
+        needsResume: false,
         shouldResume: true,
       });
 
@@ -137,8 +145,88 @@ describe("BGM manifest and playback helpers", () => {
         enabled: false,
         activated: false,
         volume: 0.35,
+        needsResume: false,
         shouldResume: false,
       });
+    });
+  });
+
+  it("marks page-hidden BGM as needing user resume without clearing preferences", () => {
+    withMockWindowStorage(() => {
+      setBgmEnabled(true);
+      setBgmActivated(true);
+      const player = createMockBgmPlayer();
+
+      pauseBgmForPageHide(player);
+
+      expect(player.pause).toHaveBeenCalledTimes(1);
+      expect(player.stop).not.toHaveBeenCalled();
+      expect(getBgmEnabled()).toBe(true);
+      expect(getBgmActivated()).toBe(true);
+      expect(getBgmNeedsResume()).toBe(true);
+      expect(getBgmResumeIntent()).toMatchObject({
+        enabled: true,
+        activated: true,
+        needsResume: true,
+        shouldResume: false,
+      });
+      expect(getBgmResumeRequiredMessage()).toBe("音樂已暫停，請點擊開啟 BGM。");
+    });
+  });
+
+  it("registers lifecycle handlers for visibilitychange and pagehide", () => {
+    withMockBrowserLifecycle(() => {
+      setBgmEnabled(true);
+      setBgmActivated(true);
+      const player = createMockBgmPlayer();
+      const onPauseForPageHide = vi.fn();
+      const onVisibleAfterPageHide = vi.fn();
+      const unregister = registerBgmLifecycleHandlers({
+        player,
+        onPauseForPageHide,
+        onVisibleAfterPageHide,
+      });
+
+      setDocumentVisibilityState("hidden");
+      dispatchDocumentEvent("visibilitychange");
+
+      expect(player.pause).toHaveBeenCalledTimes(1);
+      expect(onPauseForPageHide).toHaveBeenCalledTimes(1);
+      expect(getBgmNeedsResume()).toBe(true);
+
+      setDocumentVisibilityState("visible");
+      dispatchDocumentEvent("visibilitychange");
+
+      expect(onVisibleAfterPageHide).toHaveBeenCalledTimes(1);
+
+      dispatchWindowEvent("pagehide");
+
+      expect(player.stop).toHaveBeenCalledTimes(1);
+      expect(onPauseForPageHide).toHaveBeenCalledTimes(2);
+
+      unregister();
+      dispatchWindowEvent("pagehide");
+
+      expect(player.stop).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it("does not mark hidden pages for resume when BGM was never active", () => {
+    withMockBrowserLifecycle(() => {
+      const player = createMockBgmPlayer(null);
+      const onPauseForPageHide = vi.fn();
+
+      registerBgmLifecycleHandlers({
+        player,
+        onPauseForPageHide,
+      });
+
+      setDocumentVisibilityState("hidden");
+      dispatchDocumentEvent("visibilitychange");
+
+      expect(player.pause).toHaveBeenCalledTimes(1);
+      expect(onPauseForPageHide).not.toHaveBeenCalled();
+      expect(getBgmNeedsResume()).toBe(false);
     });
   });
 
@@ -158,8 +246,20 @@ describe("BGM manifest and playback helpers", () => {
     expect(getBgmActivatedStorageKey()).not.toBe(getVoiceEnabledStorageKey());
     expect(getBgmVolumeStorageKey()).not.toBe(getSoundEnabledStorageKey());
     expect(getBgmVolumeStorageKey()).not.toBe(getVoiceEnabledStorageKey());
+    expect(getBgmNeedsResumeStorageKey()).not.toBe(getSoundEnabledStorageKey());
+    expect(getBgmNeedsResumeStorageKey()).not.toBe(getVoiceEnabledStorageKey());
   });
 });
+
+function createMockBgmPlayer(currentTrackId: string | null = "home-theme") {
+  return {
+    play: vi.fn(async () => true),
+    pause: vi.fn(),
+    stop: vi.fn(),
+    setVolume: vi.fn(),
+    getCurrentTrackId: vi.fn(() => currentTrackId),
+  };
+}
 
 function withMockWindowStorage(assertions: () => void) {
   const storage = new Map<string, string>();
@@ -186,5 +286,108 @@ function withMockWindowStorage(assertions: () => void) {
     } else {
       Reflect.deleteProperty(globalThis, "window");
     }
+
+    markBgmNeedsResume(false);
   }
+}
+
+function withMockBrowserLifecycle(assertions: () => void) {
+  const storage = new Map<string, string>();
+  const previousWindow = Object.getOwnPropertyDescriptor(globalThis, "window");
+  const previousDocument = Object.getOwnPropertyDescriptor(globalThis, "document");
+  const windowListeners = new Map<string, Set<() => void>>();
+  const documentListeners = new Map<string, Set<() => void>>();
+  let visibilityState = "visible";
+  const windowLike = {
+    localStorage: {
+      getItem: (key: string) => storage.get(key) ?? null,
+      setItem: (key: string, value: string) => {
+        storage.set(key, value);
+      },
+    },
+    addEventListener: (eventName: string, listener: () => void) => {
+      const listeners = windowListeners.get(eventName) ?? new Set<() => void>();
+      listeners.add(listener);
+      windowListeners.set(eventName, listeners);
+    },
+    removeEventListener: (eventName: string, listener: () => void) => {
+      windowListeners.get(eventName)?.delete(listener);
+    },
+  };
+  const documentLike = {
+    get visibilityState() {
+      return visibilityState;
+    },
+    addEventListener: (eventName: string, listener: () => void) => {
+      const listeners = documentListeners.get(eventName) ?? new Set<() => void>();
+      listeners.add(listener);
+      documentListeners.set(eventName, listeners);
+    },
+    removeEventListener: (eventName: string, listener: () => void) => {
+      documentListeners.get(eventName)?.delete(listener);
+    },
+  };
+
+  Object.defineProperty(globalThis, "window", {
+    configurable: true,
+    value: windowLike,
+  });
+  Object.defineProperty(globalThis, "document", {
+    configurable: true,
+    value: documentLike,
+  });
+  Object.defineProperty(globalThis, "__setBgmTestVisibilityState", {
+    configurable: true,
+    value: (nextVisibilityState: string) => {
+      visibilityState = nextVisibilityState;
+    },
+  });
+  Object.defineProperty(globalThis, "__dispatchBgmTestDocumentEvent", {
+    configurable: true,
+    value: (eventName: string) => {
+      documentListeners.get(eventName)?.forEach((listener) => listener());
+    },
+  });
+  Object.defineProperty(globalThis, "__dispatchBgmTestWindowEvent", {
+    configurable: true,
+    value: (eventName: string) => {
+      windowListeners.get(eventName)?.forEach((listener) => listener());
+    },
+  });
+
+  try {
+    assertions();
+  } finally {
+    if (previousWindow) {
+      Object.defineProperty(globalThis, "window", previousWindow);
+    } else {
+      Reflect.deleteProperty(globalThis, "window");
+    }
+
+    if (previousDocument) {
+      Object.defineProperty(globalThis, "document", previousDocument);
+    } else {
+      Reflect.deleteProperty(globalThis, "document");
+    }
+
+    Reflect.deleteProperty(globalThis, "__setBgmTestVisibilityState");
+    Reflect.deleteProperty(globalThis, "__dispatchBgmTestDocumentEvent");
+    Reflect.deleteProperty(globalThis, "__dispatchBgmTestWindowEvent");
+    markBgmNeedsResume(false);
+  }
+}
+
+function setDocumentVisibilityState(visibilityState: "visible" | "hidden") {
+  (globalThis as { __setBgmTestVisibilityState: (value: string) => void })
+    .__setBgmTestVisibilityState(visibilityState);
+}
+
+function dispatchDocumentEvent(eventName: string) {
+  (globalThis as { __dispatchBgmTestDocumentEvent: (value: string) => void })
+    .__dispatchBgmTestDocumentEvent(eventName);
+}
+
+function dispatchWindowEvent(eventName: string) {
+  (globalThis as { __dispatchBgmTestWindowEvent: (value: string) => void })
+    .__dispatchBgmTestWindowEvent(eventName);
 }

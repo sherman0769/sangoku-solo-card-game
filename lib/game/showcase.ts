@@ -1,6 +1,6 @@
 import type { GamePhase } from "./types";
 
-export const currentVersionLabel = "v0.26.1 敵方反制與行動節奏版";
+export const currentVersionLabel = "v0.26.2 實機聲音與開場流程修正版";
 
 export const gameLoadingCopy = {
   title: "戰局準備中……",
@@ -33,8 +33,8 @@ export const routeSelectionCopy = {
 } as const;
 
 export const openingVideoModalActions = [
-  "略過動畫，開始遊戲",
-  "開始遊戲",
+  "略過動畫，返回選擇武將",
+  "返回選擇武將",
   "重新播放",
 ] as const;
 

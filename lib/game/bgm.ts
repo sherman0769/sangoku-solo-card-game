@@ -2,6 +2,7 @@ import { BGM_TRACKS, type BgmTrack } from "./bgmManifest";
 
 const bgmEnabledStorageKey = "sangoku-solo-card-game:bgm-enabled";
 const bgmActivatedStorageKey = "sangoku-solo-card-game:bgm-activated";
+const bgmNeedsResumeStorageKey = "sangoku-solo-card-game:bgm-needs-resume";
 const bgmVolumeStorageKey = "sangoku-solo-card-game:bgm-volume";
 const defaultBgmVolume = 0.35;
 
@@ -29,6 +30,7 @@ type GameBgmTrackInput =
     };
 
 let sharedBgmPlayer: BgmPlayer | null = null;
+let bgmNeedsResume = false;
 
 export function getBgmTrack(trackId: string): BgmTrack | undefined {
   return BGM_TRACKS.find((track) => track.id === trackId);
@@ -93,6 +95,7 @@ export function createBgmPlayer(): BgmPlayer {
         nextAudio.loop = options.loop ?? track.loop;
         nextAudio.volume = currentVolume;
         await nextAudio.play();
+        markBgmNeedsResume(false);
         return true;
       } catch {
         return false;
@@ -190,6 +193,10 @@ export function getBgmPlaybackFailureMessage() {
   return "音樂尚未啟動，請點擊開啟 BGM。";
 }
 
+export function getBgmResumeRequiredMessage() {
+  return "音樂已暫停，請點擊開啟 BGM。";
+}
+
 export function getBgmEnabled() {
   if (typeof window === "undefined") {
     return false;
@@ -227,23 +234,119 @@ export function setBgmPlaybackStateFromResult(playSucceeded: boolean) {
 
   setBgmEnabled(nextState.enabled);
   setBgmActivated(nextState.activated);
+  markBgmNeedsResume(false);
 
   return nextState;
 }
 
 export function shouldAutoResumeStoredBgm() {
-  return shouldAutoResumeBgm(getBgmEnabled(), getBgmActivated());
+  return shouldAutoResumeBgm(getBgmEnabled(), getBgmActivated()) && !getBgmNeedsResume();
 }
 
 export function getBgmResumeIntent() {
   const enabled = getBgmEnabled();
   const activated = getBgmActivated();
+  const needsResume = getBgmNeedsResume();
 
   return {
     enabled,
     activated,
     volume: getBgmVolume(),
-    shouldResume: shouldAutoResumeBgm(enabled, activated),
+    needsResume,
+    shouldResume: shouldAutoResumeBgm(enabled, activated) && !needsResume,
+  };
+}
+
+export function getBgmNeedsResume() {
+  if (typeof window === "undefined") {
+    return bgmNeedsResume;
+  }
+
+  return window.localStorage.getItem(bgmNeedsResumeStorageKey) === "true";
+}
+
+export function markBgmNeedsResume(needsResume = true) {
+  bgmNeedsResume = needsResume;
+
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  window.localStorage.setItem(bgmNeedsResumeStorageKey, String(needsResume));
+}
+
+export function pauseBgmForPageHide(
+  player: BgmPlayer | null = sharedBgmPlayer,
+  options: { resetAudio?: boolean } = {},
+) {
+  const shouldMarkNeedsResume = getBgmEnabled() || getBgmActivated() || Boolean(player?.getCurrentTrackId());
+
+  try {
+    if (options.resetAudio) {
+      player?.stop();
+    } else {
+      player?.pause();
+    }
+  } catch {
+    // BGM is optional; lifecycle cleanup must never block navigation or pagehide.
+  }
+
+  if (shouldMarkNeedsResume) {
+    markBgmNeedsResume(true);
+  }
+
+  return shouldMarkNeedsResume;
+}
+
+interface BgmLifecycleHandlerOptions {
+  player?: BgmPlayer | null;
+  onPauseForPageHide?: () => void;
+  onVisibleAfterPageHide?: () => void;
+}
+
+export function registerBgmLifecycleHandlers(options: BgmLifecycleHandlerOptions = {}) {
+  if (typeof window === "undefined" || typeof document === "undefined") {
+    return () => undefined;
+  }
+
+  const getPlayer = () => options.player ?? sharedBgmPlayer;
+  const pauseForHiddenPage = (resetAudio = false) => {
+    const paused = pauseBgmForPageHide(getPlayer(), { resetAudio });
+
+    if (paused) {
+      options.onPauseForPageHide?.();
+    }
+  };
+  const handleVisibilityChange = () => {
+    if (document.visibilityState === "hidden") {
+      pauseForHiddenPage(false);
+      return;
+    }
+
+    if (getBgmNeedsResume()) {
+      options.onVisibleAfterPageHide?.();
+    }
+  };
+  const handlePageHide = () => pauseForHiddenPage(true);
+  const handleBeforeUnload = () => pauseForHiddenPage(true);
+  const handleFreeze = () => pauseForHiddenPage(false);
+
+  document.addEventListener("visibilitychange", handleVisibilityChange);
+  window.addEventListener("pagehide", handlePageHide);
+  window.addEventListener("beforeunload", handleBeforeUnload);
+
+  if ("onfreeze" in document) {
+    document.addEventListener("freeze", handleFreeze);
+  }
+
+  return () => {
+    document.removeEventListener("visibilitychange", handleVisibilityChange);
+    window.removeEventListener("pagehide", handlePageHide);
+    window.removeEventListener("beforeunload", handleBeforeUnload);
+
+    if ("onfreeze" in document) {
+      document.removeEventListener("freeze", handleFreeze);
+    }
   };
 }
 
@@ -285,6 +388,10 @@ export function getBgmActivatedStorageKey() {
 
 export function getBgmVolumeStorageKey() {
   return bgmVolumeStorageKey;
+}
+
+export function getBgmNeedsResumeStorageKey() {
+  return bgmNeedsResumeStorageKey;
 }
 
 export function getDefaultBgmVolume() {

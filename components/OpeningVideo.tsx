@@ -1,12 +1,10 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import type { OpeningVideoConfig } from "@/lib/game/openingVideo";
 
 interface OpeningVideoProps {
   config: OpeningVideoConfig;
-  startHref: string;
   onModalClose?: () => void;
   onModalOpen?: () => void;
 }
@@ -17,7 +15,6 @@ export function OpeningVideo({
   config,
   onModalClose,
   onModalOpen,
-  startHref,
 }: OpeningVideoProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [isOpen, setIsOpen] = useState(false);
@@ -59,6 +56,23 @@ export function OpeningVideo({
     onModalClose?.();
   }
 
+  function returnToHeroSelect() {
+    const video = videoRef.current;
+
+    if (video) {
+      video.pause();
+      video.currentTime = 0;
+    }
+
+    closeModal();
+    window.setTimeout(() => {
+      document.getElementById("hero-select")?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }, 0);
+  }
+
   function playFromStart() {
     const video = videoRef.current;
 
@@ -98,7 +112,7 @@ export function OpeningVideo({
           </p>
           <h2 className="mt-2 text-2xl font-black text-amber-50">{config.title}</h2>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-stone-300">
-            觀看第一章：黃巾亂起 的 20 秒直式開場動畫。可先觀看開場動畫，接著選擇武將開始第一章。
+            觀看第一章：黃巾亂起 的 20 秒直式開場動畫。觀看開場動畫後，請回到首頁選擇武將開始遊戲。
           </p>
         </div>
         <div className="flex shrink-0 flex-col gap-3 sm:flex-row">
@@ -160,7 +174,7 @@ export function OpeningVideo({
                   </p>
                   <h3 className="mt-3 text-2xl font-black text-amber-50">暫時無法播放</h3>
                   <p className="mt-3 text-sm leading-6 text-stone-200">
-                    開場動畫暫時無法播放，仍可直接開始遊戲。
+                    開場動畫暫時無法播放，請返回首頁選擇武將開始遊戲。
                   </p>
                 </div>
               )}
@@ -169,7 +183,7 @@ export function OpeningVideo({
 
           <div className="mx-auto w-full max-w-xl">
             <p className="text-center text-sm leading-6 text-stone-300">
-              可點右上角關閉，或點下方略過動畫。
+              開場動畫只是建立氛圍，真正開始遊戲前仍需回到選擇武將。
             </p>
             {isMutedFallback ? (
               <p className="mt-2 rounded-md border border-amber-300/35 bg-amber-500/10 px-3 py-2 text-center text-xs font-bold text-amber-100">
@@ -183,12 +197,13 @@ export function OpeningVideo({
             ) : null}
 
             <div className="mt-4 flex flex-wrap justify-center gap-3">
-              <Link
-                href={startHref}
+              <button
+                type="button"
+                onClick={returnToHeroSelect}
                 className="inline-flex h-11 items-center justify-center rounded-md border border-amber-100/70 bg-amber-500 px-5 text-sm font-black text-stone-950 transition hover:bg-amber-300"
               >
-                {playbackState === "ended" ? "開始遊戲" : "略過動畫，開始遊戲"}
-              </Link>
+                {playbackState === "ended" ? "返回選擇武將" : "略過動畫，返回選擇武將"}
+              </button>
             {canShowVideo ? (
               <button
                 type="button"

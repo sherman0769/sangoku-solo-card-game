@@ -30,9 +30,11 @@ import {
 import {
   getSharedBgmPlayer,
   getBgmPlaybackFailureMessage,
+  getBgmResumeRequiredMessage,
   getGameBgmTrackId,
   getBgmResumeIntent,
   isBgmSupported,
+  registerBgmLifecycleHandlers,
   setBgmActivated,
   setBgmEnabled,
   setBgmPlaybackStateFromResult,
@@ -268,6 +270,7 @@ function GameBoardContent({
 
   useEffect(() => {
     let cancelled = false;
+    let unregisterBgmLifecycleHandlers: (() => void) | undefined;
     const timer = window.setTimeout(() => {
       setAudioSupported(isAudioSupported());
       setSoundEnabled(readSoundEnabledSetting());
@@ -283,6 +286,17 @@ function GameBoardContent({
       );
       setBattleBgmVolume(resumeIntent.volume);
       bgmPlayerRef.current = player;
+      unregisterBgmLifecycleHandlers = registerBgmLifecycleHandlers({
+        player,
+        onPauseForPageHide: () => {
+          setBattleBgmEnabled(false);
+          setBattleBgmPlaybackMessage(getBgmResumeRequiredMessage());
+        },
+        onVisibleAfterPageHide: () => {
+          setBattleBgmEnabled(false);
+          setBattleBgmPlaybackMessage(getBgmResumeRequiredMessage());
+        },
+      });
 
       if (resumeIntent.shouldResume) {
         void player.play(initialBgmTrackIdRef.current, { volume: resumeIntent.volume }).then((played) => {
@@ -303,6 +317,7 @@ function GameBoardContent({
     return () => {
       cancelled = true;
       window.clearTimeout(timer);
+      unregisterBgmLifecycleHandlers?.();
 
       if (!shouldAutoResumeStoredBgm()) {
         bgmPlayerRef.current?.stop();

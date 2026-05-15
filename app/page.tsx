@@ -9,9 +9,11 @@ import { ShareGameButton } from "@/components/ShareGameButton";
 import {
   getSharedBgmPlayer,
   getBgmPlaybackFailureMessage,
+  getBgmResumeRequiredMessage,
   getBgmEnabled,
   getBgmVolume,
   isBgmSupported,
+  registerBgmLifecycleHandlers,
   setBgmEnabled,
   setBgmActivated,
   setBgmPlaybackStateFromResult,
@@ -19,7 +21,7 @@ import {
   shouldAutoResumeStoredBgm,
   type BgmPlayer,
 } from "@/lib/game/bgm";
-import { playSound } from "@/lib/game/audio";
+import { playSound, writeSoundEnabledSetting } from "@/lib/game/audio";
 import { getHeroDialogue } from "@/lib/game/dialogues";
 import { heroes } from "@/lib/game/heroes";
 import { getOpeningVideoConfig } from "@/lib/game/openingVideo";
@@ -67,6 +69,7 @@ export default function Home() {
   const selectedHeroPreviewDialogue = getHeroDialogue(selectedHero.id, "hero_preview");
 
   useEffect(() => {
+    let unregisterBgmLifecycleHandlers: (() => void) | undefined;
     const timer = window.setTimeout(() => {
       setVoiceSupported(isVoiceSupported());
       setVoiceEnabled(readVoiceEnabledSetting());
@@ -77,10 +80,23 @@ export default function Home() {
       );
       setHomeBgmVolume(getBgmVolume());
       homeBgmPlayerRef.current = getSharedBgmPlayer();
+      unregisterBgmLifecycleHandlers = registerBgmLifecycleHandlers({
+        player: homeBgmPlayerRef.current,
+        onPauseForPageHide: () => {
+          setHomeBgmEnabled(false);
+          setHomeBgmPlaybackMessage(getBgmResumeRequiredMessage());
+          shouldResumeBgmAfterVideoRef.current = false;
+        },
+        onVisibleAfterPageHide: () => {
+          setHomeBgmEnabled(false);
+          setHomeBgmPlaybackMessage(getBgmResumeRequiredMessage());
+        },
+      });
     }, 0);
 
     return () => {
       window.clearTimeout(timer);
+      unregisterBgmLifecycleHandlers?.();
 
       if (!shouldAutoResumeStoredBgm()) {
         homeBgmPlayerRef.current?.stop();
@@ -125,6 +141,10 @@ export default function Home() {
     setHomeBgmEnabled(played);
     setBgmPlaybackStateFromResult(played);
     setHomeBgmPlaybackMessage(played ? null : getBgmPlaybackFailureMessage());
+
+    if (played) {
+      writeSoundEnabledSetting(true);
+    }
   }
 
   function handleHomeBgmVolumeChange(volume: number) {
@@ -162,7 +182,6 @@ export default function Home() {
           config={openingVideo}
           onModalClose={resumeHomeBgmAfterOpeningVideo}
           onModalOpen={pauseHomeBgmForOpeningVideo}
-          startHref={selectedHeroStartHref}
         />
 
         <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-stretch">
@@ -186,6 +205,9 @@ export default function Home() {
               </p>
               <p className="mt-1 text-sm font-bold text-stone-200">
                 首頁主題音樂｜BGM：{bgmEnabled ? "開" : "關"}
+              </p>
+              <p className="mt-2 text-xs font-bold leading-5 text-emerald-100">
+                開啟 BGM 時會一併開啟音效，語音可另外控制。
               </p>
             </div>
             <div className="flex flex-col gap-2 sm:min-w-[280px]">

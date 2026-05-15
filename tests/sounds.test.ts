@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import {
   getSoundEnabledStorageKey,
   isAudioSupported,
@@ -49,5 +51,25 @@ describe("sound cue system", () => {
     expect(readSoundEnabledSetting()).toBe(false);
     expect(() => writeSoundEnabledSetting(true)).not.toThrow();
     expect(getSoundEnabledStorageKey()).toBe("sangoku-solo-card-game:sound-enabled");
+  });
+
+  it("enables sound after successful home BGM activation without enabling voice", () => {
+    const homePageSource = readFileSync(join(process.cwd(), "app", "page.tsx"), "utf-8");
+
+    expect(homePageSource).toContain("if (played)");
+    expect(homePageSource).toContain("writeSoundEnabledSetting(true)");
+    expect(homePageSource).not.toContain("writeVoiceEnabledSetting(true)");
+  });
+
+  it("keeps game sound, voice, and BGM controls independent", () => {
+    const gameBoardSource = readFileSync(
+      join(process.cwd(), "components", "GameBoard.tsx"),
+      "utf-8",
+    );
+
+    expect(gameBoardSource).toContain("setSoundEnabled(readSoundEnabledSetting())");
+    expect(gameBoardSource).toContain("writeSoundEnabledSetting(nextEnabled)");
+    expect(gameBoardSource).toContain("writeVoiceEnabledSetting(nextEnabled)");
+    expect(gameBoardSource).toContain("setBgmPlaybackStateFromResult(played)");
   });
 });
